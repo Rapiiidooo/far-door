@@ -493,6 +493,13 @@ async function precompile() {
   await compile(worldFour.ring.target, worldFour.forest.scene, [
     worldFour.forest.clipPlane,
   ]);
+  // The sea beyond the forest's last door, as the closing shot shows it.
+  const last = worldFour.forest.lastGate;
+  if (last) {
+    const sea = worldFour.forest.atlantis;
+    await compile(last.target, sea.scene, [sea.clipPlane]);
+    last.renderView(camera);
+  }
   camera.position.set(1, 4, -146);
   camera.lookAt(worldFour.ring.center);
   worldFour.ring.renderView(camera);
@@ -1060,7 +1067,8 @@ function updateCrossing(dt) {
 }
 
 // The great ring open onto the forest: the explorer steps up to it, the camera closes in on
-// the world beyond, the title comes up, then the credits roll back to the menu.
+// the world beyond and flies on through it to a last door that opens on the sea, the title
+// comes up, then the credits roll back to the menu.
 function finale() {
   finishGame();
   sound.setMusic("finale");

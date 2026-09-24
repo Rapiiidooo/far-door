@@ -630,12 +630,17 @@ export class Gate {
   }
 
   // Draws the destination from the matching viewpoint into the portal's target. Also used at
-  // load time so every shader the view needs is compiled before play.
+  // load time so every shader the view needs is compiled before play. A `viewPose` (a pose in
+  // the destination's own frame) takes over the viewpoint: with the membrane filling the
+  // frame, the camera then travels on through the world beyond.
   renderView(camera) {
     const d = this.destination;
     const cam = this.portalCam;
     cam.copy(camera);
-    cam.position.sub(this.center).add(d.gateCenter);
+    if (this.viewPose) {
+      cam.position.copy(this.viewPose.position);
+      cam.quaternion.copy(this.viewPose.quaternion);
+    } else cam.position.sub(this.center).add(d.gateCenter);
     cam.updateMatrixWorld();
     const r = this.renderer;
     const prevTarget = r.getRenderTarget(),
@@ -656,6 +661,7 @@ export class Gate {
   reset() {
     this.phase = "closed";
     this.phaseT = 0;
+    this.viewPose = null;
     this.lit = [false, false, false];
     this.pulse = 0;
     this.blastT = undefined;

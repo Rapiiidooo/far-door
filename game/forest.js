@@ -1,12 +1,14 @@
 import * as THREE from "three";
 import { plantGrass, clumps } from "./grass.js";
+import { AtlantisView } from "./atlantis.js";
 
 // The fifth world, only glimpsed: through the great ring at the end of the frozen reach, a wild
 // forest of huge old trees, ferns and mushrooms whose gills glow in the shade, under warm
 // shafts of light. It is drawn into the ring's portal and nowhere else, as the promise of what
 // comes next. Its own door stands at the origin, facing +z; the forest opens towards -z along
 // an avenue that keeps the view open, past a stag grazing in the clearing, to a giant tree
-// ringed with fairy lights and, on a hill in the haze, a castle.
+// ringed with fairy lights and, on a hill in the haze, a castle. The closing shot flies on
+// through it, up the castle's hill, to a last door at the castle's gate that opens on the sea.
 
 const V = (x, y, z) => new THREE.Vector3(x, y, z);
 
@@ -65,6 +67,23 @@ const HILLS = [
   [-150, -320, 36, 90],
   [150, -250, 24, 70],
 ];
+// The last door, on the hill nine metres before the castle's front, facing the forest.
+const LAST = { x: -34.5, z: -263, glyphs: ["waves", "spiral", "crescent"] };
+// The closing shot's way from the door, [x, z, height over the ground]: down the avenue, left
+// of the giant, between the far trees and up the castle's hill, to where it waits before the
+// last door while it lights.
+const FLIGHT = [
+  [-1.2, -16, 3.4],
+  [-2, -44, 3.8],
+  [5.5, -80, 5],
+  [4.5, -112, 7],
+  [-4, -148, 9],
+  [-15, -170, 11],
+  [-25, -192, 13],
+  [-30, -216, 18],
+  [-33, -234, 18],
+  [-34, -243, 15],
+];
 const FERNS = 70,
   MEADOW = 80,
   MUSHROOMS = 22,
@@ -72,8 +91,10 @@ const FERNS = 70,
   FAIRIES = 90;
 
 export class ForestView {
-  constructor(assets) {
+  // `services` (Gate, renderer, sound) build the last door; without them there is none.
+  constructor(assets, services = {}) {
     this.assets = assets;
+    this.services = services;
     this.scene = new THREE.Scene();
     // The ring's centre stands 4.5 m over the ground, as the great ring's does over the island.
     this.gateCenter = V(0, 4.5, 0);
@@ -107,6 +128,13 @@ export class ForestView {
       if (Math.abs(x) < 2.5 && z < -18) continue;
       ferns.push([x, z, rand() * 6.3, 0.8 + rand() * 0.8]);
     }
+    // More along the closing shot's way through the far country, from their own seed.
+    const way = seeded(37);
+    for (let i = 0; i < 44; i++) {
+      const z = -84 - way() * 136;
+      const x = flightX(z) + (i % 2 ? 1 : -1) * (3 + way() * 18);
+      ferns.push([x, z, way() * 6.3, 0.9 + way() * 0.9]);
+    }
     await this.instance("fern_cluster", ferns);
     await this.buildMeadow();
     const shrooms = [];
@@ -137,6 +165,7 @@ export class ForestView {
     );
     await this.buildGiant();
     await this.buildCastle();
+    await this.buildLastDoor();
     await this.buildDeer();
     await this.buildBirds();
     this.buildShafts();
@@ -194,13 +223,24 @@ export class ForestView {
     }
     const ground = (x, z) => {
       if (z > -0.4 || (z > -72 && Math.abs(x - pathX(z)) < 1.7)) return null;
-      for (const [tx, tz, , k] of TREES)
+      for (const [tx, tz, , k] of [...TREES, ...FAR_TREES])
         if ((x - tx) ** 2 + (z - tz) ** 2 < (2.4 * k) ** 2) return null;
       return this.heightAt(x, z);
     };
-    await plantGrass(this.assets, this.scene, clumps(centres, ground, rand), {
-      cell: 20,
-    });
+    // And either side of the closing shot's way, as far as the castle's hill.
+    const way = seeded(31);
+    const beyond = [];
+    for (let i = 0; i < 36; i++) {
+      const z = -90 - way() * 125;
+      const x = flightX(z) + (i % 2 ? 1 : -1) * (5 + way() * 16);
+      beyond.push([x, z, 1.4 + way() * 1.6, 4 + Math.floor(way() * 4)]);
+    }
+    await plantGrass(
+      this.assets,
+      this.scene,
+      [...clumps(centres, ground, rand), ...clumps(beyond, ground, way)],
+      { cell: 20 },
+    );
   }
 
   async put(name, x, z, yaw, k, opts = {}, sink = 0) {
@@ -377,6 +417,7 @@ export class ForestView {
       CASTLE.sink,
     );
     this.windows = [];
+    this.castleMats = [];
     const lit = new Set();
     o?.userData.parts?.windows?.traverse((m) => {
       if (!m.isMesh) return;
@@ -393,8 +434,106 @@ export class ForestView {
       if (!m.isMesh || lit.has(m)) return;
       m.material = m.material.clone();
       m.material.fog = false;
-      m.material.color.lerp(this.scene.fog.color, 0.62);
+      this.castleMats.push({
+        material: m.material,
+        base: m.material.color.clone(),
+      });
     });
+    this.hazeCastle(V(0, 0, 0));
+  }
+
+  // The castle's haze by hand, as thick as the fog would lay at the viewer's distance but never
+  // past what keeps it in sight, so it clears as the closing shot flies up to it.
+  hazeCastle(eye) {
+    const d = Math.hypot(eye.x - CASTLE.x, eye.z - CASTLE.z);
+    const haze = Math.min(0.62, 1 - Math.exp(-((0.0046 * d) ** 2)));
+    if (Math.abs(haze - (this.haze ?? -1)) < 0.004) return;
+    this.haze = haze;
+    for (const { material, base } of this.castleMats)
+      material.color.copy(base).lerp(this.scene.fog.color, haze);
+  }
+
+  // The last door and the sea beyond it. Its view needs a screen-sized target only once the
+  // closing shot is on its way (see wake), so it starts at a single pixel.
+  async buildLastDoor() {
+    const { Gate, renderer, sound } = this.services;
+    if (!Gate || !renderer) return;
+    this.atlantis = new AtlantisView();
+    this.atlantis.build();
+    const gate = new Gate({
+      scene: this.scene,
+      world: null,
+      renderer,
+      sound,
+      assets: this.assets,
+    });
+    const model = await this.assets.make("far_gate");
+    if (model) model.position.y = this.heightAt(LAST.x, LAST.z) - 0.5;
+    await gate.build({
+      x: LAST.x,
+      z: LAST.z,
+      glyphs: LAST.glyphs,
+      model,
+      colliders: false,
+    });
+    gate.destination = this.atlantis;
+    gate.lightScale = 0.6;
+    gate.target.setSize(1, 1);
+    this.lastGate = gate;
+    this.buildFlight();
+  }
+
+  // The closing shot's way as a smooth curve from the great ring's view to the waiting point,
+  // and the eye's target along it: at first straight through the ring, then ahead along the
+  // way, and at last the door with the castle over it.
+  buildFlight() {
+    const pts = [V(0.1, this.gateCenter.y - 0.6, 1.2)];
+    for (const [x, z, over] of FLIGHT)
+      pts.push(V(x, this.heightAt(x, z) + over, z));
+    this.flight = new THREE.CatmullRomCurve3(pts, false, "centripetal");
+    this.flightFrom = V(0, this.gateCenter.y - 0.4, -20);
+    this.flightTo = this.lastGate.center.clone().add(V(0, 3, 0));
+    this.castleTop = V(
+      CASTLE.x,
+      this.heightAt(CASTLE.x, CASTLE.z) + 22,
+      CASTLE.z,
+    );
+  }
+
+  flightLook(k, out) {
+    out.copy(this.flight.getPointAt(Math.min(1, k + 0.06)));
+    out.y -= 1.5;
+    out.lerp(this.flightFrom, 1 - smooth(0, 0.08, k));
+    // Up at the castle on its hill as the way climbs towards it.
+    out.lerp(this.castleTop, 0.6 * smooth(0.45, 0.8, k));
+    return out.lerp(this.flightTo, smooth(0.8, 1, k));
+  }
+
+  // The closing shot begins: the last door's view gets its full size.
+  wake() {
+    if (!this.lastGate || this.awake) return;
+    this.awake = true;
+    this.lastGate.resize();
+  }
+
+  resize() {
+    if (this.awake) this.lastGate.resize();
+  }
+
+  reset() {
+    if (!this.lastGate) return;
+    this.lastGate.reset();
+    this.lastGate.target.setSize(1, 1);
+    this.awake = false;
+  }
+
+  // Everything the last door can show, shown once for the shader compiler.
+  prepareForCompile(on) {
+    const G = this.lastGate;
+    if (!G) return;
+    G.disc.visible = on || G.phase !== "closed";
+    G.uniforms.uClear.value = on ? 1 : G.isOpen ? 1.02 : 0;
+    G.ground.visible = G.ring.visible = on;
   }
 
   // A stag in the clearing: it walks from one grazing spot to the next along the avenue,
@@ -527,7 +666,7 @@ export class ForestView {
 
   // Warm shafts of light slanting down through gaps in the canopy.
   buildShafts() {
-    const mat = new THREE.MeshBasicMaterial({
+    const mat = (this.shaftMat = new THREE.MeshBasicMaterial({
       color: new THREE.Color(1.0, 0.86, 0.5),
       transparent: true,
       opacity: 0.05,
@@ -535,7 +674,8 @@ export class ForestView {
       depthWrite: false,
       side: THREE.DoubleSide,
       fog: false,
-    });
+    }));
+    this.shafts = [];
     // Deep in the trees and slender, so they light the forest without veiling the view in.
     for (const [x, z, w] of [
       [-8, -30, 1.4],
@@ -549,6 +689,7 @@ export class ForestView {
         mat,
       );
       shaft.position.set(x - 3, 12, z);
+      this.shafts.push(shaft.position);
       shaft.rotation.set(0.22, 0, -0.18);
       this.scene.add(shaft);
     }
@@ -671,13 +812,44 @@ export class ForestView {
     );
     this.placeDeer(dt);
     this.placeBirds(dt);
+    this.lastGate?.update(dt);
+    this.atlantis?.update(dt);
   }
 
   // Drawn by the great ring's portal, from the point matching the viewer's.
+  // The last door's view of the sea is drawn first, into its own target.
   renderInto(renderer, camera) {
+    this.hazeCastle(camera.position);
+    // A shaft seen from inside or right by it is a pale pane: it fades as the camera nears.
+    let near = Infinity;
+    for (const p of this.shafts || [])
+      near = Math.min(
+        near,
+        Math.hypot(camera.position.x - p.x, camera.position.z - p.z),
+      );
+    if (this.shaftMat) this.shaftMat.opacity = 0.05 * smooth(4, 12, near);
+    this.lastGate?.renderPortal(camera);
     this.sky.position.copy(camera.position);
     renderer.render(this.scene, camera);
   }
+}
+
+// Where the closing shot's way crosses depth z, between its points.
+function flightX(z) {
+  let prev = [0, 0];
+  for (const [x, fz] of FLIGHT) {
+    if (z >= fz) {
+      const k = (z - prev[1]) / (fz - prev[1]);
+      return prev[0] + (x - prev[0]) * k;
+    }
+    prev = [x, fz];
+  }
+  return prev[0];
+}
+
+function smooth(a, b, x) {
+  const t = Math.min(1, Math.max(0, (x - a) / (b - a)));
+  return t * t * (3 - 2 * t);
 }
 
 // Where the path's middle runs at depth z: it wanders, then bears right towards the giant.

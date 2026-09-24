@@ -12,7 +12,8 @@ import { SunDisc, fallbackDisc } from "./disc.js";
 // of aurora. Mira's ring on the isles, given two glyphs of three, opened halfway onto it; its
 // twin stands at the origin and leads back. The level itself is in frozen.js. At its far end
 // the great ring, its address made whole by the glyph freed from the ice, opens onto a wild
-// forest, and the game closes on that view.
+// forest. The closing shot flies on through it to a last door at a castle's gate, which opens
+// on a city under the sea, and the game closes on that view.
 
 // Low and cold, off to the left and a little behind the way, so faces ahead are lit and the
 // ice catches it across.
@@ -68,7 +69,11 @@ export class WorldFour {
     this.frozen = new Frozen(s, this.world, this.assets, this.services);
     await this.frozen.build();
     await this.buildArrival();
-    this.forest = new ForestView(this.assets);
+    this.forest = new ForestView(this.assets, {
+      Gate: this.services.Gate,
+      renderer: this.renderer,
+      sound: this.services.sound,
+    });
     await this.forest.build();
     await this.buildRing();
     this.makeComposer();
@@ -583,6 +588,7 @@ export class WorldFour {
   // ring's membrane open onto the forest, and the disc in hand and glowing.
   prepareForCompile(on) {
     this.frozen.prepareForCompile(on);
+    this.forest.prepareForCompile(on);
     const R = this.ring;
     R.disc.visible = on || R.phase !== "closed";
     R.uniforms.uClear.value = on ? 1 : R.isOpen ? 1.02 : 0;
@@ -598,6 +604,7 @@ export class WorldFour {
   reset() {
     this.active = false;
     this.frozen.reset();
+    this.forest.reset();
     this.arrival.forceOpen();
     this.ring.reset();
     this.ring.ignite(0);
@@ -617,8 +624,24 @@ export class WorldFour {
     this.composer?.setSize(w, h);
     this.composer?.setPixelRatio(this.renderer.getPixelRatio());
     this.ring?.resize();
+    this.forest?.resize();
   }
 }
+
+// The closing shot's timetable, in seconds from its start.
+const SHOT = {
+  // Through the great ring and away over the forest, to wait before the last door.
+  flight: 15,
+  arrive: 37,
+  // The last door's medallions begin to light as the camera comes up the hill.
+  kindle: 33,
+  // Closing in on its view of the sea, then through it and gliding down towards the city.
+  close: 40.5,
+  sea: 46,
+  title: 47.5,
+  // The credits, over the city.
+  end: 56,
+};
 
 class FinaleShot {
   constructor(four, hero, onDone) {
@@ -632,6 +655,80 @@ class FinaleShot {
     // On the dais's first step, a little off the centre line, looking into the ring.
     this.to = { x: this.ring.x + 0.9, z: this.ring.z + 6.2 };
     this.titled = false;
+    this.forest = four.forest;
+    this.sound = four.services.sound;
+    // The views past the great ring (in the forest) and past the last door (under the sea).
+    this.through = new THREE.PerspectiveCamera();
+    this.beyond = new THREE.PerspectiveCamera();
+    this.look = V(0, 0, 0);
+    this.forest.wake();
+    if (this.forest.lastGate)
+      this.forest.lastGate.onIgnition = () => this.sound?.setMusic("sea");
+  }
+
+  // Straight to the credits over the city, the last door open.
+  skip() {
+    if (!this.onDone) return;
+    this.skipped = true;
+    this.t = Math.max(this.t, SHOT.end);
+    const last = this.forest.lastGate;
+    if (last && !last.isOpen) {
+      const sound = last.sound;
+      last.sound = null;
+      last.forceOpen();
+      last.sound = sound;
+      this.sound?.setMusic("sea");
+    }
+  }
+
+  // Past the great ring the camera goes on through the forest, and past the last door through
+  // the sea: each door's view is taken over by a pose in its own world, while the camera
+  // itself stays at the membrane that fills the frame.
+  fly() {
+    const t = this.t,
+      F = this.forest,
+      last = F.lastGate;
+    if (!last || t < SHOT.flight) return;
+    const P = this.through;
+    if (t < SHOT.arrive) {
+      const k = smooth(SHOT.flight, SHOT.arrive, t);
+      P.position.copy(F.flight.getPointAt(k));
+      P.lookAt(F.flightLook(k, this.look));
+    } else {
+      // A slow push while the door lights, then in until its view fills the frame.
+      const k =
+        0.18 * smooth(SHOT.arrive, SHOT.close, t) +
+        0.82 * smooth(SHOT.close, SHOT.sea, t);
+      const close = last.center.clone().add(V(0.1, -0.6, 1.2));
+      P.position.copy(F.flight.getPointAt(1)).lerp(close, k);
+      const into = last.center.clone().add(V(0, -3.4, -20));
+      P.lookAt(
+        this.look.copy(F.flightTo).lerp(into, smooth(SHOT.close, SHOT.sea, t)),
+      );
+    }
+    this.four.ring.viewPose = P;
+    if (t >= SHOT.kindle && last.phase === "closed")
+      last.open(null, null, { sequence: true });
+    if (t < SHOT.sea) return;
+    // Under the sea: down from the door towards the temple, then a slow drift through the
+    // credits.
+    const A = F.atlantis,
+      B = this.beyond,
+      s = t - SHOT.sea;
+    const k = smooth(0, SHOT.end - SHOT.sea, s);
+    const drift = Math.min(s, 120) * 0.15;
+    B.position
+      .copy(A.gateCenter)
+      .add(V(0.1, -0.6, 1.2))
+      .lerp(A.glideEnd, k)
+      .add(V(0, 0, -drift));
+    const from = A.gateCenter.clone().add(V(0, -3.4, -20));
+    B.lookAt(this.look.copy(from).lerp(A.temple, k));
+    last.viewPose = B;
+    if (!this.under) {
+      this.under = true;
+      this.sound?.setPlace("sea");
+    }
   }
 
   update(dt, camera) {
@@ -690,7 +787,8 @@ class FinaleShot {
       probe.quaternion,
       blend,
     );
-    if (!this.titled && this.t > 8.5) {
+    this.fly();
+    if (!this.titled && !this.skipped && this.t > SHOT.title) {
       this.titled = true;
       const card = document.querySelector("#chapter-card");
       card.querySelector(".kicker").textContent = "The network has more doors";
@@ -699,7 +797,7 @@ class FinaleShot {
       card.classList.add("on");
       setTimeout(() => card.classList.remove("on"), 5600);
     }
-    if (this.t > 14.5 && this.onDone) {
+    if (this.t > SHOT.end && this.onDone) {
       const done = this.onDone;
       this.onDone = null;
       done();

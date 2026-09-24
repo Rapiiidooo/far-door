@@ -1,0 +1,146 @@
+{
+ "landscape_1280x720": {
+  "probe": {
+   "minClearance": 3.29,
+   "at": 0.0375,
+   "length": 270.2,
+   "gate": [
+    -34.5,
+    71.82,
+    -263
+   ],
+   "radius": 3.5
+  },
+  "before": 215,
+  "after": 215,
+  "fps": [
+   {
+    "t": 20,
+    "fps": 60,
+    "mode": "play",
+    "programs": 215,
+    "calls": 624,
+    "tris": 1353728,
+    "last": "closed"
+   },
+   {
+    "t": 26,
+    "fps": 60,
+    "mode": "play",
+    "programs": 215,
+    "calls": 549,
+    "tris": 1066934,
+    "last": "closed"
+   },
+   {
+    "t": 29,
+    "fps": 60,
+    "mode": "play",
+    "programs": 215,
+    "calls": 522,
+    "tris": 904726,
+    "last": "closed"
+   },
+   {
+    "t": 32,
+    "fps": 60,
+    "mode": "play",
+    "programs": 215,
+    "calls": 517,
+    "tris": 666382,
+    "last": "closed"
+   },
+   {
+    "t": 36,
+    "fps": 60,
+    "mode": "play",
+    "programs": 215,
+    "calls": 518,
+    "tris": 666478,
+    "last": "charge"
+   },
+   {
+    "t": 44,
+    "fps": 60,
+    "mode": "play",
+    "programs": 215,
+    "calls": 543,
+    "tris": 740060,
+    "last": "open"
+   },
+   {
+    "t": 47,
+    "fps": 60,
+    "mode": "play",
+    "programs": 215,
+    "calls": 539,
+    "tris": 736980,
+    "last": "open"
+   },
+   {
+    "t": 50,
+    "fps": 60,
+    "mode": "play",
+    "programs": 215,
+    "calls": 539,
+    "tris": 736980,
+    "last": "open"
+   }
+  ],
+  "errors": []
+ },
+ "portrait_390x844": {
+  "probe": {
+   "minClearance": 3.29,
+   "at": 0.0375,
+   "length": 270.2,
+   "gate": [
+    -34.5,
+    71.82,
+    -263
+   ],
+   "radius": 3.5
+  },
+  "before": 215,
+  "after": 215,
+  "fps": [
+   {
+    "t": 14.5,
+    "fps": 60,
+    "mode": "play",
+    "programs": 215,
+    "calls": 652,
+    "tris": 1486132,
+    "last": "closed"
+   },
+   {
+    "t": 36,
+    "fps": 60,
+    "mode": "play",
+    "programs": 215,
+    "calls": 517,
+    "tris": 664650,
+    "last": "charge"
+   },
+   {
+    "t": 44,
+    "fps": 60,
+    "mode": "play",
+    "programs": 215,
+    "calls": 540,
+    "tris": 736136,
+    "last": "open"
+   },
+   {
+    "t": 47,
+    "fps": 60,
+    "mode": "play",
+    "programs": 215,
+    "calls": 539,
+    "tris": 735272,
+    "last": "open"
+   }
+  ],
+  "errors": []
+ }
+}

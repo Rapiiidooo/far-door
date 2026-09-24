@@ -447,7 +447,14 @@ try {
   if (!fromW3) await checkpoint(s);
   if (!fromW4) await isles();
   await frost();
-  // Nothing compiled since the first level started: every door crossed without a stall.
+  // The closing shot flies through the forest to the last door and on under the sea.
+  await sleep(27000);
+  await shot("finale-last-door");
+  await sleep(9000);
+  await shot("finale-sea");
+  s = await until((s) => s.credits, 30000, "credits");
+  // Nothing compiled since the first level started, the closing shot included: every door
+  // crossed without a stall.
   s = await state();
   note(
     `shader programs at the first start ${s.programsAtStart}, at the end ${s.programs}`,
@@ -456,7 +463,6 @@ try {
     throw new Error(
       `shaders compiled during play: ${s.programsAtStart} -> ${s.programs}`,
     );
-  s = await until((s) => s.credits, 20000, "credits");
   await sleep(6000);
   await shot("credits");
   await tap(["Escape"], 100);

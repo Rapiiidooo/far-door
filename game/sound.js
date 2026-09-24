@@ -823,6 +823,8 @@ const AIR = {
   four: { band: 950, swing: 320, q: 2.2, gain: 0.1 },
   // Leaves stirring.
   forest: { band: 1600, swing: 400, q: 0.5, gain: 0.035 },
+  // The city under the sea, heard through the last door: a low, slow swell.
+  sea: { band: 210, swing: 90, q: 0.8, gain: 0.08 },
 };
 
 const hz = (m) => 440 * Math.pow(2, (m - 69) / 12);
@@ -994,6 +996,23 @@ const CUES = {
     ],
   },
   // A door opening onto dawn, and the credits: the whole tune in C, the flute doubled by glass.
+  // Through the last door: the vibraphone in F, the slowest of all and deep in its echo.
+  sea: {
+    root: 65,
+    scale: MAJOR,
+    bar: 11,
+    lead: "vibes",
+    level: 0.1,
+    hall: 0.7,
+    echo: 1,
+    song: ["theme", "rest", "answer", "rest"],
+    chords: [
+      [41, 48, 57, 64, 67],
+      [38, 45, 53, 60, 64],
+      [46, 53, 57, 62, 65],
+      [43, 50, 58, 65, 69],
+    ],
+  },
   finale: {
     root: 72,
     scale: MAJOR,
