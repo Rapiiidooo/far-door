@@ -1,0 +1,72 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>loadtest</title>
+<script type="importmap">
+{ "imports": { "three": "/game/vendor/three.module.js", "three/addons/": "/game/vendor/" } }
+</script>
+<style>body{margin:0;background:#22262b}canvas{display:block}</style>
+</head>
+<body>
+<script type="module">
+// Scratch: load each candidate through the game's own loader and three.js (r186),
+// the way the game would (keepHierarchy, surfaces), check that parts.windows
+// resolves to a node of each instance, compare with a merged load, and render
+// one frame of each under r186 in forest light and haze.
+import * as THREE from 'three';
+import { ASSET } from '/game/assetlib.js';
+const names = ['hill_castle_a', 'hill_castle_b', 'hill_castle_c'];
+const size = 420;
+const renderer = new THREE.WebGLRenderer({ antialias: true, preserveDrawingBuffer: true });
+renderer.setSize(size * names.length, size, false);
+renderer.outputColorSpace = THREE.SRGBColorSpace;
+document.body.appendChild(renderer.domElement);
+const out = { three: THREE.REVISION };
+let col = 0;
+for (const name of names) {
+  const url = `/receipts/candidates/hill_castle/${name}.js`;
+  const r = {};
+  try {
+    const one = await ASSET(url, { keepHierarchy: true, surfaces: true });
+    const two = await ASSET(url, { keepHierarchy: true, surfaces: true });
+    const w1 = one.userData.parts?.windows, w2 = two.userData.parts?.windows;
+    let inTree = false, inTree2 = false;
+    one.traverse((o) => { if (o === w1) inTree = true; });
+    two.traverse((o) => { if (o === w2) inTree2 = true; });
+    const lit = [];
+    w1?.traverse((o) => { if (o.isMesh) lit.push(`${o.name} ${o.material.emissive.getHexString()}@${o.material.emissiveIntensity} tris:${o.geometry.attributes.position.count / 3}`); });
+    let meshes = 0, others = 0;
+    one.traverse((o) => { if (o.isMesh) { meshes++; if (o !== w1 && o.material.emissive?.getHexString() === 'ffb24a') others++; } });
+    const merged = await ASSET(url, { surfaces: true });
+    let mMeshes = 0, amber = 0;
+    merged.traverse((o) => { if (o.isMesh) { mMeshes++; if (o.material.emissive?.getHexString() === 'ffb24a') amber++; } });
+    const box = new THREE.Box3().setFromObject(one);
+    Object.assign(r, {
+      resolved: !!w1, type: w1?.type, inTree, inTree2, distinct: w1 !== w2, lit, meshes,
+      amberElsewhere: others, mergedMeshes: mMeshes, mergedAmberMeshes: amber,
+      size: box.getSize(new THREE.Vector3()).toArray().map((n) => +n.toFixed(2)), minY: +box.min.y.toFixed(3),
+    });
+    // one frame in forest light and haze, 200 m off and a little below
+    const scene = new THREE.Scene();
+    scene.background = new THREE.Color(0xa8b58f);
+    scene.fog = new THREE.Fog(0xa8b58f, 60, 520);
+    scene.add(new THREE.HemisphereLight(0xd8eab0, 0x2f3d1c, 1.15));
+    const sun = new THREE.DirectionalLight(0xffe2a0, 2.4); sun.position.set(-18, 40, 30); scene.add(sun);
+    scene.add(one);
+    const cam = new THREE.PerspectiveCamera(16, 1, 1, 2000);
+    cam.position.set(20, -12, 200);
+    cam.lookAt(0, 16, 0);
+    renderer.setViewport(col * size, 0, size, size);
+    renderer.setScissor(col * size, 0, size, size);
+    renderer.setScissorTest(true);
+    renderer.render(scene, cam);
+  } catch (e) { r.error = String(e && e.stack || e); }
+  out[name] = r;
+  col++;
+}
+window.__RESULT__ = out;
+window.__DONE__ = true;
+</script>
+</body>
+</html>

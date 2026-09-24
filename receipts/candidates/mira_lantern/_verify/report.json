@@ -1,0 +1,116 @@
+[
+ {
+  "ok": true,
+  "mounts": null,
+  "meshes": 5,
+  "tris": 1888,
+  "materials": 5,
+  "size": [
+   0.242,
+   0.45,
+   0.226
+  ],
+  "groundOffset": 0,
+  "centreOffset": [
+   0,
+   0
+  ],
+  "sides": {
+   "front": {
+    "coverage": 0.1721,
+    "edgeDensity": 0.1374
+   },
+   "right": {
+    "coverage": 0.1578,
+    "edgeDensity": 0.1416
+   },
+   "back": {
+    "coverage": 0.1719,
+    "edgeDensity": 0.1469
+   },
+   "left": {
+    "coverage": 0.1576,
+    "edgeDensity": 0.1531
+   }
+  },
+  "error": null,
+  "name": "mira_lantern_a",
+  "problems": []
+ },
+ {
+  "ok": true,
+  "mounts": null,
+  "meshes": 5,
+  "tris": 2292,
+  "materials": 5,
+  "size": [
+   0.26,
+   0.45,
+   0.228
+  ],
+  "groundOffset": 0,
+  "centreOffset": [
+   0,
+   0
+  ],
+  "sides": {
+   "front": {
+    "coverage": 0.1663,
+    "edgeDensity": 0.1469
+   },
+   "right": {
+    "coverage": 0.1544,
+    "edgeDensity": 0.1409
+   },
+   "back": {
+    "coverage": 0.1663,
+    "edgeDensity": 0.135
+   },
+   "left": {
+    "coverage": 0.1542,
+    "edgeDensity": 0.1438
+   }
+  },
+  "error": null,
+  "name": "mira_lantern_b",
+  "problems": []
+ },
+ {
+  "ok": true,
+  "mounts": null,
+  "meshes": 6,
+  "tris": 2344,
+  "materials": 6,
+  "size": [
+   0.265,
+   0.45,
+   0.242
+  ],
+  "groundOffset": 0,
+  "centreOffset": [
+   0,
+   0
+  ],
+  "sides": {
+   "front": {
+    "coverage": 0.1715,
+    "edgeDensity": 0.138
+   },
+   "right": {
+    "coverage": 0.1549,
+    "edgeDensity": 0.1315
+   },
+   "back": {
+    "coverage": 0.1714,
+    "edgeDensity": 0.1376
+   },
+   "left": {
+    "coverage": 0.155,
+    "edgeDensity": 0.1371
+   }
+  },
+  "error": null,
+  "name": "mira_lantern_c",
+  "problems": []
+ }
+]

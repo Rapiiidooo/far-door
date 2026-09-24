@@ -1,0 +1,83 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>mira_scarf preview</title>
+<script type="importmap">
+{ "imports": { "three": "/game/vendor/three.module.js", "three/addons/": "/game/vendor/" } }
+</script>
+<style>body{margin:0;background:#000}canvas{display:block}</style>
+</head>
+<body>
+<script type="module">
+// Game-like preview: each candidate loaded through the game's assetlib with surfaces, on snow,
+// under the frozen reach's sun, hemisphere light and fog, seen from 6 m at two heights/angles.
+import * as THREE from 'three';
+import { ASSET } from '/game/assetlib.js';
+
+const q = new URLSearchParams(location.search);
+const names = (q.get('names') || 'a,b,c').split(',');
+const close = q.get('close') === '1';
+const W = close ? 900 : 640, H = close ? 560 : 400;
+const views = close ? [
+  { dist: 1.9, height: 1.1, yaw: 0.5, fov: 40 },
+  { dist: 1.9, height: 0.9, yaw: 3.4, fov: 40 },
+] : [
+  { dist: 6, height: 2.6, yaw: 0.35 },   // third-person, from the front right, 6 m
+  { dist: 6, height: 1.9, yaw: 2.6 },    // from the back left, lower
+  { dist: 3, height: 1.8, yaw: -0.7 },   // close, from the front left
+];
+const renderer = new THREE.WebGLRenderer({ antialias: true, preserveDrawingBuffer: true });
+renderer.setSize(W * names.length, H * views.length, false);
+renderer.outputColorSpace = THREE.SRGBColorSpace;
+renderer.toneMapping = THREE.ACESFilmicToneMapping;
+renderer.toneMappingExposure = 0.86;
+renderer.shadowMap.enabled = true;
+renderer.shadowMap.type = THREE.PCFShadowMap;
+renderer.setScissorTest(true);
+document.body.appendChild(renderer.domElement);
+
+const SUN = new THREE.Vector3(-0.66, 0.32, 0.35).normalize();
+let info = [];
+try {
+  for (let i = 0; i < names.length; i++) {
+    const s = new THREE.Scene();
+    s.background = new THREE.Color(0x9fb2cc);
+    s.fog = new THREE.FogExp2(0xaebfd4, 0.0085);
+    const sun = new THREE.DirectionalLight(0xffd9c2, 3.1);
+    sun.position.copy(SUN).multiplyScalar(20);
+    sun.castShadow = true;
+    sun.shadow.mapSize.set(2048, 2048);
+    Object.assign(sun.shadow.camera, { left: -3, right: 3, top: 3, bottom: -3, near: 1, far: 50 });
+    sun.shadow.bias = -0.0004;
+    sun.shadow.normalBias = 0.02;
+    s.add(sun, sun.target);
+    s.add(new THREE.HemisphereLight(0xc4d8f0, 0x6d7a90, 1.75));
+    const ground = new THREE.Mesh(new THREE.PlaneGeometry(60, 60), new THREE.MeshStandardMaterial({ color: 0xe9f2f6, roughness: 0.85 }));
+    ground.rotation.x = -Math.PI / 2;
+    ground.receiveShadow = true;
+    s.add(ground);
+    const obj = await ASSET(`/receipts/candidates/mira_scarf/mira_scarf_${names[i]}.js`, { surfaces: true });
+    obj.traverse((o) => { if (o.isMesh) { o.castShadow = true; o.receiveShadow = true; } });
+    s.add(obj);
+    const box = new THREE.Box3().setFromObject(obj);
+    const c = box.getCenter(new THREE.Vector3());
+    info.push({ name: names[i], min: box.min.toArray().map((v) => +v.toFixed(3)), max: box.max.toArray().map((v) => +v.toFixed(3)) });
+    views.forEach((v, j) => {
+      const cam = new THREE.PerspectiveCamera(v.fov || 55, W / H, 0.05, 200);
+      cam.position.set(c.x + Math.sin(v.yaw) * v.dist, v.height, c.z + Math.cos(v.yaw) * v.dist);
+      cam.lookAt(c.x, close ? 0.12 : 0.15, c.z);
+      const y = (views.length - 1 - j) * H;
+      renderer.setViewport(i * W, y, W, H);
+      renderer.setScissor(i * W, y, W, H);
+      renderer.render(s, cam);
+    });
+  }
+  window.__INFO__ = { ok: true, info };
+} catch (e) {
+  window.__INFO__ = { ok: false, error: String(e && e.stack || e) };
+}
+window.__DONE__ = true;
+</script>
+</body>
+</html>

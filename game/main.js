@@ -23,6 +23,7 @@ import { Dust } from "./fx.js";
 import { Bubbles } from "./bubbles.js";
 import { CourtStory } from "./story.js";
 import { Credits } from "./credits.js";
+import { Relics, RELICS } from "./relics.js";
 import { drawColliders } from "./debug-colliders.js";
 import {
   settings,
@@ -126,6 +127,11 @@ const MOVING = new Set([
   "light_pylon",
   "ice_casing",
   "glow_mushroom",
+  "mira_lantern",
+  "forest_bird",
+  "hill_castle",
+  "forest_deer",
+  "giant_tree",
 ]);
 const ASSETS = [
   "hero_explorer",
@@ -166,6 +172,16 @@ const ASSETS = [
   "fern_cluster",
   "glow_mushroom",
   "rubble_pile",
+  "mira_lantern",
+  "forest_bird",
+  "field_scroll",
+  "hill_castle",
+  "forest_deer",
+  "giant_tree",
+  "field_radio",
+  "mira_scarf",
+  "icicle_cluster",
+  "frozen_falls",
 ];
 const available = new Map();
 async function probe(name) {
@@ -204,6 +220,8 @@ const bubbles = new Bubbles();
 const follow = new FollowCamera(camera, world);
 const hero = new Hero(world, level);
 const credits = new Credits(document.querySelector("#credits"), input);
+const relics = new Relics({ assets, hud, sound });
+hero.extras = () => relics.interactables(state.where);
 let heroModel, animator, beams, gate, worldTwo, worldThree, worldFour, story;
 // The explorer wears the rig's patched materials in the court and plain copies in the other
 // worlds, which have their own light and no cascades.
@@ -298,6 +316,16 @@ async function load() {
   worldFour = new WorldFour(renderer, assets, { sound, hud, Gate });
   await worldFour.build();
   worldThree.isles.ring.destination = worldFour;
+  await relics.build(
+    {
+      court: { scene, world, lift: (x, z, y) => level.driftAt(x, z, y) },
+      two: worldTwo,
+      three: worldThree,
+      four: worldFour,
+    },
+    worldThree.isles,
+  );
+  relics.onFound = () => refreshMainMenu();
 
   loading(0.74, "Dressing the explorer…");
   heroModel =
@@ -720,6 +748,9 @@ function menuAction(action, el) {
     case "levels":
       refreshLevels();
       return menu.push("levels");
+    case "relics":
+      refreshRelics();
+      return menu.push("relics");
     case "settings":
       return menu.push("settings");
     case "controls":
@@ -745,11 +776,12 @@ function menuAction(action, el) {
     case "reset-progress":
       confirmAction = () => {
         resetProgress();
+        relics.restore();
         refreshMainMenu();
         menu.back();
       };
       document.querySelector("#confirm-text").textContent =
-        "Forget every level reached in this browser?";
+        "Forget every level reached and relic found in this browser?";
       return menu.push("confirm");
     case "confirm-yes":
       confirmAction?.();
@@ -761,6 +793,9 @@ function menuAction(action, el) {
 }
 
 function refreshMainMenu() {
+  const found = RELICS.filter((r) => progress.relics.has(r.id)).length;
+  for (const b of document.querySelectorAll('#menu [data-action="relics"]'))
+    b.textContent = found ? `Relics · ${found} of ${RELICS.length}` : "Relics";
   const cont = document.querySelector('#menu [data-action="continue"]');
   cont.hidden = !progress.last || progress.last === "court";
   const chapter = CHAPTERS.find((c) => c.id === progress.last);
@@ -810,6 +845,31 @@ function refreshLevels() {
       p.textContent = "Completed.";
       card.appendChild(p);
     }
+    list.appendChild(card);
+  }
+}
+
+// Each relic as a card: what it is once found, and only its world before.
+function refreshRelics() {
+  const list = document.querySelector("#relic-list");
+  list.innerHTML = "";
+  const all = relics.list();
+  const found = all.filter((r) => r.found).length;
+  document.querySelector("#relic-count").textContent = found
+    ? `${found} of ${all.length} found.`
+    : `${all.length} relics lie hidden along the way. None found yet.`;
+  for (const r of all) {
+    const card = document.createElement("div");
+    card.className = `level-card relic${r.found ? "" : " missing"}`;
+    const add = (tag, cls, text) => {
+      const el = document.createElement(tag);
+      el.className = cls;
+      el.textContent = text;
+      card.appendChild(el);
+    };
+    add("p", "num", r.world);
+    add("h3", "", r.found ? r.name : "Not found yet");
+    add("p", "blurb", r.found ? r.line : r.hint);
     list.appendChild(card);
   }
 }
@@ -1158,6 +1218,7 @@ function step(dt) {
       cross("three", { back: true, x: hero.pos.x - worldFour.gateCenter.x });
   }
   updateCrossing(dt);
+  relics.update(dt, state.where);
   bubbles.update(dt, camera);
   placeHero(dt);
   dust.update(dt);
@@ -1288,6 +1349,8 @@ function publish() {
     programsAtLoad: state.programs ?? 0,
     programsAtStart: state.programsAtStart ?? 0,
     camYaw: follow.yaw,
+    relics: [...progress.relics],
+    relicSpots: relics.spots(),
     cinematic: !!state.cinematic,
     crossing: !!state.crossing,
     step: state.where === "court" ? story?.step?.id : cp?.step,
@@ -1410,7 +1473,7 @@ function frozenTelemetry() {
     thin: F.thin.map((t) => t.phase),
     broken: F.broken,
     freed: F.freed,
-    ring: worldFour.ring.phase,
+    ring: worldFour.ring?.phase,
     disc: worldFour.disc
       ? { state: worldFour.disc.state, charged: worldFour.disc.charged }
       : null,

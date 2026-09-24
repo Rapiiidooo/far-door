@@ -1,0 +1,116 @@
+[
+ {
+  "ok": true,
+  "mounts": null,
+  "meshes": 8,
+  "tris": 1440,
+  "materials": 4,
+  "size": [
+   0.691,
+   0.148,
+   0.546
+  ],
+  "groundOffset": 0,
+  "centreOffset": [
+   0,
+   0
+  ],
+  "sides": {
+   "front": {
+    "coverage": 0.0576,
+    "edgeDensity": 0.1704
+   },
+   "right": {
+    "coverage": 0.0606,
+    "edgeDensity": 0.1258
+   },
+   "back": {
+    "coverage": 0.0564,
+    "edgeDensity": 0.1719
+   },
+   "left": {
+    "coverage": 0.0607,
+    "edgeDensity": 0.1398
+   }
+  },
+  "error": null,
+  "name": "forest_bird_a",
+  "problems": []
+ },
+ {
+  "ok": true,
+  "mounts": null,
+  "meshes": 8,
+  "tris": 1276,
+  "materials": 4,
+  "size": [
+   0.7,
+   0.157,
+   0.55
+  ],
+  "groundOffset": 0,
+  "centreOffset": [
+   0,
+   0
+  ],
+  "sides": {
+   "front": {
+    "coverage": 0.0658,
+    "edgeDensity": 0.1853
+   },
+   "right": {
+    "coverage": 0.0678,
+    "edgeDensity": 0.1168
+   },
+   "back": {
+    "coverage": 0.0637,
+    "edgeDensity": 0.1611
+   },
+   "left": {
+    "coverage": 0.0678,
+    "edgeDensity": 0.1314
+   }
+  },
+  "error": null,
+  "name": "forest_bird_b",
+  "problems": []
+ },
+ {
+  "ok": true,
+  "mounts": null,
+  "meshes": 8,
+  "tris": 946,
+  "materials": 4,
+  "size": [
+   0.704,
+   0.155,
+   0.537
+  ],
+  "groundOffset": 0,
+  "centreOffset": [
+   0,
+   0
+  ],
+  "sides": {
+   "front": {
+    "coverage": 0.0564,
+    "edgeDensity": 0.1571
+   },
+   "right": {
+    "coverage": 0.0646,
+    "edgeDensity": 0.1298
+   },
+   "back": {
+    "coverage": 0.0633,
+    "edgeDensity": 0.1422
+   },
+   "left": {
+    "coverage": 0.0645,
+    "edgeDensity": 0.143
+   }
+  },
+  "error": null,
+  "name": "forest_bird_c",
+  "problems": []
+ }
+]

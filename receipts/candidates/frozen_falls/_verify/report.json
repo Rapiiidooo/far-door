@@ -1,0 +1,116 @@
+[
+ {
+  "ok": true,
+  "mounts": "back",
+  "meshes": 147,
+  "tris": 4167,
+  "materials": 3,
+  "size": [
+   5,
+   8.023,
+   1.99
+  ],
+  "groundOffset": 0,
+  "centreOffset": [
+   0,
+   0
+  ],
+  "sides": {
+   "front": {
+    "coverage": 0.2777,
+    "edgeDensity": 0.2192
+   },
+   "right": {
+    "coverage": 0.1108,
+    "edgeDensity": 0.1946
+   },
+   "back": {
+    "coverage": 0.3084,
+    "edgeDensity": 0.0264
+   },
+   "left": {
+    "coverage": 0.1098,
+    "edgeDensity": 0.2327
+   }
+  },
+  "error": null,
+  "name": "frozen_falls_a",
+  "problems": []
+ },
+ {
+  "ok": true,
+  "mounts": "back",
+  "meshes": 4,
+  "tris": 2466,
+  "materials": 3,
+  "size": [
+   5.02,
+   8.009,
+   1.909
+  ],
+  "groundOffset": 0,
+  "centreOffset": [
+   0,
+   0
+  ],
+  "sides": {
+   "front": {
+    "coverage": 0.2791,
+    "edgeDensity": 0.3066
+   },
+   "right": {
+    "coverage": 0.1316,
+    "edgeDensity": 0.1974
+   },
+   "back": {
+    "coverage": 0.3005,
+    "edgeDensity": 0.0151
+   },
+   "left": {
+    "coverage": 0.1298,
+    "edgeDensity": 0.2579
+   }
+  },
+  "error": null,
+  "name": "frozen_falls_b",
+  "problems": []
+ },
+ {
+  "ok": true,
+  "mounts": "back",
+  "meshes": 3,
+  "tris": 1911,
+  "materials": 3,
+  "size": [
+   4.958,
+   8.037,
+   1.963
+  ],
+  "groundOffset": 0,
+  "centreOffset": [
+   0,
+   0
+  ],
+  "sides": {
+   "front": {
+    "coverage": 0.2662,
+    "edgeDensity": 0.2037
+   },
+   "right": {
+    "coverage": 0.1035,
+    "edgeDensity": 0.1715
+   },
+   "back": {
+    "coverage": 0.2805,
+    "edgeDensity": 0.0407
+   },
+   "left": {
+    "coverage": 0.1036,
+    "edgeDensity": 0.2036
+   }
+  },
+  "error": null,
+  "name": "frozen_falls_c",
+  "problems": []
+ }
+]

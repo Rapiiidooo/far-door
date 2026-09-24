@@ -71,6 +71,7 @@ export class WorldTwo {
     this.buildRidges();
     await this.buildGates();
     await this.buildSpires();
+    await this.buildBoulders();
     this.pools = new LightPools(s);
     await this.buildLanterns();
     await this.buildFlora();
@@ -442,6 +443,33 @@ export class WorldTwo {
         }
       });
       this.scene.add(far);
+    }
+  }
+
+  // Fallen basalt at the foot of the valley's walls, between the spires and the lumen plants.
+  async buildBoulders() {
+    for (const [x, z, yaw, k] of [
+      [-11.2, -19.6, 0.5, 1.1],
+      [11.1, -25.8, 2.2, 1],
+      [-11.4, -28.6, 1.4, 0.9],
+      [11.3, -35.2, 0.3, 1.15],
+      [-10.9, -42.6, 2.8, 1.05],
+      [10.9, -11.6, 1.8, 0.85],
+      [-11.3, -1.2, 0.9, 0.95],
+    ]) {
+      const o = await this.assets.make("boulder_cluster");
+      if (!o) return;
+      o.position.set(x, 0, z);
+      o.rotation.y = yaw;
+      o.scale.setScalar(k);
+      o.traverse((m) => {
+        if (!m.isMesh) return;
+        m.material = m.material.clone();
+        m.material.color.lerp(new THREE.Color(0x3b3346), 0.72);
+        m.castShadow = m.receiveShadow = true;
+      });
+      this.scene.add(o);
+      this.world.addRound(x, z, 1.2 * k, -10, 2.2 * k, "rock");
     }
   }
 

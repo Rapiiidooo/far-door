@@ -1,0 +1,116 @@
+[
+ {
+  "ok": true,
+  "mounts": null,
+  "meshes": 4,
+  "tris": 8432,
+  "materials": 4,
+  "size": [
+   43.766,
+   59.938,
+   43.905
+  ],
+  "groundOffset": 0,
+  "centreOffset": [
+   0,
+   0
+  ],
+  "sides": {
+   "front": {
+    "coverage": 0.1383,
+    "edgeDensity": 0.1262
+   },
+   "right": {
+    "coverage": 0.1379,
+    "edgeDensity": 0.1283
+   },
+   "back": {
+    "coverage": 0.1429,
+    "edgeDensity": 0.106
+   },
+   "left": {
+    "coverage": 0.1372,
+    "edgeDensity": 0.1084
+   }
+  },
+  "error": null,
+  "name": "giant_tree_a",
+  "problems": []
+ },
+ {
+  "ok": true,
+  "mounts": null,
+  "meshes": 4,
+  "tris": 11156,
+  "materials": 4,
+  "size": [
+   43.973,
+   60.062,
+   44.745
+  ],
+  "groundOffset": 0,
+  "centreOffset": [
+   0,
+   0
+  ],
+  "sides": {
+   "front": {
+    "coverage": 0.1354,
+    "edgeDensity": 0.1248
+   },
+   "right": {
+    "coverage": 0.1334,
+    "edgeDensity": 0.1317
+   },
+   "back": {
+    "coverage": 0.1359,
+    "edgeDensity": 0.1266
+   },
+   "left": {
+    "coverage": 0.1363,
+    "edgeDensity": 0.1168
+   }
+  },
+  "error": null,
+  "name": "giant_tree_b",
+  "problems": []
+ },
+ {
+  "ok": true,
+  "mounts": null,
+  "meshes": 4,
+  "tris": 11624,
+  "materials": 4,
+  "size": [
+   44.082,
+   60.423,
+   44.495
+  ],
+  "groundOffset": 0,
+  "centreOffset": [
+   0,
+   0
+  ],
+  "sides": {
+   "front": {
+    "coverage": 0.1489,
+    "edgeDensity": 0.1054
+   },
+   "right": {
+    "coverage": 0.1385,
+    "edgeDensity": 0.1132
+   },
+   "back": {
+    "coverage": 0.1491,
+    "edgeDensity": 0.1034
+   },
+   "left": {
+    "coverage": 0.143,
+    "edgeDensity": 0.1036
+   }
+  },
+  "error": null,
+  "name": "giant_tree_c",
+  "problems": []
+ }
+]

@@ -1,5 +1,6 @@
 import * as THREE from "three";
 import { glyphMaterial, makeGlyph } from "./glyphs.js";
+import { surface } from "./surfaces.js";
 
 // The fourth level, the frozen reach. Mira's ring, given two glyphs of three, opened halfway,
 // onto ice: the third glyph is carved here, in a stela the ice has swallowed. The explorer
@@ -155,6 +156,70 @@ const SPIRES = [
   [8.6, -138.6, 1.9, 1.05],
 ];
 
+// Icicles hung from the lips of the walls along the way: [x, z of the lip, top, the face's
+// outward direction as a yaw, scale]. The face at x = -4.5 looks along +x: a yaw of pi/2.
+const E = Math.PI / 2,
+  W = -Math.PI / 2,
+  N = Math.PI;
+const ICICLES = [
+  // The stream's banks.
+  [-4.5, -18, 3.5, E, 1],
+  [-4.5, -25.5, 3.5, E, 0.9],
+  [-4.5, -33, 3.5, E, 1.05],
+  [-4.5, -40, 3.5, E, 0.85],
+  [4.5, -21, 3.5, W, 0.95],
+  [4.5, -29, 3.5, W, 1.1],
+  [4.5, -37, 3.5, W, 0.9],
+  // The pond's walls and the parapet over its north face, clear of the notch.
+  [-6, -59.5, 5.7, E, 1.1],
+  [-6, -64.5, 5.7, E, 0.95],
+  [-6, -70, 5.7, E, 1.05],
+  [6, -58.5, 5.7, W, 1],
+  [6, -66, 5.7, W, 1.1],
+  [-4.2, -74, 5.7, 0, 1.05],
+  [-1, -74, 5.7, 0, 0.9],
+  [5, -74, 5.7, 0, 0.75],
+  // The arrival's walls and the plateau's.
+  [-10, -8.5, 6, E, 1.15],
+  [-10, 3, 6, E, 1],
+  [10, -3, 6, W, 1.1],
+  [10, 3.5, 6, W, 0.95],
+  [-10, -80, 9, E, 1.2],
+  [-10, -88, 9, E, 1.05],
+  [10, -84, 9, W, 1.15],
+  [10, -95, 9, W, 1],
+  // The island's walls, and its back wall behind the ring.
+  [-12, -142, 7, E, 1.1],
+  [-12, -150, 7, E, 1],
+  [-12, -157, 7, E, 1.15],
+  [12, -146, 7, W, 1.05],
+  [12, -154, 7, W, 1.2],
+  [12, -160, 7, W, 0.95],
+  [-2.8, -163, 10, 0, 1.2],
+  [3, -163, 10, 0, 1.1],
+];
+// Frozen falls against the walls: [x, z of the face, ground, yaw, scale].
+const FALLS = [
+  [-10, -3, 0, E, 0.72],
+  [10, -10, 0, W, 0.68],
+  [-7.5, -163, 0.6, 0, 1],
+  [8, -163, 0.6, 0, 0.95],
+];
+// Boulders dusted with snow, at the edges of the shelves: [x, z, yaw, scale].
+const BOULDERS = [
+  [-8.4, 5.4, 0.4, 1.1],
+  [8.1, 4.6, 2.1, 0.95],
+  [-8.6, -90, 1.2, 1.2],
+  [8.7, -77.5, 2.8, 1],
+  [-8.9, -101.2, 0.7, 0.9],
+  [8.4, -100.6, 1.9, 1.05],
+  [10.4, -140.2, 0.2, 1.1],
+  [-10.6, -146, 2.4, 1.2],
+  [10.6, -162, 1.3, 1],
+];
+// World-space texture scale on the rock: one tile of the stone surface every 2.4 m.
+const ROCK_TILE = 2.4;
+
 const GROW = 0.6;
 
 export class Frozen {
@@ -173,6 +238,7 @@ export class Frozen {
     this.materials();
     this.buildGround();
     await this.buildDressing();
+    await this.buildRelief();
     await this.buildPond();
     this.buildLake();
     await this.buildIsland();
@@ -181,12 +247,18 @@ export class Frozen {
 
   materials() {
     const cracks = crackTexture(),
-      grain = grainTexture();
+      grain = grainTexture(),
+      stone = surface(THREE, "stone");
     this.mat = {
+      // The recipe's stone, laid on in world space: grain, pits and a rough sheen.
       rock: new THREE.MeshStandardMaterial({
-        color: 0x3d4654,
-        roughness: 0.92,
+        color: 0x4a5566,
+        roughness: 1,
         flatShading: true,
+        map: stone.map,
+        roughnessMap: stone.roughnessMap,
+        normalMap: stone.normalMap,
+        normalScale: new THREE.Vector2(1.1, 1.1),
       }),
       snow: new THREE.MeshStandardMaterial({
         color: 0xe9f2f6,
@@ -236,8 +308,21 @@ export class Frozen {
           mass(minX, Math.max(minY, -8), minZ, maxX, maxY - 0.5, maxZ, rand),
         );
       } else {
+        // Walls that are never climbed are layered and worn; a climbable lip stays clean.
+        const worn =
+          grab === false && maxX - minX >= 3 && maxZ - minZ >= 3 ? 0.5 : 0;
         rock.push(
-          mass(minX, Math.max(minY, -8), minZ, maxX, maxY - 0.12, maxZ, rand),
+          mass(
+            minX,
+            Math.max(minY, -8),
+            minZ,
+            maxX,
+            maxY - 0.12,
+            maxZ,
+            rand,
+            0.5,
+            worn,
+          ),
         );
         if (maxY - minY > 0.3)
           snow.push(
@@ -249,18 +334,20 @@ export class Frozen {
       this.world.add(minX, -30, minZ, maxX, top, maxZ, "rock", null, {
         grab: false,
       });
-      rock.push(mass(minX, -8, minZ, maxX, top, maxZ, rand, 0.9));
+      rock.push(mass(minX, -8, minZ, maxX, top, maxZ, rand, 0.9, 1));
       snow.push(
         slab(minX, top - 0.1, minZ, maxX, top + 0.35, maxZ, rand, 0.25),
       );
     }
-    this.merged(rock, this.mat.rock, true);
-    this.merged(snow, this.mat.snow, true);
+    // Snow settles on every ledge the layers leave.
+    const [walls, ledges] = splitLedges(rock);
+    this.merged(walls, this.mat.rock, true, 1 / ROCK_TILE);
+    this.merged([...snow, ...ledges], this.mat.snow, true);
     this.merged(ice, this.mat.ice, false);
   }
 
-  merged(geos, material, cast) {
-    const mesh = new THREE.Mesh(mergeAll(geos), material);
+  merged(geos, material, cast, uvScale = 1) {
+    const mesh = new THREE.Mesh(mergeAll(geos, uvScale), material);
     mesh.receiveShadow = true;
     mesh.castShadow = cast;
     this.scene.add(mesh);
@@ -304,6 +391,118 @@ export class Frozen {
     o.scale.multiplyScalar(s);
     this.scene.add(o);
     return o;
+  }
+
+  // --- relief: icicles on the lips, frozen falls, boulders under snow --------------------------
+  async buildRelief() {
+    await this.instanced(
+      "icicle_cluster",
+      ICICLES,
+      (o, [x, z, top, yaw, k]) => {
+        // The crust's back edge sits on the lip; the icicles hang down the face.
+        const a = new THREE.Vector3(...(o.userData.anchor || [0, 1.5, -0.15]));
+        a.multiplyScalar(k).applyAxisAngle(new THREE.Vector3(0, 1, 0), yaw);
+        return [x - a.x, top - a.y, z - a.z, yaw, k];
+      },
+    );
+    await this.instanced("frozen_falls", FALLS, (o, [x, z, ground, yaw, k]) => {
+      // Flat back against the face (the asset is centred on its 2 m depth); the apron is a
+      // low mound the explorer walks round.
+      const cx = x + Math.sin(yaw) * k,
+        cz = z + Math.cos(yaw) * k;
+      const ax = x + Math.sin(yaw) * 0.75 * k,
+        az = z + Math.cos(yaw) * 0.75 * k;
+      const side = new THREE.Vector3(Math.cos(yaw), 0, -Math.sin(yaw));
+      for (const t of [-0.9, 0, 0.9])
+        this.world.addRound(
+          ax + side.x * t * k,
+          az + side.z * t * k,
+          0.75 * k,
+          -10,
+          ground + 0.8 * k,
+          "prop",
+          null,
+          { cam: false },
+        );
+      return [cx, ground, cz, yaw, k];
+    });
+    await this.instanced(
+      "boulder_cluster",
+      BOULDERS,
+      (o, [x, z, yaw, k]) => {
+        this.world.addRound(x, z, 1.25 * k, -10, 2.2 * k, "prop");
+        return [x, this.groundAt(x, z), z, yaw, k];
+      },
+      { snowcap: true },
+    );
+  }
+
+  // Many copies of one asset, one draw call per material. `where` turns a spot into
+  // [x, y, z, yaw, scale]; ice gains its gloss, and a boulder its frost-slate and a cap of snow.
+  async instanced(name, spots, where, { snowcap = false } = {}) {
+    const o = await this.assets.make(name, {
+      keepHierarchy: true,
+      surfaces: !snowcap ? false : true,
+    });
+    if (!o) return;
+    o.updateMatrixWorld(true);
+    const place = new THREE.Matrix4(),
+      q = new THREE.Quaternion(),
+      up = new THREE.Vector3(0, 1, 0);
+    const mats = spots.map((spot) => {
+      const [x, y, z, yaw, k] = where(o, spot);
+      return place
+        .compose(
+          new THREE.Vector3(x, y, z),
+          q.setFromAxisAngle(up, yaw),
+          new THREE.Vector3(k, k, k),
+        )
+        .clone();
+    });
+    o.traverse((m) => {
+      if (!m.isMesh) return;
+      let geometry = m.geometry,
+        material = m.material.clone();
+      if (snowcap) {
+        // Frost-slate stone, white wherever a face looks up.
+        material.color.set(0xffffff);
+        geometry = geometry.clone();
+        const n = geometry.attributes.normal,
+          col = new Float32Array(n.count * 3);
+        const nm = new THREE.Matrix3().getNormalMatrix(m.matrixWorld);
+        const v = new THREE.Vector3(),
+          c = new THREE.Color();
+        const slate = new THREE.Color(0x5a6578),
+          snow = new THREE.Color(0xe9f2f6);
+        for (let i = 0; i < n.count; i++) {
+          v.fromBufferAttribute(n, i).applyMatrix3(nm).normalize();
+          const w = THREE.MathUtils.smoothstep(v.y, 0.45, 0.75);
+          c.copy(slate).lerp(snow, w);
+          col.set([c.r, c.g, c.b], i * 3);
+        }
+        geometry.setAttribute("color", new THREE.BufferAttribute(col, 3));
+        material.vertexColors = true;
+      } else {
+        const hsl = material.color.getHSL({});
+        if (hsl.h > 0.45 && hsl.h < 0.65 && hsl.s > 0.2) {
+          material.roughness = 0.1;
+          material.metalness = 0.15;
+          material.envMapIntensity = 1.3;
+        }
+      }
+      const inst = new THREE.InstancedMesh(geometry, material, mats.length);
+      mats.forEach((pm, i) =>
+        inst.setMatrixAt(i, pm.clone().multiply(m.matrixWorld)),
+      );
+      inst.computeBoundingSphere();
+      inst.castShadow = true;
+      inst.receiveShadow = true;
+      // A shadow material of their own: three.js recompiles its shared one each time it goes
+      // from an instanced caster to a plain one, into whichever variant the next caster needs.
+      inst.customDepthMaterial = this.instancedDepth ??=
+        new THREE.MeshDepthMaterial();
+      this.scene.add(inst);
+    });
   }
 
   // A cluster of ice spires: a round the explorer cannot stand on, so a jump slides off it.
@@ -1077,17 +1276,31 @@ function seeded(seed) {
 
 // A chunky mass of rock filling a box: its sides bulge and its top edge is broken, so walls
 // read as faceted stone rather than boxes.
-function mass(minX, minY, minZ, maxX, maxY, maxZ, rand, rough = 0.5) {
+// `strata` wears layers back into the sides, never out past the collider's face, as deep as
+// strata times half a metre.
+function mass(
+  minX,
+  minY,
+  minZ,
+  maxX,
+  maxY,
+  maxZ,
+  rand,
+  rough = 0.5,
+  strata = 0,
+) {
   const w = maxX - minX,
     h = maxY - minY,
     d = maxZ - minZ;
+  const across = strata ? 1.3 : 2.2,
+    up = strata ? 0.9 : 2.5;
   const g = new THREE.BoxGeometry(
     w,
     h,
     d,
-    Math.max(1, Math.round(w / 2.2)),
-    Math.max(1, Math.round(h / 2.5)),
-    Math.max(1, Math.round(d / 2.2)),
+    Math.max(1, Math.round(w / across)),
+    Math.max(1, Math.round(h / up)),
+    Math.max(1, Math.round(d / across)),
   );
   const p = g.attributes.position;
   const jitter = new Map();
@@ -1108,7 +1321,20 @@ function mass(minX, minY, minZ, maxX, maxY, maxZ, rand, rough = 0.5) {
     const [jx, jy, jz] = jitter.get(key);
     const edgeX = Math.abs(Math.abs(x) - w / 2) < 1e-3,
       edgeZ = Math.abs(Math.abs(z) - d / 2) < 1e-3;
-    p.setXYZ(i, x + (edgeX ? jx : 0), y + jy, z + (edgeZ ? jz : 0));
+    let ix = 0,
+      iz = 0;
+    if (strata && y < h / 2 - 1e-3 && y > -h / 2 + 1e-3) {
+      const wx = x + minX + w / 2,
+        wy = y + minY + h / 2,
+        wz = z + minZ + d / 2;
+      const band =
+        strata *
+        (0.22 * (1 + Math.sin(wy * 3.1 + (wx + wz) * 0.17)) +
+          0.1 * (1 + Math.sin(wy * 7.3 + wx * 0.8 - wz * 0.6)));
+      if (edgeX) ix = -Math.sign(x) * band;
+      if (edgeZ) iz = -Math.sign(z) * band;
+    }
+    p.setXYZ(i, x + (edgeX ? jx + ix : 0), y + jy, z + (edgeZ ? jz + iz : 0));
   }
   g.translate(minX + w / 2, minY + h / 2, minZ + d / 2);
   return g.toNonIndexed();
@@ -1150,11 +1376,48 @@ function slab(minX, minY, minZ, maxX, maxY, maxZ, rand, rough) {
   return g.toNonIndexed();
 }
 
-function mergeAll(geos) {
+// Splits rock into its walls and the faces that look up, where snow lies.
+function splitLedges(geos) {
+  const walls = [],
+    ledges = [];
+  const a = new THREE.Vector3(),
+    b = new THREE.Vector3(),
+    c = new THREE.Vector3();
+  for (const g of geos) {
+    const p = g.attributes.position.array;
+    const keep = [],
+      up = [];
+    for (let t = 0; t < p.length; t += 9) {
+      a.fromArray(p, t);
+      b.fromArray(p, t + 3).sub(a);
+      c.fromArray(p, t + 6).sub(a);
+      const n = b.cross(c).normalize();
+      (n.y > 0.55 ? up : keep).push(...p.slice(t, t + 9));
+    }
+    for (const [list, out] of [
+      [keep, walls],
+      [up, ledges],
+    ])
+      if (list.length) {
+        const geo = new THREE.BufferGeometry();
+        geo.setAttribute(
+          "position",
+          new THREE.BufferAttribute(new Float32Array(list), 3),
+        );
+        out.push(geo);
+      }
+  }
+  return [walls, ledges];
+}
+
+// One geometry from many, with texture coordinates in world space: each face takes the
+// plane it faces most, so a texture keeps its size across walls, tops and ledges.
+function mergeAll(geos, uvScale = 1) {
   let count = 0;
   for (const g of geos) count += g.attributes.position.count;
   const pos = new Float32Array(count * 3),
-    nor = new Float32Array(count * 3);
+    nor = new Float32Array(count * 3),
+    uv = new Float32Array(count * 2);
   let o = 0;
   for (const g of geos) {
     const gi = g.index ? g.toNonIndexed() : g;
@@ -1163,9 +1426,31 @@ function mergeAll(geos) {
     nor.set(gi.attributes.normal.array, o * 3);
     o += gi.attributes.position.count;
   }
+  for (let t = 0; t < count; t += 3) {
+    let nx = 0,
+      ny = 0,
+      nz = 0;
+    for (let k = t; k < t + 3; k++) {
+      nx += nor[k * 3];
+      ny += nor[k * 3 + 1];
+      nz += nor[k * 3 + 2];
+    }
+    const ax = Math.abs(nx),
+      ay = Math.abs(ny),
+      az = Math.abs(nz);
+    for (let k = t; k < t + 3; k++) {
+      const x = pos[k * 3],
+        y = pos[k * 3 + 1],
+        z = pos[k * 3 + 2];
+      const [u, v] = ay >= ax && ay >= az ? [x, z] : ax >= az ? [z, y] : [x, y];
+      uv[k * 2] = u * uvScale;
+      uv[k * 2 + 1] = v * uvScale;
+    }
+  }
   const out = new THREE.BufferGeometry();
   out.setAttribute("position", new THREE.BufferAttribute(pos, 3));
   out.setAttribute("normal", new THREE.BufferAttribute(nor, 3));
+  out.setAttribute("uv", new THREE.BufferAttribute(uv, 2));
   return out;
 }
 

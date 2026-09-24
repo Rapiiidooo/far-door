@@ -1,0 +1,116 @@
+[
+ {
+  "ok": true,
+  "mounts": null,
+  "meshes": 119,
+  "tris": 2510,
+  "materials": 4,
+  "size": [
+   1.61,
+   0.292,
+   0.572
+  ],
+  "groundOffset": 0,
+  "centreOffset": [
+   0,
+   0
+  ],
+  "sides": {
+   "front": {
+    "coverage": 0.0867,
+    "edgeDensity": 0.1836
+   },
+   "right": {
+    "coverage": 0.0762,
+    "edgeDensity": 0.196
+   },
+   "back": {
+    "coverage": 0.0764,
+    "edgeDensity": 0.2597
+   },
+   "left": {
+    "coverage": 0.0726,
+    "edgeDensity": 0.243
+   }
+  },
+  "error": null,
+  "name": "mira_scarf_a",
+  "problems": []
+ },
+ {
+  "ok": true,
+  "mounts": null,
+  "meshes": 15,
+  "tris": 2680,
+  "materials": 4,
+  "size": [
+   1.357,
+   0.326,
+   0.982
+  ],
+  "groundOffset": 0,
+  "centreOffset": [
+   0,
+   0
+  ],
+  "sides": {
+   "front": {
+    "coverage": 0.0825,
+    "edgeDensity": 0.1844
+   },
+   "right": {
+    "coverage": 0.0723,
+    "edgeDensity": 0.1872
+   },
+   "back": {
+    "coverage": 0.0678,
+    "edgeDensity": 0.2169
+   },
+   "left": {
+    "coverage": 0.0737,
+    "edgeDensity": 0.2168
+   }
+  },
+  "error": null,
+  "name": "mira_scarf_b",
+  "problems": []
+ },
+ {
+  "ok": true,
+  "mounts": null,
+  "meshes": 26,
+  "tris": 2569,
+  "materials": 4,
+  "size": [
+   0.664,
+   0.335,
+   1.087
+  ],
+  "groundOffset": 0,
+  "centreOffset": [
+   0,
+   0
+  ],
+  "sides": {
+   "front": {
+    "coverage": 0.1397,
+    "edgeDensity": 0.1046
+   },
+   "right": {
+    "coverage": 0.1317,
+    "edgeDensity": 0.1166
+   },
+   "back": {
+    "coverage": 0.0962,
+    "edgeDensity": 0.1096
+   },
+   "left": {
+    "coverage": 0.1302,
+    "edgeDensity": 0.1502
+   }
+  },
+  "error": null,
+  "name": "mira_scarf_c",
+  "problems": []
+ }
+]

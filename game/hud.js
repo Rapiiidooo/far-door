@@ -142,6 +142,21 @@ export class Hud {
     }, duration * 1000);
   }
 
+  // A relic found: a card of its own, so neither it nor a control card hides the other, and
+  // shown even with the control cards turned off.
+  relic(name, line, count, total) {
+    const el = this.el("relic-toast");
+    el.querySelector(".kicker").textContent =
+      `Relic found · ${count} of ${total}`;
+    el.querySelector(".name").textContent = name;
+    el.querySelector(".line").textContent = line;
+    el.classList.remove("on");
+    void el.offsetWidth;
+    el.classList.add("on");
+    clearTimeout(this.relicTimer);
+    this.relicTimer = setTimeout(() => el.classList.remove("on"), 7000);
+  }
+
   clearHint() {
     clearTimeout(this.hintTimer);
     this.el("hint").classList.remove("on");
@@ -162,7 +177,7 @@ export class Hud {
     this.lastPrompt = code;
     const k = (a) => this.k(a);
     const side = this.keys("KeyA", "KeyD");
-    const text = {
+    let text = {
       turn: `Hold ${k("interact")} to turn the mirror`,
       grab: `Hold ${k("interact")} to grab the block`,
       block: `Push ${this.keys("KeyW")} or pull ${this.keys("KeyS")} while holding ${k("interact")}`,
@@ -175,6 +190,9 @@ export class Hud {
       talk: `${k("interact")} Talk to the clerk`,
       charge: `${k("throw")} throw through the beam to charge the disc`,
     }[code];
+    // A relic names itself: "relic:Take the radio".
+    if (!text && code?.startsWith("relic:"))
+      text = `${k("interact")} ${code.slice(6)}`;
     const p = this.el("prompt");
     if (text) p.innerHTML = text;
     p.classList.toggle("on", !!text);

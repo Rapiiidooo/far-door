@@ -1,0 +1,69 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>detail</title>
+<script type="importmap">
+{ "imports": { "three": "https://cdn.jsdelivr.net/npm/three@0.169.0/build/three.module.js" } }
+</script>
+<style>body{margin:0;background:#22262b}canvas{display:block}</style>
+</head>
+<body>
+<script type="module">
+// Scratch close-ups, one row per module: the gate from the right at eye level,
+// the gate from the left and low, the tallest crown from near and high, the eaves
+// of a front tower from the ground, and the courtyard from above.
+// The gate is found from the dark basalt door, the one mesh with roughness 0.96.
+import * as THREE from 'three';
+const q = new URLSearchParams(location.search);
+const srcs = q.get('src').split(',');
+const size = +(q.get('size') || 360);
+const renderer = new THREE.WebGLRenderer({ antialias: true, preserveDrawingBuffer: true });
+renderer.setSize(size * 5, size * srcs.length, false);
+renderer.outputColorSpace = THREE.SRGBColorSpace;
+document.body.appendChild(renderer.domElement);
+const H = renderer.domElement.height;
+const scene = new THREE.Scene();
+scene.background = new THREE.Color(0x22262b);
+scene.add(new THREE.HemisphereLight(0xffffff, 0x556677, 2.0));
+const sun = new THREE.DirectionalLight(0xffffff, 1.9); sun.position.set(5, 9, 7); scene.add(sun);
+let row = 0;
+for (const src of srcs) {
+  const mod = await import(src);
+  const a = mod.default(THREE);
+  scene.add(a);
+  a.updateMatrixWorld(true);
+  const all = new THREE.Box3().setFromObject(a);
+  let door = null;
+  a.traverse((o) => { if (o.isMesh && Math.abs(o.material.roughness - 0.96) < 1e-6) door = new THREE.Box3().setFromObject(o); });
+  const gc = door.getCenter(new THREE.Vector3());
+  const top = new THREE.Vector3();
+  // the spire tip: highest vertex
+  a.traverse((o) => {
+    if (!o.isMesh) return;
+    const p = o.geometry.attributes.position, v = new THREE.Vector3();
+    for (let i = 0; i < p.count; i++) { v.fromBufferAttribute(p, i).applyMatrix4(o.matrixWorld); if (v.y > top.y) top.copy(v); }
+  });
+  const views = [
+    { pos: [gc.x + 9, 4, all.max.z + 16], at: [gc.x, 5.5, gc.z], fov: 40 },
+    { pos: [gc.x - 7, 1.7, all.max.z + 9], at: [gc.x, 6, gc.z], fov: 55 },
+    { pos: [top.x + 9, top.y - 6, top.z + 12], at: [top.x, top.y - 12, top.z], fov: 50 },
+    { pos: [all.max.x + 2, 1.7, all.max.z + 4], at: [all.max.x - 5, 14, all.max.z - 5], fov: 60 },
+    { pos: [0, 70, 30], at: [0, 4, -1], fov: 38 },
+  ];
+  views.forEach((v, i) => {
+    const cam = new THREE.PerspectiveCamera(v.fov, 1, 0.1, 1000);
+    cam.position.set(...v.pos);
+    cam.lookAt(...v.at);
+    renderer.setViewport(i * size, H - (row + 1) * size, size, size);
+    renderer.setScissor(i * size, H - (row + 1) * size, size, size);
+    renderer.setScissorTest(true);
+    renderer.render(scene, cam);
+  });
+  scene.remove(a);
+  row++;
+}
+window.__DONE__ = true;
+</script>
+</body>
+</html>

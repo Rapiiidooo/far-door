@@ -1,0 +1,116 @@
+[
+ {
+  "ok": true,
+  "mounts": null,
+  "meshes": 15,
+  "tris": 4926,
+  "materials": 5,
+  "size": [
+   1.248,
+   2.344,
+   2.024
+  ],
+  "groundOffset": 0,
+  "centreOffset": [
+   0,
+   0
+  ],
+  "sides": {
+   "front": {
+    "coverage": 0.0413,
+    "edgeDensity": 0.2626
+   },
+   "right": {
+    "coverage": 0.0805,
+    "edgeDensity": 0.1473
+   },
+   "back": {
+    "coverage": 0.0511,
+    "edgeDensity": 0.1814
+   },
+   "left": {
+    "coverage": 0.0804,
+    "edgeDensity": 0.1404
+   }
+  },
+  "error": null,
+  "name": "forest_deer_a",
+  "problems": []
+ },
+ {
+  "ok": true,
+  "mounts": null,
+  "meshes": 15,
+  "tris": 4380,
+  "materials": 5,
+  "size": [
+   1.261,
+   2.351,
+   2.002
+  ],
+  "groundOffset": 0,
+  "centreOffset": [
+   0,
+   0
+  ],
+  "sides": {
+   "front": {
+    "coverage": 0.0419,
+    "edgeDensity": 0.2537
+   },
+   "right": {
+    "coverage": 0.0794,
+    "edgeDensity": 0.1398
+   },
+   "back": {
+    "coverage": 0.052,
+    "edgeDensity": 0.165
+   },
+   "left": {
+    "coverage": 0.0792,
+    "edgeDensity": 0.1366
+   }
+  },
+  "error": null,
+  "name": "forest_deer_b",
+  "problems": []
+ },
+ {
+  "ok": true,
+  "mounts": null,
+  "meshes": 15,
+  "tris": 4916,
+  "materials": 5,
+  "size": [
+   1.022,
+   2.334,
+   2.054
+  ],
+  "groundOffset": 0,
+  "centreOffset": [
+   0,
+   0
+  ],
+  "sides": {
+   "front": {
+    "coverage": 0.0492,
+    "edgeDensity": 0.2844
+   },
+   "right": {
+    "coverage": 0.0897,
+    "edgeDensity": 0.1729
+   },
+   "back": {
+    "coverage": 0.0581,
+    "edgeDensity": 0.174
+   },
+   "left": {
+    "coverage": 0.0894,
+    "edgeDensity": 0.1599
+   }
+  },
+  "error": null,
+  "name": "forest_deer_c",
+  "problems": []
+ }
+]

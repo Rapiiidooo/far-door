@@ -1,0 +1,61 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<script type="importmap">{ "imports": { "three": "/three/three.module.js" } }</script>
+<style>body{margin:0;background:#000}canvas{display:block}</style>
+</head>
+<body>
+<script type="module">
+// Scratch renderer: each candidate under the forest's own light and haze (game/forest.js),
+// from the ground far off, from mid distance, at its foot and from under the crown.
+import * as THREE from 'three';
+const q = new URLSearchParams(location.search);
+const names = (q.get('n') || 'giant_tree_a,giant_tree_b,giant_tree_c').split(',');
+const S = +(q.get('size') || 420);
+const fogK = +(q.get('fog') || 0.0065);
+const VIEWS = [
+  { eye: [0, 1.7, 150], look: [0, 27, 0], fov: 32 },
+  { eye: [-48, 1.7, 62], look: [0, 26, 0], fov: 62 },
+  { eye: [0, 1.8, 26], look: [0, 6.5, 0], fov: 55 },
+  { eye: [14, 1.7, 20], look: [-2, 36, -2], fov: 80 },
+];
+if (q.get('view')) {
+  VIEWS.length = 0;
+  for (const v of q.get('view').split(';')) { const a = v.split(',').map(Number); VIEWS.push({ eye: a.slice(0, 3), look: a.slice(3, 6), fov: a[6] }); }
+}
+const renderer = new THREE.WebGLRenderer({ antialias: true, preserveDrawingBuffer: true });
+renderer.setSize(S * VIEWS.length, S * names.length, false);
+renderer.outputColorSpace = THREE.SRGBColorSpace;
+document.body.appendChild(renderer.domElement);
+renderer.setScissorTest(true);
+const scene = new THREE.Scene();
+scene.background = new THREE.Color(0x8fa36a);
+scene.fog = new THREE.FogExp2(0x8fa36a, fogK);
+const sun = new THREE.DirectionalLight(0xffe2a0, 2.4);
+sun.position.set(-18, 40, -30);
+scene.add(sun, sun.target);
+scene.add(new THREE.HemisphereLight(0xd8eab0, 0x2f3d1c, 1.15));
+const ground = new THREE.Mesh(new THREE.CircleGeometry(400, 64).rotateX(-Math.PI / 2), new THREE.MeshStandardMaterial({ color: 0x4a6b33, roughness: 0.95 }));
+scene.add(ground);
+for (let r = 0; r < names.length; r++) {
+  const mod = await import(`/c/${names[r]}.js?t=${Date.now()}`);
+  const obj = mod.default(THREE);
+  const glow = obj.userData.parts && obj.userData.parts.glow;
+  if (glow) glow.traverse((m) => { if (m.isMesh) { m.material = m.material.clone(); m.material.emissiveIntensity = 1.8; } });
+  scene.add(obj);
+  VIEWS.forEach((v, i) => {
+    const cam = new THREE.PerspectiveCamera(v.fov, 1, 0.1, 1000);
+    cam.position.set(...v.eye);
+    cam.lookAt(...v.look);
+    const y = (names.length - 1 - r) * S;
+    renderer.setViewport(i * S, y, S, S);
+    renderer.setScissor(i * S, y, S, S);
+    renderer.render(scene, cam);
+  });
+  scene.remove(obj);
+}
+window.__DONE__ = true;
+</script>
+</body>
+</html>

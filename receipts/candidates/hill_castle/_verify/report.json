@@ -1,0 +1,116 @@
+[
+ {
+  "ok": true,
+  "mounts": null,
+  "meshes": 7,
+  "tris": 5427,
+  "materials": 7,
+  "size": [
+   36,
+   42,
+   24.3
+  ],
+  "groundOffset": 0,
+  "centreOffset": [
+   0,
+   0
+  ],
+  "sides": {
+   "front": {
+    "coverage": 0.2273,
+    "edgeDensity": 0.1348
+   },
+   "right": {
+    "coverage": 0.1741,
+    "edgeDensity": 0.1439
+   },
+   "back": {
+    "coverage": 0.1929,
+    "edgeDensity": 0.1247
+   },
+   "left": {
+    "coverage": 0.162,
+    "edgeDensity": 0.1234
+   }
+  },
+  "error": null,
+  "name": "hill_castle_a",
+  "problems": []
+ },
+ {
+  "ok": true,
+  "mounts": null,
+  "meshes": 7,
+  "tris": 7317,
+  "materials": 7,
+  "size": [
+   36.506,
+   42,
+   25.84
+  ],
+  "groundOffset": 0,
+  "centreOffset": [
+   0,
+   0
+  ],
+  "sides": {
+   "front": {
+    "coverage": 0.2033,
+    "edgeDensity": 0.1534
+   },
+   "right": {
+    "coverage": 0.1694,
+    "edgeDensity": 0.1387
+   },
+   "back": {
+    "coverage": 0.1999,
+    "edgeDensity": 0.1293
+   },
+   "left": {
+    "coverage": 0.1664,
+    "edgeDensity": 0.1335
+   }
+  },
+  "error": null,
+  "name": "hill_castle_b",
+  "problems": []
+ },
+ {
+  "ok": true,
+  "mounts": null,
+  "meshes": 7,
+  "tris": 5270,
+  "materials": 7,
+  "size": [
+   36.354,
+   42,
+   19.1
+  ],
+  "groundOffset": 0,
+  "centreOffset": [
+   0,
+   0
+  ],
+  "sides": {
+   "front": {
+    "coverage": 0.2031,
+    "edgeDensity": 0.1746
+   },
+   "right": {
+    "coverage": 0.1371,
+    "edgeDensity": 0.1873
+   },
+   "back": {
+    "coverage": 0.1976,
+    "edgeDensity": 0.1548
+   },
+   "left": {
+    "coverage": 0.1326,
+    "edgeDensity": 0.1948
+   }
+  },
+  "error": null,
+  "name": "hill_castle_c",
+  "problems": []
+ }
+]

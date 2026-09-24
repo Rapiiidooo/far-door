@@ -1,0 +1,75 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>look</title>
+<script type="importmap">
+{ "imports": { "three": "https://cdn.jsdelivr.net/npm/three@0.169.0/build/three.module.js" } }
+</script>
+<style>body{margin:0;background:#22262b}canvas{display:block}</style>
+</head>
+<body>
+<script type="module">
+// Throwaway preview: same light as the verifier, but views chosen by query.
+//   src    module URL
+//   size   pixels per view
+//   views  az:el:zoom[:ty] separated by commas (degrees; zoom 1 = verifier framing;
+//          ty = target height as a fraction of the box, default 0.5)
+//   game   1 = one wide frame per view with a sandstone ground, FOV 50, and zoom
+//          read as the camera distance in metres
+import * as THREE from 'three';
+const q = new URLSearchParams(location.search);
+const src = q.get('src');
+const size = +(q.get('size') || 480);
+const game = q.get('game') === '1';
+const views = (q.get('views') || '0:25:1').split(',').map((s) => s.split(':').map(Number));
+const W = game ? Math.round(size * 16 / 9) : size;
+const renderer = new THREE.WebGLRenderer({ antialias: true, preserveDrawingBuffer: true });
+renderer.setSize(W * views.length, size, false);
+renderer.outputColorSpace = THREE.SRGBColorSpace;
+document.body.appendChild(renderer.domElement);
+const scene = new THREE.Scene();
+scene.background = new THREE.Color(game ? 0xc9b89a : 0x22262b);
+scene.add(new THREE.HemisphereLight(0xffffff, 0x556677, 2.0));
+const sun = new THREE.DirectionalLight(0xffffff, 1.9);
+sun.position.set(5, 9, 7);
+scene.add(sun);
+if (game) {
+  const ground = new THREE.Mesh(new THREE.PlaneGeometry(200, 200), new THREE.MeshStandardMaterial({ color: 0xb57f4f, roughness: 0.95 }));
+  ground.rotation.x = -Math.PI / 2;
+  scene.add(ground);
+  scene.fog = new THREE.Fog(0xc9b89a, 30, 120);
+}
+try {
+  const mod = await import(src);
+  const obj = mod.default(THREE);
+  scene.add(obj);
+  obj.updateMatrixWorld(true);
+  const box = new THREE.Box3(), v = new THREE.Vector3();
+  obj.traverse((n) => {
+    const p = n.isMesh && n.geometry.attributes.position; if (!p) return;
+    for (let i = 0; i < p.count; i++) box.expandByPoint(v.fromBufferAttribute(p, i).applyMatrix4(n.matrixWorld));
+  });
+  const dim = box.getSize(new THREE.Vector3());
+  const radius = 0.5 * Math.hypot(dim.x, dim.y, dim.z);
+  views.forEach(([az, el, zoom, ty = 0.5, tx = 0.5, tz = 0.5], i) => {
+    const a = THREE.MathUtils.degToRad(az), e = THREE.MathUtils.degToRad(el);
+    const ctr = new THREE.Vector3(box.min.x + dim.x * tx, box.min.y + dim.y * ty, box.min.z + dim.z * tz);
+    const fov = game ? 50 : 34;
+    const dist = game ? zoom : (radius / Math.sin(THREE.MathUtils.degToRad(17))) * 1.05 / zoom;
+    const cam = new THREE.PerspectiveCamera(fov, W / size, 0.01, 500);
+    cam.position.set(ctr.x + Math.sin(a) * dist * Math.cos(e), ctr.y + dist * Math.sin(e), ctr.z + Math.cos(a) * dist * Math.cos(e));
+    cam.lookAt(ctr);
+    renderer.setViewport(i * W, 0, W, size);
+    renderer.setScissor(i * W, 0, W, size);
+    renderer.setScissorTest(true);
+    renderer.render(scene, cam);
+  });
+  window.__OK__ = true;
+} catch (e) {
+  window.__ERR__ = String(e && e.message ? e.message : e);
+}
+window.__DONE__ = true;
+</script>
+</body>
+</html>

@@ -34,9 +34,11 @@ export class Beams {
     this.makeMotes();
   }
 
-  // Sunlight falls through a slot in the west cliff onto the catcher mirror.
+  // Sunlight falls through a slot in the west cliff onto the catcher mirror. The cliff's
+  // shadow covers the catcher, so the slot's light is a spot of its own: it lights the
+  // catcher, the floor around it and the block, and casts no shadow.
   makeShaft() {
-    const len = 16;
+    const len = 10;
     const geo = new THREE.CylinderGeometry(
       0.55,
       1.5,
@@ -76,13 +78,19 @@ export class Beams {
       this.height,
       this.source.z,
     );
-    const dir = new THREE.Vector3(-0.86, 0.5, 0.1).normalize();
+    const slot = new THREE.Vector3(1.4, 5.2, this.source.z);
+    const dir = slot.clone().sub(from).normalize();
     shaft.position.copy(from);
     shaft.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), dir);
     shaft.renderOrder = 6;
     shaft.frustumCulled = false;
     this.group.add(shaft);
     this.shaft = shaft;
+    // No decay: the sun's rays are parallel, so the patch is even, soft at its edges.
+    const sun = new THREE.SpotLight(0xffe3c0, 35, 18, 0.48, 0.85, 0);
+    sun.position.copy(slot);
+    sun.target.position.set(this.source.x + 2, 0, this.source.z);
+    this.group.add(sun, sun.target);
     const glow = new THREE.PointLight(0xffb060, 9, 7, 1.6);
     glow.position.set(this.source.x + 0.6, this.height + 0.4, this.source.z);
     this.group.add(glow);
@@ -146,7 +154,7 @@ export class Beams {
       const wob = Math.sin(this.time * (0.4 + c) + e * 20) * 0.08;
       let x, y, z;
       if (i < shaftCount) {
-        const along = t * 11,
+        const along = t * 8,
           r = (0.4 + along * 0.08) * Math.sqrt(c),
           ang = e * Math.PI * 2 + this.time * 0.1;
         x = this.shaft.position.x + dir.x * along + Math.cos(ang) * r;

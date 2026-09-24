@@ -1,0 +1,230 @@
+[
+ {
+  "ok": true,
+  "mounts": null,
+  "meshes": 15,
+  "tris": 4926,
+  "materials": 5,
+  "size": [
+   1.248,
+   2.119,
+   2.332
+  ],
+  "groundOffset": 0,
+  "centreOffset": [
+   0,
+   0
+  ],
+  "sides": {
+   "front": {
+    "coverage": 0.0388,
+    "edgeDensity": 0.2874
+   },
+   "right": {
+    "coverage": 0.0831,
+    "edgeDensity": 0.151
+   },
+   "back": {
+    "coverage": 0.0448,
+    "edgeDensity": 0.16
+   },
+   "left": {
+    "coverage": 0.0836,
+    "edgeDensity": 0.1383
+   }
+  },
+  "error": null,
+  "name": "forest_deer_a_reach",
+  "problems": []
+ },
+ {
+  "ok": true,
+  "mounts": null,
+  "meshes": 15,
+  "tris": 4926,
+  "materials": 5,
+  "size": [
+   1.248,
+   2.287,
+   2.176
+  ],
+  "groundOffset": 0,
+  "centreOffset": [
+   0,
+   0
+  ],
+  "sides": {
+   "front": {
+    "coverage": 0.0401,
+    "edgeDensity": 0.2724
+   },
+   "right": {
+    "coverage": 0.0824,
+    "edgeDensity": 0.1492
+   },
+   "back": {
+    "coverage": 0.0472,
+    "edgeDensity": 0.1881
+   },
+   "left": {
+    "coverage": 0.0813,
+    "edgeDensity": 0.1411
+   }
+  },
+  "error": null,
+  "name": "forest_deer_a_stride",
+  "problems": []
+ },
+ {
+  "ok": true,
+  "mounts": null,
+  "meshes": 15,
+  "tris": 4380,
+  "materials": 5,
+  "size": [
+   1.261,
+   2.131,
+   2.329
+  ],
+  "groundOffset": 0,
+  "centreOffset": [
+   0,
+   0
+  ],
+  "sides": {
+   "front": {
+    "coverage": 0.0387,
+    "edgeDensity": 0.2888
+   },
+   "right": {
+    "coverage": 0.0814,
+    "edgeDensity": 0.1404
+   },
+   "back": {
+    "coverage": 0.0458,
+    "edgeDensity": 0.1357
+   },
+   "left": {
+    "coverage": 0.0818,
+    "edgeDensity": 0.1359
+   }
+  },
+  "error": null,
+  "name": "forest_deer_b_reach",
+  "problems": []
+ },
+ {
+  "ok": true,
+  "mounts": null,
+  "meshes": 15,
+  "tris": 4380,
+  "materials": 5,
+  "size": [
+   1.261,
+   2.29,
+   2.133
+  ],
+  "groundOffset": 0,
+  "centreOffset": [
+   0,
+   0
+  ],
+  "sides": {
+   "front": {
+    "coverage": 0.0409,
+    "edgeDensity": 0.2567
+   },
+   "right": {
+    "coverage": 0.082,
+    "edgeDensity": 0.1409
+   },
+   "back": {
+    "coverage": 0.0489,
+    "edgeDensity": 0.1693
+   },
+   "left": {
+    "coverage": 0.0811,
+    "edgeDensity": 0.1349
+   }
+  },
+  "error": null,
+  "name": "forest_deer_b_stride",
+  "problems": []
+ },
+ {
+  "ok": true,
+  "mounts": null,
+  "meshes": 15,
+  "tris": 4916,
+  "materials": 5,
+  "size": [
+   1.022,
+   2.05,
+   2.372
+  ],
+  "groundOffset": 0,
+  "centreOffset": [
+   0,
+   0
+  ],
+  "sides": {
+   "front": {
+    "coverage": 0.0466,
+    "edgeDensity": 0.3105
+   },
+   "right": {
+    "coverage": 0.0941,
+    "edgeDensity": 0.1659
+   },
+   "back": {
+    "coverage": 0.0541,
+    "edgeDensity": 0.1747
+   },
+   "left": {
+    "coverage": 0.0948,
+    "edgeDensity": 0.1647
+   }
+  },
+  "error": null,
+  "name": "forest_deer_c_reach",
+  "problems": []
+ },
+ {
+  "ok": true,
+  "mounts": null,
+  "meshes": 15,
+  "tris": 4916,
+  "materials": 5,
+  "size": [
+   1.022,
+   2.278,
+   2.192
+  ],
+  "groundOffset": 0,
+  "centreOffset": [
+   0,
+   0
+  ],
+  "sides": {
+   "front": {
+    "coverage": 0.0476,
+    "edgeDensity": 0.3003
+   },
+   "right": {
+    "coverage": 0.0911,
+    "edgeDensity": 0.1829
+   },
+   "back": {
+    "coverage": 0.0548,
+    "edgeDensity": 0.1909
+   },
+   "left": {
+    "coverage": 0.09,
+    "edgeDensity": 0.1624
+   }
+  },
+  "error": null,
+  "name": "forest_deer_c_stride",
+  "problems": []
+ }
+]

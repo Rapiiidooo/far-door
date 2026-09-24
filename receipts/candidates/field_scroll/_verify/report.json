@@ -1,0 +1,116 @@
+[
+ {
+  "ok": true,
+  "mounts": null,
+  "meshes": 71,
+  "tris": 1408,
+  "materials": 3,
+  "size": [
+   0.302,
+   0.1,
+   0.488
+  ],
+  "groundOffset": 0,
+  "centreOffset": [
+   0,
+   0
+  ],
+  "sides": {
+   "front": {
+    "coverage": 0.1936,
+    "edgeDensity": 0.1212
+   },
+   "right": {
+    "coverage": 0.1686,
+    "edgeDensity": 0.1988
+   },
+   "back": {
+    "coverage": 0.1467,
+    "edgeDensity": 0.1122
+   },
+   "left": {
+    "coverage": 0.1689,
+    "edgeDensity": 0.21
+   }
+  },
+  "error": null,
+  "name": "field_scroll_a",
+  "problems": []
+ },
+ {
+  "ok": true,
+  "mounts": null,
+  "meshes": 13,
+  "tris": 1384,
+  "materials": 3,
+  "size": [
+   0.3,
+   0.105,
+   0.492
+  ],
+  "groundOffset": 0,
+  "centreOffset": [
+   0,
+   0
+  ],
+  "sides": {
+   "front": {
+    "coverage": 0.1938,
+    "edgeDensity": 0.0848
+   },
+   "right": {
+    "coverage": 0.1677,
+    "edgeDensity": 0.16
+   },
+   "back": {
+    "coverage": 0.1457,
+    "edgeDensity": 0.0829
+   },
+   "left": {
+    "coverage": 0.1678,
+    "edgeDensity": 0.1685
+   }
+  },
+  "error": null,
+  "name": "field_scroll_b",
+  "problems": []
+ },
+ {
+  "ok": true,
+  "mounts": null,
+  "meshes": 12,
+  "tris": 1446,
+  "materials": 3,
+  "size": [
+   0.522,
+   0.106,
+   0.35
+  ],
+  "groundOffset": 0,
+  "centreOffset": [
+   0,
+   0
+  ],
+  "sides": {
+   "front": {
+    "coverage": 0.2062,
+    "edgeDensity": 0.1419
+   },
+   "right": {
+    "coverage": 0.1798,
+    "edgeDensity": 0.1531
+   },
+   "back": {
+    "coverage": 0.1759,
+    "edgeDensity": 0.0685
+   },
+   "left": {
+    "coverage": 0.1826,
+    "edgeDensity": 0.1595
+   }
+  },
+  "error": null,
+  "name": "field_scroll_c",
+  "problems": []
+ }
+]

@@ -60,6 +60,7 @@ export class WorldThree {
 
     this.buildClouds();
     await this.buildDistance();
+    await this.buildDebris();
     this.isles = new Isles(s, this.world, this.assets, {
       ...this.services,
       renderer: this.renderer,
@@ -183,6 +184,61 @@ export class WorldThree {
       g.rotation.y = yaw * 0.3;
       this.scene.add(g);
     }
+  }
+
+  // Small rocks adrift either side of the way, near enough to give the gulf its depth, each
+  // bobbing on its own slow swell. One draw per material for all of them.
+  async buildDebris() {
+    const o = await this.assets.make("floating_isle");
+    if (!o) return;
+    o.updateMatrixWorld(true);
+    let seed = 29;
+    const rand = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
+    this.debris = [];
+    for (let i = 0; i < 22; i++) {
+      const z = -8 - rand() * 205,
+        side = i % 2 ? 1 : -1;
+      const along = (12 * -z) / 203;
+      this.debris.push({
+        x: along + side * (10 + rand() * 24),
+        y: (9.2 * -z) / 203 + (rand() - 0.55) * 20,
+        z,
+        s: 0.05 + rand() * 0.11,
+        yaw: rand() * 6.3,
+        phase: rand() * 6.3,
+      });
+    }
+    this.debrisMeshes = [];
+    o.traverse((m) => {
+      if (!m.isMesh) return;
+      const inst = new THREE.InstancedMesh(
+        m.geometry,
+        m.material,
+        this.debris.length,
+      );
+      inst.userData.local = m.matrixWorld.clone();
+      inst.frustumCulled = false;
+      this.scene.add(inst);
+      this.debrisMeshes.push(inst);
+    });
+    this.placeDebris(0);
+  }
+
+  placeDebris(t) {
+    const m = new THREE.Matrix4(),
+      q = new THREE.Quaternion(),
+      up = new THREE.Vector3(0, 1, 0),
+      p = new THREE.Vector3(),
+      k = new THREE.Vector3();
+    (this.debris || []).forEach((d, i) => {
+      p.set(d.x, d.y + Math.sin(t * 0.35 + d.phase) * 0.5, d.z);
+      q.setFromAxisAngle(up, d.yaw + t * 0.02);
+      m.compose(p, q, k.setScalar(d.s));
+      for (const inst of this.debrisMeshes)
+        inst.setMatrixAt(i, m.clone().multiply(inst.userData.local));
+    });
+    for (const inst of this.debrisMeshes || [])
+      inst.instanceMatrix.needsUpdate = true;
   }
 
   // The far door's twin on the first isle. Its membrane is lit from the moment the explorer
@@ -349,6 +405,8 @@ export class WorldThree {
   // --- the frame -------------------------------------------------------------------------------
   update(dt, hero, state, { throw: throwPressed, camera }) {
     this.ambient(dt);
+    this.debrisT = (this.debrisT || 0) + dt;
+    this.placeDebris(this.debrisT);
     this.arrival.update(dt);
     this.isles.update(dt, hero);
     this.isles.guide(this.services.hud, hero, this.disc);

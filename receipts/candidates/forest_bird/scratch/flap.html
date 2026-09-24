@@ -1,0 +1,75 @@
+<!doctype html>
+<html><head><meta charset="utf-8">
+<script type="importmap">{ "imports": { "three": "/game/vendor/three.module.js", "three/addons/": "/game/vendor/" } }</script>
+<style>body{margin:0;background:#22262b}canvas{display:block}</style></head>
+<body>
+<script type="module">
+// Throwaway: load bird candidates through the game's assetlib with keepHierarchy (three r186),
+// flap userData.parts.leftWing / rightWing about Z, and render a grid:
+// one row per candidate and view, one column per flap angle. A red bead marks each wing
+// Group's origin and a red rod runs along its local Z, the hinge the flap turns about.
+import * as THREE from 'three';
+import { ASSET } from '/game/assetlib.js';
+const q = new URLSearchParams(location.search);
+const S = +(q.get('size') || 360);
+const srcs = (q.get('srcs') || '').split(',').filter(Boolean);
+const poses = (q.get('poses') || '0,40,-40').split(',').map(Number);
+// [azimuth deg, elevation deg, distance m]
+const views = JSON.parse(q.get('views') || '[[30,20,1.25]]');
+const markers = q.get('markers') !== '0';
+const cols = poses.length, rows = srcs.length * views.length;
+const renderer = new THREE.WebGLRenderer({ antialias: true, preserveDrawingBuffer: true });
+renderer.setSize(S * cols, S * rows, false);
+renderer.outputColorSpace = THREE.SRGBColorSpace;
+document.body.appendChild(renderer.domElement);
+const scene = new THREE.Scene();
+scene.background = new THREE.Color(0x22262b);
+scene.add(new THREE.HemisphereLight(0xffffff, 0x556677, 2.0));
+const sun = new THREE.DirectionalLight(0xffffff, 1.9);
+sun.position.set(5, 9, 7);
+scene.add(sun);
+let info = { ok: false };
+try {
+  const birds = [];
+  for (const src of srcs) {
+    const o = await ASSET(src, { keepHierarchy: true, surfaces: q.get('surf') === '1' });
+    const parts = o.userData.parts || {};
+    if (!parts.leftWing || !parts.rightWing) throw new Error(`${src}: userData.parts.leftWing/rightWing missing after ASSET()`);
+    if (markers) for (const w of [parts.leftWing, parts.rightWing]) {
+      const red = new THREE.MeshBasicMaterial({ color: 0xff2020, depthTest: false });
+      const bead = new THREE.Mesh(new THREE.SphereGeometry(0.009, 10, 8), red);
+      const rod = new THREE.Mesh(new THREE.CylinderGeometry(0.0025, 0.0025, 0.3, 6).rotateX(Math.PI / 2), red);
+      bead.renderOrder = rod.renderOrder = 10;
+      w.add(bead, rod);
+    }
+    const box = new THREE.Box3().setFromObject(o);
+    birds.push({ o, parts, ctr: box.getCenter(new THREE.Vector3()) });
+  }
+  const cam = new THREE.PerspectiveCamera(30, 1, 0.01, 50);
+  renderer.setScissorTest(true);
+  birds.forEach((b, bi) => {
+    scene.add(b.o);
+    views.forEach(([az, el, dist], vi) => {
+      poses.forEach((deg, pi) => {
+        const a = (deg * Math.PI) / 180;
+        b.parts.leftWing.rotation.z = a;     // +a raises the left wing (+X)
+        b.parts.rightWing.rotation.z = -a;   // and -a the right one
+        const A = (az * Math.PI) / 180, E = (el * Math.PI) / 180;
+        cam.position.set(b.ctr.x + Math.sin(A) * Math.cos(E) * dist, b.ctr.y + Math.sin(E) * dist, b.ctr.z + Math.cos(A) * Math.cos(E) * dist);
+        cam.lookAt(b.ctr);
+        const row = bi * views.length + vi;
+        const x = pi * S, y = (rows - 1 - row) * S;
+        renderer.setViewport(x, y, S, S);
+        renderer.setScissor(x, y, S, S);
+        renderer.render(scene, cam);
+      });
+    });
+    b.parts.leftWing.rotation.z = 0;
+    b.parts.rightWing.rotation.z = 0;
+    scene.remove(b.o);
+  });
+  info = { ok: true, w: S * cols, h: S * rows };
+} catch (e) { info = { ok: false, error: String(e && e.stack || e) }; }
+window.__INFO__ = info;
+window.__DONE__ = true;
+</script></body></html>

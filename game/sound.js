@@ -395,6 +395,17 @@ export class Sound {
         ])
           setTimeout(() => this.bell(f, 4.5), d);
         return;
+      // A relic found: a rising arpeggio, lighter than a door's.
+      case "relic":
+        this.burst(0.25, 2800, 0.05, 1.4);
+        for (const [f, d] of [
+          [523.25, 0],
+          [659.25, 110],
+          [783.99, 220],
+          [1046.5, 380],
+        ])
+          setTimeout(() => this.bell(f, 2.4), d);
+        return;
       case "plate":
         this.tone(70, 0.3, 0.3, "sine");
         this.bell(523.25, 2.2);

@@ -73,7 +73,7 @@ The checkpoint's far door opens onto a sky at dawn: pale limestone isles float o
 
 ## The fourth world: the frozen reach
 
-Mira went on through a frost door: a world of ice under a twilight sky with slow ribbons of aurora. Snow lies on frost-slate rock; frozen streams and a frozen lake are clear ice over deep blue, and the ice holds blocks, spires and a stela. The only warm colours are the explorer and the expedition's timber, rope and vermilion markers; turquoise still marks the builders' technology (lenses, the ring, the stela's glyph). Ice is chunky and faceted, with bevelled edges and darker cores, never glassy filigree. Sizes: an ice block is 1.9 m on each side like the court's push block, an ice spire cluster about 4 m tall, a snow pine about 7 m, a trail cairn about 1.1 m.
+Mira went on through a frost door: a world of ice under a twilight sky with slow ribbons of aurora, in a valley ringed by snowy peaks. Snow lies on frost-slate rock worn into layers, with snow on every ledge, icicles under the lips and waterfalls caught in ice; frozen streams and a frozen lake are clear ice over deep blue, and the ice holds blocks, spires and a stela. The only warm colours are the explorer and the expedition's timber, rope and vermilion markers; turquoise still marks the builders' technology (lenses, the ring, the stela's glyph). Ice is chunky and faceted, with bevelled edges and darker cores, never glassy filigree. Sizes: an ice block is 1.9 m on each side like the court's push block, an ice spire cluster about 4 m tall, a snow pine about 7 m, a trail cairn about 1.1 m.
 
 ## The fifth world: the wild forest (seen through a door)
 

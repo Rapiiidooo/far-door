@@ -10,7 +10,8 @@ import { glyphMaterial, makeGlyph } from "./glyphs.js";
 import { buildCliffs } from "./cliffs.js";
 
 // The canyon's skyline: low in the west where the sun comes over, tallest behind the gate,
-// with a notch where the light falls through onto the catcher mirror.
+// with a slot cut deep into the west wall, where the sun falls through onto the catcher
+// mirror. Its sill stays above what a jump from the pushed block can reach.
 function rimHeight(x, z) {
   const W = COURT.MAP[0].length * COURT.CELL,
     D = COURT.MAP.length * COURT.CELL;
@@ -33,7 +34,7 @@ function rimHeight(x, z) {
     Math.sin(x * 0.07 - z * 0.19 + 1.3) * 2.2 +
     Math.sin((x + z) * 0.43) * 0.7;
   h += n;
-  if (x < 4) h -= 4.5 * Math.exp(-Math.pow((z - 21) / 1.7, 2));
+  if (x < 4) h -= 5.9 * Math.exp(-Math.pow((z - 21) / 1.2, 2));
   return h;
 }
 

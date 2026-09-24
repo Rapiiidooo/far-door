@@ -1,0 +1,78 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>preview</title>
+<script type="importmap">
+{ "imports": { "three": "https://cdn.jsdelivr.net/npm/three@0.169.0/build/three.module.js" } }
+</script>
+<style>body{margin:0;background:#22262b}canvas{display:block}</style>
+</head>
+<body>
+<script type="module">
+// Scratch preview: one row per module, the angles the verifier does not take.
+// 1: 200 m off, eye level from lower ground, telephoto, forest haze and light.
+// 2: front at eye level. 3: back-left, low. 4: right side, low. 5: from high up.
+import * as THREE from 'three';
+const q = new URLSearchParams(location.search);
+const srcs = q.get('src').split(',');
+const size = +(q.get('size') || 360);
+const VIEWS = [
+  { far: true },
+  { az: 0, el: 4 },
+  { az: 215, el: 12 },
+  { az: 90, el: 4 },
+  { az: 30, el: 62 },
+];
+const renderer = new THREE.WebGLRenderer({ antialias: true, preserveDrawingBuffer: true });
+renderer.setSize(size * VIEWS.length, size * srcs.length, false);
+renderer.outputColorSpace = THREE.SRGBColorSpace;
+document.body.appendChild(renderer.domElement);
+const H = renderer.domElement.height;
+
+const sheet = new THREE.Scene();
+sheet.background = new THREE.Color(0x22262b);
+sheet.add(new THREE.HemisphereLight(0xffffff, 0x556677, 2.0));
+const sun = new THREE.DirectionalLight(0xffffff, 1.9); sun.position.set(5, 9, 7); sheet.add(sun);
+
+const haze = new THREE.Scene();
+haze.background = new THREE.Color(0xa8b58f);
+haze.fog = new THREE.Fog(0xa8b58f, 60, 520);
+haze.add(new THREE.HemisphereLight(0xd8eab0, 0x2f3d1c, 1.15));
+const hsun = new THREE.DirectionalLight(0xffe2a0, 2.4); hsun.position.set(-18, 40, 30); haze.add(hsun);
+const hill = new THREE.Mesh(new THREE.CylinderGeometry(40, 90, 30, 32), new THREE.MeshStandardMaterial({ color: 0x4f7a3a, roughness: 1 }));
+hill.position.y = -15.02; haze.add(hill);
+
+let row = 0;
+for (const src of srcs) {
+  const mod = await import(src);
+  const a = mod.default(THREE), b = mod.default(THREE);
+  sheet.add(a); haze.add(b);
+  const box = new THREE.Box3().setFromObject(a);
+  const dim = box.getSize(new THREE.Vector3()), ctr = box.getCenter(new THREE.Vector3());
+  const radius = 0.5 * Math.hypot(dim.x, dim.y, dim.z);
+  const dist = (radius / Math.sin((17 * Math.PI) / 180)) * 1.05;
+  VIEWS.forEach((v, i) => {
+    let cam;
+    if (v.far) {
+      cam = new THREE.PerspectiveCamera(16, 1, 1, 2000);
+      cam.position.set(20, -12, 200);
+      cam.lookAt(0, 16, 0);
+    } else {
+      const az = (v.az * Math.PI) / 180, el = (v.el * Math.PI) / 180;
+      cam = new THREE.PerspectiveCamera(34, 1, dist * 0.01, dist * 10);
+      cam.position.set(ctr.x + Math.sin(az) * dist * Math.cos(el), ctr.y + dist * Math.sin(el), ctr.z + Math.cos(az) * dist * Math.cos(el));
+      cam.lookAt(ctr);
+    }
+    renderer.setViewport(i * size, H - (row + 1) * size, size, size);
+    renderer.setScissor(i * size, H - (row + 1) * size, size, size);
+    renderer.setScissorTest(true);
+    renderer.render(v.far ? haze : sheet, cam);
+  });
+  sheet.remove(a); haze.remove(b);
+  row++;
+}
+window.__DONE__ = true;
+</script>
+</body>
+</html>

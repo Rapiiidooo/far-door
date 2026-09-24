@@ -64,6 +64,7 @@ export class WorldFour {
     pmrem.dispose();
 
     this.buildSnow();
+    this.buildRanges();
     this.frozen = new Frozen(s, this.world, this.assets, this.services);
     await this.frozen.build();
     await this.buildArrival();
@@ -116,6 +117,71 @@ export class WorldFour {
     dome.renderOrder = -10;
     g.add(dome);
     return g;
+  }
+
+  // Mountains all round the reach, above its walls: a near range of dusky rock under snow and
+  // a far one paler in the haze, both drawn in the twilight's own colours, clear of the fog.
+  buildRanges() {
+    const cx = 0,
+      cz = -85;
+    for (const [r, lo, hi, rockHex, snowHex, seed] of [
+      [240, 40, 95, 0x46506a, 0xdde4f1, 5],
+      [380, 80, 170, 0x6a7290, 0xeaeef7, 9],
+    ]) {
+      const rand = seeded(seed);
+      const rock = new THREE.Color(rockHex),
+        snow = new THREE.Color(snowHex);
+      const pos = [],
+        col = [];
+      const n = 160;
+      const peaks = [];
+      for (let i = 0; i <= n; i++) {
+        const a = (i / n) * Math.PI * 2;
+        const ridge =
+          0.5 +
+          0.5 *
+            Math.abs(
+              Math.sin(a * 4.5 + seed) * 0.6 +
+                Math.sin(a * 11 + seed * 2) * 0.4,
+            );
+        peaks.push(lo + (hi - lo) * ridge * (0.8 + rand() * 0.2));
+      }
+      const at = (i, y) => {
+        const a = (i / n) * Math.PI * 2;
+        return [cx + Math.sin(a) * r, y, cz - Math.cos(a) * r];
+      };
+      for (let i = 0; i < n; i++) {
+        const h0 = peaks[i],
+          h1 = peaks[i + 1];
+        const s0 = h0 * (0.55 + 0.1 * Math.sin(i * 1.7)),
+          s1 = h1 * (0.55 + 0.1 * Math.sin((i + 1) * 1.7));
+        // Rock from the foot to the snowline, snow from there to the ridge.
+        for (const [ya0, ya1, yb0, yb1, ca, cb] of [
+          [-10, -10, s0, s1, rock, rock],
+          [s0, s1, h0, h1, snow, snow],
+        ]) {
+          const q = [at(i, ya0), at(i + 1, ya1), at(i + 1, yb1), at(i, yb0)];
+          for (const k of [0, 1, 2, 0, 2, 3]) {
+            pos.push(...q[k]);
+            const c = k < 2 ? ca : cb;
+            col.push(c.r, c.g, c.b);
+          }
+        }
+      }
+      const g = new THREE.BufferGeometry();
+      g.setAttribute("position", new THREE.Float32BufferAttribute(pos, 3));
+      g.setAttribute("color", new THREE.Float32BufferAttribute(col, 3));
+      const m = new THREE.Mesh(
+        g,
+        new THREE.MeshBasicMaterial({
+          vertexColors: true,
+          fog: false,
+          side: THREE.DoubleSide,
+        }),
+      );
+      m.frustumCulled = false;
+      this.scene.add(m);
+    }
   }
 
   // Snow drifting down around the camera, wrapped so it never runs out.
@@ -644,4 +710,12 @@ class FinaleShot {
 function smooth(a, b, x) {
   const t = Math.min(1, Math.max(0, (x - a) / (b - a)));
   return t * t * (3 - 2 * t);
+}
+
+function seeded(seed) {
+  let s = seed >>> 0;
+  return () => {
+    s = (s * 1664525 + 1013904223) >>> 0;
+    return s / 4294967296;
+  };
 }

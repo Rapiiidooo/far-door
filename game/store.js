@@ -89,6 +89,8 @@ export const progress = {
   reached: new Set(Array.isArray(saved.reached) ? saved.reached : []),
   last: typeof saved.last === "string" ? saved.last : null,
   finished: !!saved.completed,
+  // Relics found, kept across new games like any achievement.
+  relics: new Set(Array.isArray(saved.relics) ? saved.relics : []),
 };
 progress.reached.add("court");
 
@@ -97,7 +99,15 @@ function saveProgress() {
     reached: [...progress.reached],
     last: progress.last,
     completed: progress.finished,
+    relics: [...progress.relics],
   });
+}
+
+export function findRelic(id) {
+  const fresh = !progress.relics.has(id);
+  progress.relics.add(id);
+  saveProgress();
+  return fresh;
 }
 
 export function reach(id) {
@@ -117,5 +127,6 @@ export function resetProgress() {
   progress.reached = new Set(["court"]);
   progress.last = null;
   progress.finished = false;
+  progress.relics = new Set();
   saveProgress();
 }

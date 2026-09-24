@@ -1,0 +1,116 @@
+[
+ {
+  "ok": true,
+  "mounts": null,
+  "meshes": 131,
+  "tris": 2980,
+  "materials": 7,
+  "size": [
+   0.967,
+   1.053,
+   0.612
+  ],
+  "groundOffset": 0,
+  "centreOffset": [
+   0,
+   0
+  ],
+  "sides": {
+   "front": {
+    "coverage": 0.1306,
+    "edgeDensity": 0.1922
+   },
+   "right": {
+    "coverage": 0.0746,
+    "edgeDensity": 0.1937
+   },
+   "back": {
+    "coverage": 0.1109,
+    "edgeDensity": 0.2182
+   },
+   "left": {
+    "coverage": 0.0766,
+    "edgeDensity": 0.1836
+   }
+  },
+  "error": null,
+  "name": "field_radio_a",
+  "problems": []
+ },
+ {
+  "ok": true,
+  "mounts": null,
+  "meshes": 71,
+  "tris": 2965,
+  "materials": 7,
+  "size": [
+   0.923,
+   1.059,
+   0.609
+  ],
+  "groundOffset": 0,
+  "centreOffset": [
+   0,
+   0
+  ],
+  "sides": {
+   "front": {
+    "coverage": 0.1315,
+    "edgeDensity": 0.1776
+   },
+   "right": {
+    "coverage": 0.0756,
+    "edgeDensity": 0.1997
+   },
+   "back": {
+    "coverage": 0.1125,
+    "edgeDensity": 0.2155
+   },
+   "left": {
+    "coverage": 0.0755,
+    "edgeDensity": 0.1833
+   }
+  },
+  "error": null,
+  "name": "field_radio_b",
+  "problems": []
+ },
+ {
+  "ok": true,
+  "mounts": null,
+  "meshes": 97,
+  "tris": 2934,
+  "materials": 7,
+  "size": [
+   1.043,
+   0.856,
+   0.541
+  ],
+  "groundOffset": 0,
+  "centreOffset": [
+   0,
+   0
+  ],
+  "sides": {
+   "front": {
+    "coverage": 0.1414,
+    "edgeDensity": 0.2365
+   },
+   "right": {
+    "coverage": 0.0874,
+    "edgeDensity": 0.3056
+   },
+   "back": {
+    "coverage": 0.1052,
+    "edgeDensity": 0.1545
+   },
+   "left": {
+    "coverage": 0.0831,
+    "edgeDensity": 0.2848
+   }
+  },
+  "error": null,
+  "name": "field_radio_c",
+  "problems": []
+ }
+]

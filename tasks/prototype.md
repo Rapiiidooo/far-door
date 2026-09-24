@@ -6,4 +6,5 @@ The rework the owner asked for on 24 September 2026 is done and verified, and so
 - [ ] Check by hand what the automated runs cannot: a gamepad, sound levels, dodging stamps by hand, and a slower GPU.
 - [ ] Play the touch controls on a physical phone, in portrait and on its side (`receipts/verification-jam/`).
 - [ ] The owner plays the lengthened isles and the frozen reach by hand (the drifting isle, the stones, the relay, the slide, the ice block, the thin ice and floes, the casing) and says whether the difficulty is right.
+- [ ] The owner hunts the five relics by hand and says whether they are too easy or too hard to find, and looks at the forest through the last door and the frozen reach's new relief.
 - [ ] Before 25 September 23:59 UTC, any new release goes out with a fresh gate verdict and the entry file and pull request updated to its commit.

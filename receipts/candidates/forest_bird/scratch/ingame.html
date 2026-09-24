@@ -1,0 +1,63 @@
+<!doctype html>
+<html><head><meta charset="utf-8">
+<script type="importmap">{ "imports": { "three": "/game/vendor/three.module.js", "three/addons/": "/game/vendor/" } }</script>
+<style>body{margin:0;background:#000}canvas{display:block}</style></head>
+<body>
+<script type="module">
+// Throwaway: the bird candidates in the game's own forest (game/forest.js), loaded through the
+// game's assetlib with surfaces on and the hierarchy kept, flying across the clearing with their
+// wings at different flap angles. Two shots: the birds near, then far off.
+import * as THREE from 'three';
+import { ASSET } from '/game/assetlib.js';
+import { ForestView } from '/game/forest.js';
+const q = new URLSearchParams(location.search);
+const W = +(q.get('w') || 1280), H = +(q.get('h') || 720);
+const renderer = new THREE.WebGLRenderer({ antialias: true, preserveDrawingBuffer: true });
+renderer.setSize(W, H, false);
+renderer.outputColorSpace = THREE.SRGBColorSpace;
+renderer.toneMapping = THREE.ACESFilmicToneMapping;
+renderer.toneMappingExposure = 0.86;
+document.body.appendChild(renderer.domElement);
+const camera = new THREE.PerspectiveCamera(50, W / H, 0.05, 900);
+let info = { ok: false };
+try {
+  const exists = async (url) => { try { return (await fetch(url, { method: 'HEAD' })).ok; } catch { return false; } };
+  const assets = { async make(name, opts = {}) {
+    const url = `/game/assets/${name}.js`;
+    if (!(await exists(url))) return null;
+    return ASSET(url, { surfaces: true, ...opts });
+  } };
+  const f = new ForestView(assets);
+  await f.build();
+  const scene = f.scene;
+  const srcs = (q.get('srcs') || '').split(',').filter(Boolean);
+  // [x, y, z, yaw, flap degrees] per bird, one list per shot.
+  const shots = JSON.parse(q.get('shots'));
+  const cams = JSON.parse(q.get('cams'));
+  const birds = [];
+  for (const src of srcs) birds.push(await ASSET(src, { keepHierarchy: true, surfaces: true }));
+  window.shot = async (k) => {
+    for (const b of birds) scene.remove(b);
+    shots[k].forEach(([x, y, z, yaw, deg], i) => {
+      const b = birds[i % birds.length];
+      b.position.set(x, y, z);
+      b.rotation.set(0, yaw, 0);
+      b.userData.parts.leftWing.rotation.z = (deg * Math.PI) / 180;
+      b.userData.parts.rightWing.rotation.z = (-deg * Math.PI) / 180;
+      scene.add(b);
+    });
+    const [cx, cy, cz, lx, ly, lz, fov] = cams[k];
+    camera.position.set(cx, cy, cz);
+    camera.fov = fov || 50;
+    camera.updateProjectionMatrix();
+    camera.lookAt(lx, ly, lz);
+    f.renderInto(renderer, camera);
+    await new Promise((r) => requestAnimationFrame(r));
+    return true;
+  };
+  window.__VIEWS__ = shots.length;
+  info = { ok: true, w: W, h: H };
+} catch (e) { info = { ok: false, error: String(e && e.stack || e) }; }
+window.__INFO__ = info;
+window.__DONE__ = true;
+</script></body></html>

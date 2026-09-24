@@ -553,7 +553,8 @@ export class Hero {
     const f = this.facing;
     let best = null,
       bestD = Infinity;
-    for (const item of this.level.interactables()) {
+    const extras = this.extras?.() ?? [];
+    for (const item of [...this.level.interactables(), ...extras]) {
       const b = item.box;
       let dx, dz, d;
       if (b.shape === "round") {

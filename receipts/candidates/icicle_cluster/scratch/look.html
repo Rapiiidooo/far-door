@@ -1,0 +1,125 @@
+<!doctype html>
+<html><head><meta charset="utf-8">
+<script type="importmap">{ "imports": { "three": "/game/vendor/three.module.js", "three/addons/": "/game/vendor/" } }</script>
+<style>body{margin:0;background:#000}canvas{display:block}</style></head>
+<body>
+<script type="module">
+// Scratch look-render, not a gate. A frost-slate block whose top edge runs along x at
+// y = LIP, z = 0, its face dropping towards +Z; the asset is loaded through the game's
+// assetlib with its hierarchy (so userData.anchor survives), hung by that anchor on the
+// edge, and glossed the way frozen.js glosses ice. Twilight rig guessed from the level.
+// views: [[distance, azimuth deg from +Z, camera height, look-at height, fov], ...]
+import * as THREE from 'three';
+import { ASSET } from '/game/assetlib.js';
+
+const q = new URLSearchParams(location.search);
+const W = +(q.get('w') || 640), H = +(q.get('h') || 640);
+const LIP = +(q.get('lip') || 3.5);
+const views = JSON.parse(q.get('views') || '[[8,20,2,2.8,40]]');
+const cols = Math.min(views.length, +(q.get('cols') || 4)), rows = Math.ceil(views.length / cols);
+const out = document.createElement('canvas');
+out.width = W * cols; out.height = H * rows;
+document.body.appendChild(out);
+const ctx = out.getContext('2d');
+
+const renderer = new THREE.WebGLRenderer({ antialias: true, preserveDrawingBuffer: true });
+renderer.setSize(W, H, false);
+renderer.outputColorSpace = THREE.SRGBColorSpace;
+renderer.toneMapping = THREE.ACESFilmicToneMapping;
+renderer.toneMappingExposure = +(q.get('exp') || 1.0);
+renderer.shadowMap.enabled = true;
+renderer.shadowMap.type = THREE.PCFShadowMap;
+
+const sunAz = +(q.get('sunaz') || 40) * Math.PI / 180, sunEl = +(q.get('sunel') || 14) * Math.PI / 180;
+const SUN = new THREE.Vector3(Math.sin(sunAz) * Math.cos(sunEl), Math.sin(sunEl), Math.cos(sunAz) * Math.cos(sunEl));
+const skyMat = () => new THREE.ShaderMaterial({
+  side: THREE.BackSide, depthWrite: false, fog: false,
+  uniforms: { uSun: { value: SUN } },
+  vertexShader: `varying vec3 vDir; void main() { vDir = normalize(position); gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0); }`,
+  fragmentShader: `
+    varying vec3 vDir; uniform vec3 uSun;
+    void main() {
+      vec3 d = normalize(vDir); float h = d.y;
+      vec3 horizon = vec3(0.86, 0.72, 0.78), mid = vec3(0.42, 0.46, 0.70), zenith = vec3(0.10, 0.14, 0.32);
+      vec3 col = mix(horizon, mid, smoothstep(0.0, 0.25, h));
+      col = mix(col, zenith, smoothstep(0.25, 0.9, h));
+      float s = max(dot(d, uSun), 0.0);
+      col += vec3(1.0, 0.62, 0.45) * pow(s, 10.0) * 0.35;
+      col = mix(col, vec3(0.82, 0.84, 0.9), smoothstep(0.0, -0.1, h));
+      gl_FragColor = vec4(col, 1.0);
+    }`,
+});
+const scene = new THREE.Scene();
+const fogCol = new THREE.Color(q.get('fog') || '#b9b6cf');
+scene.fog = new THREE.FogExp2(fogCol, +(q.get('fogd') || 0.006));
+scene.background = fogCol;
+const sky = new THREE.Mesh(new THREE.SphereGeometry(400, 32, 16), skyMat());
+scene.add(sky);
+const sun = new THREE.DirectionalLight(q.get('sunc') || '#ffd2b8', +(q.get('suni') || 2.2));
+sun.position.copy(SUN).multiplyScalar(40);
+sun.castShadow = true;
+sun.shadow.mapSize.set(2048, 2048);
+Object.assign(sun.shadow.camera, { left: -8, right: 8, top: 8, bottom: -8, near: 1, far: 100 });
+sun.shadow.bias = -0.0004; sun.shadow.normalBias = 0.03;
+scene.add(sun, sun.target);
+scene.add(new THREE.HemisphereLight(q.get('hsky') || '#8ea6de', q.get('hgnd') || '#d8e2ea', +(q.get('hemi') || 1.3)));
+const pmrem = new THREE.PMREMGenerator(renderer);
+const envScene = new THREE.Scene();
+envScene.add(new THREE.Mesh(new THREE.SphereGeometry(400, 32, 16), skyMat()));
+scene.environment = pmrem.fromScene(envScene, 0.04).texture;
+scene.environmentIntensity = +(q.get('env') || 0.6);
+const ground = new THREE.Mesh(new THREE.PlaneGeometry(300, 300), new THREE.MeshStandardMaterial({ color: q.get('gnd') || '#dfe8ee', roughness: 0.95 }));
+ground.rotation.x = -Math.PI / 2;
+ground.receiveShadow = true;
+scene.add(ground);
+// the rock: top at LIP, face on z = 0, snow on its top
+const rockMat = new THREE.MeshStandardMaterial({ color: 0x3d4654, roughness: 0.9 });
+const rock = new THREE.Mesh(new THREE.BoxGeometry(9, LIP, 4), rockMat);
+rock.position.set(0, LIP / 2, -2);
+rock.castShadow = rock.receiveShadow = true;
+if (q.get('rock') !== '0') scene.add(rock);
+const snowTop = new THREE.Mesh(new THREE.BoxGeometry(9, 0.08, 4), new THREE.MeshStandardMaterial({ color: 0xe9f2f6, roughness: 0.9 }));
+snowTop.position.set(0, LIP + 0.04, -2);
+snowTop.receiveShadow = true;
+if (q.get('rock') !== '0' && q.get('snow') !== '0') scene.add(snowTop);
+const hero = new THREE.Mesh(new THREE.CapsuleGeometry(0.28, 1.19, 4, 12), new THREE.MeshStandardMaterial({ color: 0x2d3656, roughness: 0.8 }));
+hero.position.set(+(q.get('hx') || 1.6), 0.875, +(q.get('hz') || 1.2));
+hero.castShadow = true;
+if (q.get('hero') !== '0') scene.add(hero);
+
+let info = { ok: false };
+try {
+  const obj = await ASSET(q.get('src'), { keepHierarchy: true, surfaces: false });
+  const [ax, ay, az] = obj.userData.anchor || [0, 0, 0];
+  const yaw = +(q.get('yaw') || 0);
+  const c = Math.cos(yaw), s = Math.sin(yaw);
+  obj.position.set(0 - (ax * c + az * s), LIP - ay, 0 - (-ax * s + az * c));
+  obj.rotation.y = yaw;
+  // frozen.js iceLook
+  obj.traverse((m) => {
+    if (!m.isMesh) return;
+    m.castShadow = true;
+    const col = m.material.color;
+    const hsl = col.getHSL({});
+    if (q.get('gloss') !== '0' && hsl.h > 0.45 && hsl.h < 0.65 && hsl.s > 0.2) {
+      m.material = m.material.clone();
+      m.material.roughness = 0.1; m.material.metalness = 0.15; m.material.envMapIntensity = 1.3;
+    }
+  });
+  scene.add(obj);
+  let draws = 0, tris = 0;
+  obj.traverse((o) => { if (o.isMesh) { draws++; tris += (o.geometry.index ? o.geometry.index.count : o.geometry.attributes.position.count) / 3; } });
+  views.forEach(([d, azDeg, camH, lookY, fov = 40], i) => {
+    const a = azDeg * Math.PI / 180;
+    const cam = new THREE.PerspectiveCamera(fov, W / H, 0.05, 900);
+    cam.position.set(Math.sin(a) * d, camH, Math.cos(a) * d);
+    cam.lookAt(0, lookY, 0);
+    sky.position.copy(cam.position);
+    renderer.render(scene, cam);
+    ctx.drawImage(renderer.domElement, (i % cols) * W, Math.floor(i / cols) * H);
+  });
+  info = { ok: true, draws, tris, anchor: obj.userData.anchor, mounts: obj.userData.mounts };
+} catch (e) { info = { ok: false, error: String(e && e.stack || e) }; }
+window.__INFO__ = info;
+window.__DONE__ = true;
+</script></body></html>

@@ -1,0 +1,69 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>preview</title>
+<script type="importmap">
+{ "imports": { "three": "https://cdn.jsdelivr.net/npm/three@0.169.0/build/three.module.js" } }
+</script>
+<style>body{margin:0;background:#22262b}canvas{display:block}</style>
+</head>
+<body>
+<script type="module">
+// Scratch preview: one row per module, views given as az:el pairs in degrees
+// (az 0 looks at the front, 90 at the stag's left side). Optional pose per row:
+// pose=name:deg;name:deg applied to userData.parts before framing.
+import * as THREE from 'three';
+const q = new URLSearchParams(location.search);
+const srcs = q.get('src').split(',');
+const size = +(q.get('size') || 480);
+const views = (q.get('views') || '0:12,90:5,180:12,270:5,35:25').split(',').map((s) => s.split(':').map(Number));
+const poses = (q.get('poses') || '').split(',');
+const zoom = +(q.get('zoom') || 1);
+const target = q.get('target') ? q.get('target').split(',').map(Number) : null;
+const renderer = new THREE.WebGLRenderer({ antialias: true, preserveDrawingBuffer: true });
+renderer.setSize(size * views.length, size * srcs.length, false);
+renderer.outputColorSpace = THREE.SRGBColorSpace;
+document.body.appendChild(renderer.domElement);
+const H = renderer.domElement.height;
+const scene = new THREE.Scene();
+scene.background = new THREE.Color(0x22262b);
+scene.add(new THREE.HemisphereLight(0xffffff, 0x556677, 2.0));
+const sun = new THREE.DirectionalLight(0xffffff, 1.9); sun.position.set(5, 9, 7); scene.add(sun);
+// a ground grid so posed legs can be judged against the floor
+const grid = new THREE.GridHelper(4, 8, 0x555a60, 0x3a3e44);
+scene.add(grid);
+let row = 0;
+for (const src of srcs) {
+  const mod = await import(src);
+  const a = mod.default(THREE);
+  const pose = poses[row] || '';
+  for (const kv of pose.split(';').filter(Boolean)) {
+    const [k, d] = kv.split(':');
+    const o = a.userData.parts && a.userData.parts[k];
+    if (o) o.rotation.x = (+d * Math.PI) / 180;
+  }
+  scene.add(a);
+  a.updateMatrixWorld(true);
+  const box = new THREE.Box3().setFromObject(a);
+  const dim = box.getSize(new THREE.Vector3()), ctr = box.getCenter(new THREE.Vector3());
+  if (target) ctr.set(...target);
+  const radius = 0.5 * Math.hypot(dim.x, dim.y, dim.z);
+  const dist = ((radius / Math.sin((17 * Math.PI) / 180)) * 1.05) / zoom;
+  views.forEach(([azd, eld], i) => {
+    const az = (azd * Math.PI) / 180, el = (eld * Math.PI) / 180;
+    const cam = new THREE.PerspectiveCamera(34, 1, dist * 0.01, dist * 10);
+    cam.position.set(ctr.x + Math.sin(az) * dist * Math.cos(el), ctr.y + dist * Math.sin(el), ctr.z + Math.cos(az) * dist * Math.cos(el));
+    cam.lookAt(ctr);
+    renderer.setViewport(i * size, H - (row + 1) * size, size, size);
+    renderer.setScissor(i * size, H - (row + 1) * size, size, size);
+    renderer.setScissorTest(true);
+    renderer.render(scene, cam);
+  });
+  scene.remove(a);
+  row++;
+}
+window.__DONE__ = true;
+</script>
+</body>
+</html>

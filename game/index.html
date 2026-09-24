@@ -50,6 +50,11 @@
         <p class="hint-body"></p>
       </div>
       <p id="prompt" aria-live="polite"></p>
+      <div id="relic-toast" role="status">
+        <p class="kicker"></p>
+        <p class="name"></p>
+        <p class="line"></p>
+      </div>
     </div>
 
     <!-- On phones and tablets: a stick to move, a drag on the picture to look, and the actions. -->
@@ -170,6 +175,7 @@
           <button type="button" data-action="continue">Continue</button>
           <button type="button" data-action="new" id="startb">New game</button>
           <button type="button" data-action="levels">Levels</button>
+          <button type="button" data-action="relics">Relics</button>
           <button type="button" data-action="settings">Settings</button>
           <button type="button" data-action="controls">Controls</button>
           <button type="button" data-action="credits">Credits</button>
@@ -187,6 +193,7 @@
           <button type="button" data-action="resume">Resume</button>
           <button type="button" data-action="restart">Restart level</button>
           <button type="button" data-action="levels">Levels</button>
+          <button type="button" data-action="relics">Relics</button>
           <button type="button" data-action="settings">Settings</button>
           <button type="button" data-action="controls">Controls</button>
           <button type="button" data-action="title">Quit to title</button>
@@ -197,6 +204,16 @@
         <p class="kicker">Levels</p>
         <h2 class="panel-title">Choose where to start</h2>
         <div class="levels" id="level-list"></div>
+        <nav class="menu-list compact">
+          <button type="button" data-action="back">Back</button>
+        </nav>
+      </div>
+
+      <div class="panel wide" data-screen="relics" hidden>
+        <p class="kicker">Relics</p>
+        <h2 class="panel-title">What they left behind</h2>
+        <p class="relic-count" id="relic-count"></p>
+        <div class="levels" id="relic-list"></div>
         <nav class="menu-list compact">
           <button type="button" data-action="back">Back</button>
         </nav>

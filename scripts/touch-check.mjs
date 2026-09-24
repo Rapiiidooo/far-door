@@ -116,6 +116,7 @@ async function clashes() {
     const texts = [
       "#prompt.on",
       "#hint.on",
+      "#relic-toast.on",
       "#subtitle.on",
       "#objective-box",
       "#chapter-card.on",
@@ -153,20 +154,26 @@ async function clashes() {
   });
 }
 
-// The prompt and a hint card up together, as the game can show them, to test the layout with
-// every control this world has; the game's own text is put back afterwards.
+// The prompt, a hint card and a relic's card up together, as the game can show them, to test
+// the layout with every control this world has; the game's own text is put back afterwards.
 async function crowded() {
   await page.evaluate(() => {
     const p = document.querySelector("#prompt"),
       h = document.querySelector("#hint");
     const t = document.querySelector("#subtitle");
+    const r = document.querySelector("#relic-toast");
     window.__saved = [
       p.innerHTML,
       p.className,
       h.innerHTML,
       h.className,
       t.style.bottom,
+      r.innerHTML,
+      r.className,
     ];
+    r.innerHTML =
+      '<p class="kicker">Relic found · 5 of 5</p><p class="name">Mira\'s lantern</p><p class="line">Still burning low in the lee of the island. She meant to come back for it.</p>';
+    r.classList.add("on");
     p.innerHTML = "<kbd>Use</kbd> Talk to the clerk at the booth";
     p.classList.add("on");
     h.innerHTML =
@@ -181,8 +188,16 @@ async function crowded() {
     const p = document.querySelector("#prompt"),
       h = document.querySelector("#hint");
     const t = document.querySelector("#subtitle");
-    [p.innerHTML, p.className, h.innerHTML, h.className, t.style.bottom] =
-      window.__saved;
+    const r = document.querySelector("#relic-toast");
+    [
+      p.innerHTML,
+      p.className,
+      h.innerHTML,
+      h.className,
+      t.style.bottom,
+      r.innerHTML,
+      r.className,
+    ] = window.__saved;
   });
   return found;
 }

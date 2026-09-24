@@ -1,0 +1,116 @@
+[
+ {
+  "ok": true,
+  "mounts": "top",
+  "meshes": 3,
+  "tris": 1082,
+  "materials": 3,
+  "size": [
+   2.38,
+   1.55,
+   0.306
+  ],
+  "groundOffset": 0,
+  "centreOffset": [
+   0,
+   0
+  ],
+  "sides": {
+   "front": {
+    "coverage": 0.1223,
+    "edgeDensity": 0.3364
+   },
+   "right": {
+    "coverage": 0.0339,
+    "edgeDensity": 0.1875
+   },
+   "back": {
+    "coverage": 0.1169,
+    "edgeDensity": 0.2592
+   },
+   "left": {
+    "coverage": 0.0376,
+    "edgeDensity": 0.1925
+   }
+  },
+  "error": null,
+  "name": "icicle_cluster_a",
+  "problems": []
+ },
+ {
+  "ok": true,
+  "mounts": "top",
+  "meshes": 3,
+  "tris": 1786,
+  "materials": 3,
+  "size": [
+   2.4,
+   1.55,
+   0.294
+  ],
+  "groundOffset": 0,
+  "centreOffset": [
+   0,
+   0
+  ],
+  "sides": {
+   "front": {
+    "coverage": 0.1263,
+    "edgeDensity": 0.3127
+   },
+   "right": {
+    "coverage": 0.0332,
+    "edgeDensity": 0.1772
+   },
+   "back": {
+    "coverage": 0.1225,
+    "edgeDensity": 0.2345
+   },
+   "left": {
+    "coverage": 0.0328,
+    "edgeDensity": 0.156
+   }
+  },
+  "error": null,
+  "name": "icicle_cluster_b",
+  "problems": []
+ },
+ {
+  "ok": true,
+  "mounts": "top",
+  "meshes": 3,
+  "tris": 1492,
+  "materials": 3,
+  "size": [
+   2.4,
+   1.54,
+   0.312
+  ],
+  "groundOffset": 0,
+  "centreOffset": [
+   0,
+   0
+  ],
+  "sides": {
+   "front": {
+    "coverage": 0.111,
+    "edgeDensity": 0.2215
+   },
+   "right": {
+    "coverage": 0.0359,
+    "edgeDensity": 0.1576
+   },
+   "back": {
+    "coverage": 0.1119,
+    "edgeDensity": 0.1756
+   },
+   "left": {
+    "coverage": 0.0389,
+    "edgeDensity": 0.151
+   }
+  },
+  "error": null,
+  "name": "icicle_cluster_c",
+  "problems": []
+ }
+]
