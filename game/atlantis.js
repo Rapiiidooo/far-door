@@ -771,59 +771,30 @@ const SWIM_MOVE = /* glsl */ `
   transformed.y += sin(uTime * 1.5 + swimSeed) * 0.35 * pow(abs(position.x), 1.5) * aMotion.y;
   transformed = swimFrame * (transformed * aSwim.w) + swimAt;`;
 
-// A fish a metre long, nose to +z: a deep, narrow body of two cones about a ring, a forked
-// tail and a dorsal fin.
+// A fish a metre long, nose to +z, from three.js primitives: a deep, narrow body, a flat tail
+// fin and a fin on its back.
 function fishGeometry() {
-  const ring = [];
-  for (let i = 0; i < 6; i++) {
-    const a = (i / 6) * Math.PI * 2;
-    ring.push([Math.cos(a) * 0.075, Math.sin(a) * 0.17, 0.08]);
-  }
-  const p = [];
-  for (let i = 0; i < 6; i++) {
-    const a = ring[i],
-      b = ring[(i + 1) % 6];
-    p.push(0, 0, 0.5, ...a, ...b, 0, 0, -0.3, ...b, ...a);
-  }
-  p.push(0, 0, -0.26, 0, 0.2, -0.55, 0, 0.02, -0.42);
-  p.push(0, 0, -0.26, 0, -0.02, -0.42, 0, -0.2, -0.55);
-  p.push(0, 0.15, 0.12, 0, 0.27, -0.08, 0, 0.13, -0.14);
-  return flat(p);
+  const body = new THREE.SphereGeometry(1, 8, 6)
+    .scale(0.075, 0.17, 0.4)
+    .translate(0, 0, 0.1);
+  const tail = new THREE.ConeGeometry(0.2, 0.3, 4)
+    .rotateX(Math.PI / 2)
+    .scale(0.12, 1, 1)
+    .translate(0, 0, -0.42);
+  const fin = new THREE.ConeGeometry(0.06, 0.14, 4)
+    .scale(0.15, 1, 1.8)
+    .translate(0, 0.2, 0.04);
+  return mergeGeometries([body, tail, fin]);
 }
 
-// A manta a metre across, nose to +z, wings out along x and a whip of a tail.
+// A manta a metre across, nose to +z: a flat diamond of a body, its wings out along x, and a
+// whip of a tail.
 function mantaGeometry() {
-  const nose = [0, 0, 0.32],
-    back = [0, 0.05, 0.02],
-    left = [-0.5, 0, -0.08],
-    right = [0.5, 0, -0.08],
-    tail = [0, 0, -0.26],
-    tip = [0, 0, -0.95],
-    fin = [0.02, 0, -0.26];
-  return flat([
-    ...nose,
-    ...left,
-    ...back,
-    ...nose,
-    ...back,
-    ...right,
-    ...left,
-    ...tail,
-    ...back,
-    ...back,
-    ...tail,
-    ...right,
-    ...tail,
-    ...tip,
-    ...fin,
-  ]);
-}
-
-function flat(positions) {
-  const g = new THREE.BufferGeometry();
-  g.setAttribute("position", new THREE.Float32BufferAttribute(positions, 3));
-  g.computeVertexNormals();
-  return g;
+  const body = new THREE.CylinderGeometry(0.5, 0.5, 0.05, 4).scale(1, 1, 0.6);
+  const tail = new THREE.CylinderGeometry(0.003, 0.012, 0.7, 3)
+    .rotateX(Math.PI / 2)
+    .translate(0, 0, -0.62);
+  return mergeGeometries([body, tail]);
 }
 
 function wrap(a) {
