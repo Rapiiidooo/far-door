@@ -135,7 +135,7 @@ export class CourtStory {
         id: "climb",
         objective: "Follow the expedition down into the court",
         sub: "Shimmy right along the crack and climb up",
-        marker: V(9, 7.4, 31),
+        marker: V(9.6, 7.4, 31),
         done: () => on(7) && hero.pos.x > 8 && hero.pos.x < 10,
         hint: [
           "Climbing",

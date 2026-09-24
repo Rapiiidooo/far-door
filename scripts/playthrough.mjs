@@ -329,7 +329,7 @@ try {
     s = await until((s) => s.state === "hang", 3000, "catch the crack");
     note(`caught the crack at ${s.pos.map((v) => v.toFixed(2))}`);
     await hold(new Set(["KeyD"]));
-    s = await until((s) => s.pos[0] > 8.6, 8000, "shimmy along the crack");
+    s = await until((s) => s.pos[0] > 9.4, 9000, "shimmy along the crack");
     await hold(new Set());
     await shot("shimmy");
     await tap(["KeyW"], 500);

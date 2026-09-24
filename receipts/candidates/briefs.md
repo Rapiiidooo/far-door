@@ -188,3 +188,47 @@ A cluster of four mushrooms of the wild forest on a mossy root knob about 0.8 m 
 ## rubble_pile
 
 A heap of fallen masonry from the builders' ruins, about 2.4 m across and 0.9 m tall: two broken dressed blocks with chamfered edges and a cut groove (sandstone and sunlit sandstone), one leaning on the other, a snapped drum of a column (bone limestone band), and eight to twelve smaller angular chunks and flakes spilling out around them (sandstone and burnt sienna). Name the material `stone`. It must read from 15 m as fallen worked stone, not as boulders. Budget: at most 3,000 triangles.
+
+# Sixth wave
+
+Handed out on 24 September 2026, when the owner asked for five hidden relics to find as achievements, a forest seen further and fuller through the last door, and more relief in the frozen reach. Same contract, style lock and fallback as above.
+
+## field_scroll
+
+A papyrus scroll left by the first expedition, about 0.5 m long: a rolled sheet of bone limestone parchment 0.09 m thick, one end partly unrolled into a flat, curling sheet 0.3 m wide showing a sketched map in explorer-leather ink (a few thin raised lines, a circle and a cross built as geometry), tied in the middle with a rope cord whose two ends hang loose, lying on the ground. Finished on every side. Budget: at most 1,500 triangles.
+
+## field_radio
+
+The first expedition's field radio, about 0.5 m wide: a boxy case of weathered timber with aged-bronze corner plates and a hinged lid propped open behind, a front panel with two round dials, a row of three knobs and a round speaker grille of parallel slots, a folding leather carrying handle on top, a telescopic bronze antenna raised at an angle, and a coiled cable running to a small headset of two round earpieces on a band lying beside it. It must read as a radio from 5 m. Finished on every side. Budget: at most 3,000 triangles.
+
+## mira_scarf
+
+Mira's long knitted scarf left on a stone: a low frost-slate stone about 0.6 m across, and a scarf of explorer vermilion with two stamp-ochre stripes near each end, draped over the stone in a loose loop so both ends trail on the ground, each end finished with a short fringe of thick tassels, the knit shown by shallow ribs across its width. A dusting of glacier white frost on the stone and the upper folds. It must read at 6 m as a red scarf someone left. Budget: at most 3,000 triangles.
+
+## mira_lantern
+
+Mira's expedition lantern, about 0.45 m tall: an aged-bronze frame with a round base, four corner posts, a pierced conical top and a wire bail handle raised in an arc, holding four panes (flat, pale bone limestone, slightly inset) around a short candle stub on a dish; the flame is a separate small mesh of lantern amber (`emissive: 0xffb24a`), so the game can light it. Standing upright on the ground. Expose `g.userData.parts = { flame }`. Budget: at most 2,500 triangles.
+
+## giant_tree
+
+A colossal ancient tree of the wild forest, about 60 m tall, seen from far away: a massive bark-umber trunk 9 m across at the base that flares into eight great buttress roots spreading 14 m, with a tall arched hollow between two roots at its foot; the trunk rises and splits at about 30 m into four huge limbs carrying a broad crown about 44 m across of twelve to sixteen enormous chunky clumps of moss green and fern green foliage; moss on the roots and the lower trunk; a dozen hanging pods (small rounded shapes) under the crown as a separate mesh of spore lime (`emissive: 0xc3f25a`), exposed as `g.userData.parts = { glow }`. Name the bark material `timber` and the foliage `foliage`. Chunky masses that read against haze at 150 m. Budget: at most 12,000 triangles.
+
+## hill_castle
+
+A castle seen far off on a hill, about 36 m wide and 42 m tall: a cluster of five round towers of different heights (the tallest 42 m) of bone limestone and sunlit sandstone, each with a steep conical roof of moss green and a thin spire, joined by curtain walls with a simple crenellated top, a tall arched gate at the front, and small arched windows as a separate mesh of lantern amber (`emissive: 0xffb24a`), exposed as `g.userData.parts = { windows }`. Its base sits on y = 0 as if on a hilltop (the hill is not part of the asset). Invented, not any real or famous castle. Name the stone `stone`. It must read as a castle from 200 m through haze. Budget: at most 9,000 triangles.
+
+## forest_deer
+
+A stag of the wild forest, about 2.3 m tall to the tips of its antlers and 2.1 m long: a slender body of bark umber with a paler belly, a long neck, a head with large ears and broad branching antlers dotted with a few small spore-lime buds as a separate mesh (`emissive: 0xc3f25a`), a short tail, and four thin legs with dark hooves. Built so it can walk: each leg is its own `Group` pivoting at the hip or shoulder (`frontLeft`, `frontRight`, `backLeft`, `backRight`), and the head and neck are a `Group` pivoting at the base of the neck (`head`); expose `g.userData.parts = { frontLeft, frontRight, backLeft, backRight, head, glow }`. Standing at rest, facing +Z. Budget: at most 5,000 triangles.
+
+## forest_bird
+
+A bird of the wild forest, about 0.7 m across the wings: a plump body of fern green with a stamp-ochre breast, a short hooked beak, a long forked tail, and two broad wings, each its own `Group` pivoting at the shoulder (`leftWing`, `rightWing`), spread level at rest; expose `g.userData.parts = { leftWing, rightWing }`. Facing +Z, gliding. Budget: at most 1,500 triangles.
+
+## icicle_cluster
+
+A row of icicles hanging from a rock lip, 2.4 m long along X: a thin crust of glacier white ice along the top (0.15 m tall, 0.3 m deep), and hanging from it nine to thirteen icicles of different lengths, from 0.3 m to 1.4 m, each a tapering, slightly faceted cone of ice blue with a deep-ice core near its root, a few doubled or fused. As the contract requires, the lowest tip is at y = 0; expose plain data `g.userData.anchor = [x, y, z]` for the middle of the crust's top edge, so the game can hang it from any lip. Declare `g.userData.mounts = 'top'`. Budget: at most 2,500 triangles.
+
+## frozen_falls
+
+A frozen waterfall down a cliff face, 5 m wide and 8 m tall, flat at the back where it meets the rock: a curtain of vertical ice columns and ribbed folds of ice blue and deep ice that spill over a lip at the top, bulge out in the middle, and pool at the bottom into a low rounded apron of ice 1.5 m deep, with glacier white frost on the ledges and bulges and a few icicles at the lip. Declare `g.userData.mounts = 'back'`. It must read from 30 m as a waterfall caught in ice. Budget: at most 6,000 triangles.

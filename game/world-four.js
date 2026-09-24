@@ -31,6 +31,8 @@ export class WorldFour {
     this.time = 0;
     this.active = false;
     this.gateCenter = new THREE.Vector3();
+    // Seen through Mira's ring, only what lies beyond the arrival ring is drawn.
+    this.clipPlane = new THREE.Plane(new THREE.Vector3(0, 0, -1), 0);
     this.said = new Set();
   }
 
@@ -182,6 +184,7 @@ export class WorldFour {
     this.arrival.forceOpen();
     this.gateCenter.copy(this.arrival.center);
     this.daisTop = this.arrival.daisTop;
+    this.clipPlane.set(new THREE.Vector3(0, 0, -1), this.gateCenter.z - 0.05);
   }
 
   // The great ring on the island: two glyphs lit as on the isles, the third to be freed.
@@ -475,6 +478,13 @@ export class WorldFour {
     this.skyU.uTime.value = this.time;
     this.snowU.uTime.value = this.time;
     this.forest.update(dt);
+  }
+
+  // Drawn by Mira's ring on the isles, from the point matching the viewer's.
+  renderInto(renderer, camera) {
+    this.sky.position.copy(camera.position);
+    this.snowU.uCenter.value.copy(camera.position);
+    renderer.render(this.scene, camera);
   }
 
   followShadow(p) {

@@ -143,8 +143,8 @@ export class Level {
         top: rimHeight,
       }),
     );
-    for (const [x0, y0, z0, x1, y1, z1, kind, look] of COURT.EXTRA) {
-      this.world.add(x0, y0, z0, x1, y1, z1, kind);
+    for (const [x0, y0, z0, x1, y1, z1, kind, look, flags] of COURT.EXTRA) {
+      this.world.add(x0, y0, z0, x1, y1, z1, kind, null, flags);
       const mat = look === "masonry" ? masonry : rock;
       faces.box(x0, y0, z0, x1, y1, z1, mat);
     }

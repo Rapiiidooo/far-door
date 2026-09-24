@@ -43,6 +43,7 @@ Working title: Far Door. Every tomb holds the address of a gate; an explorer red
 | Moss green         | `0x4f7a3a` | Fifth world only: moss, canopy and the darker fronds                               |
 | Fern green         | `0x7da04a` | Fifth world only: young fronds and leaves in light                                 |
 | Spore lime         | `0xc3f25a` | Emissive only, fifth world flora; never on anything built                          |
+| Lantern amber      | `0xffb24a` | Emissive only: a flame or a lit window, the one warm light people carry            |
 
 ## Fixed decisions
 
@@ -76,7 +77,11 @@ Mira went on through a frost door: a world of ice under a twilight sky with slow
 
 ## The fifth world: the wild forest (seen through a door)
 
-Beyond the last door of the game lies a wild forest, only glimpsed through the ring at the end: huge old trees with buttress roots and moss, ferns, and mushrooms whose gills glow spore lime in the shade, under warm shafts of light through a high canopy. A forest tree is about 16 m tall with a canopy about 14 m across; a fern cluster about 1.2 m across; the tallest glowing mushroom about 1.4 m.
+Beyond the last door of the game lies a wild forest, only glimpsed through the ring at the end: huge old trees with buttress roots and moss, ferns, and mushrooms whose gills glow spore lime in the shade, under warm shafts of light through a high canopy. Further off stand a giant tree ringed by fairy lights and, on a hill in the haze, a castle of pale stone with moss-green roofs and lit windows; a stag and birds pass through. It is a world full of promise, seen for a few seconds. A forest tree is about 16 m tall with a canopy about 14 m across; a fern cluster about 1.2 m across; the tallest glowing mushroom about 1.4 m.
+
+## Relics
+
+Five things the expeditions left behind are hidden along the way, for the curious: a rolled papyrus of the first expedition, their field radio, a page of Mira's on the isles, her scarf and her lantern in the ice. They are small, human and worn: parchment, weathered timber, rope, leather, aged bronze and explorer vermilion, never turquoise.
 
 ## Red lines (keep clear of existing franchises)
 

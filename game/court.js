@@ -28,7 +28,7 @@ export const MAP = [
   "#...e_____....#",
   "#oooe__.._....#",
   "#~~~~_____....#",
-  "#bb~..........#",
+  "#bb~~~~.......#",
   "#gg~gggggggggg#",
   "#gg~gggggggggg#",
   "#gg~gggggggggg#",
@@ -47,13 +47,20 @@ export function heightOf(ch) {
 
 // Extra boxes that a height map cannot express: the crack in the standing wall (a lip with
 // an overhang above it, so it can be hung from but not stood on) and the platform face that
-// continues it. Each is [minX, minY, minZ, maxX, maxY, maxZ, kind].
+// continues it. Each is [minX, minY, minZ, maxX, maxY, maxZ, kind, look, flags].
+//
+// The way down from the terrace has to be taken: the chasm runs on under the terrace's west
+// end, so the ledge below the west platform leads nowhere but across to the crack; a broken
+// parapet along that end of the terrace, too high to jump and nothing to hold, stops a jump
+// straight across to the platform; and the overhang reaches a metre over the platform's lip,
+// so a jump from the corner of the west platform meets rock, and the climb out is past it.
 export const EXTRA = [
   // Rock shoulders that set the carved facade into the cliff.
   [2, -10, 4, 7, 15.5, 6.6, "rock"],
   [23, -10, 4, 28, 14.5, 6.6, "rock"],
   [2, -10, 32, 8, 7.0, 32.35, "rock"],
-  [2, 7.6, 32, 8, 12, 32.7, "rock"],
+  [2, 7.6, 32, 9.1, 12, 32.7, "rock"],
+  [8, 8, 36, 14, 9.7, 36.8, "rock", "masonry", { grab: false, stand: false }],
   [8, -10, 32, 10, 7.0, 32.35, "rock", "masonry"],
 ];
 
@@ -92,7 +99,7 @@ export const NOTES = { x: 22.08, y: 8.9, z: 40.5 };
 export const ROPES = [
   [4.1, 8, 36, Math.PI],
   [5.2, 7, 32, 0],
-  [9.1, 7, 32, 0],
+  [9.6, 7, 32, 0],
 ];
 
 export const GATE = { x: 15, z: 11, yaw: 0 };
@@ -122,7 +129,7 @@ export const PROPS = [
   ["boulder_cluster", 26.3, 0, 26.2, 0.8],
   ["boulder_cluster", 3.6, 0, 16.9, 2.2],
   ["desert_agave", 27.0, 0, 22.6, 0.3],
-  ["desert_agave", 12.4, 0, 35.3, 1.1],
+  ["desert_agave", 15.3, 0, 35.2, 1.1],
   ["desert_agave", 19.3, 0, 35.5, 2.4],
   ["desert_agave", 2.9, 0, 24.8, 0.7],
   ["desert_agave", 27.1, 8, 38.6, 1.9],

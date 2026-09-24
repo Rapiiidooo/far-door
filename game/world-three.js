@@ -459,6 +459,8 @@ export class WorldThree {
   }
 
   render(camera) {
+    // Mira's ring, once open, shows the frozen reach.
+    this.isles.ring.renderPortal(camera);
     this.sky.position.copy(camera.position);
     this.followShadow(
       this.hero
@@ -526,6 +528,7 @@ export class WorldThree {
   resize(w, h) {
     this.composer?.setSize(w, h);
     this.composer?.setPixelRatio(this.renderer.getPixelRatio());
+    this.isles?.ring?.resize();
   }
 }
 

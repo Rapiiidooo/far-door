@@ -297,6 +297,7 @@ async function load() {
   await frameYield();
   worldFour = new WorldFour(renderer, assets, { sound, hud, Gate });
   await worldFour.build();
+  worldThree.isles.ring.destination = worldFour;
 
   loading(0.74, "Dressing the explorer…");
   heroModel =
@@ -446,6 +447,14 @@ async function precompile() {
   worldThree.prepareForCompile(true);
   await compile(worldThree.composer.readBuffer, worldThree.scene);
   worldThree.render(camera, 0.016);
+  // The frozen reach as Mira's ring shows it, clipped at its arrival ring.
+  const mira = worldThree.isles.ring;
+  worldFour.prepareForCompile(true);
+  await compile(mira.target, worldFour.scene, [worldFour.clipPlane]);
+  camera.position.copy(mira.center).add(new THREE.Vector3(1, -1.5, 7));
+  camera.lookAt(mira.center);
+  mira.renderView(camera);
+  worldFour.prepareForCompile(false);
   worldThree.prepareForCompile(false);
   loading(0.96, "Lighting the frozen reach…");
   await frameYield();

@@ -518,13 +518,13 @@ export class Isles {
     const { Gate } = this.services;
     const model = await this.assets.make("far_gate");
     if (model) model.position.y = ringY;
+    // Opened halfway, the ring shows the frozen reach beyond, as every door shows its world.
     this.ring = new Gate({
       scene: this.scene,
       world: this.world,
       renderer: this.services.renderer,
       sound: this.services.sound,
       assets: this.assets,
-      view: false,
     });
     await this.ring.build({ x: R.x, z: R.z, glyphs: CAMP.glyphs, model });
   }
