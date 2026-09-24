@@ -30,6 +30,34 @@ On 25 September 2026 the owner asked whether easy improvements were left, sugges
 - **Grass counts:** 52 tufts in the court (8 draw calls, 40,768 triangles), 404 on the isles (34 draw calls, 316,736 triangles) and 429 in the forest (30 draw calls, 336,336 triangles). At the start of the isles the frame holds 628,842 triangles in 469 draw calls, at 60 frames a second here.
 - **Jam gate on the local server:** ready in 9.6 s with the workstation's GPU (11.6 s before this round), 3.7 MB, 425 draw calls and 365,525 triangles at peak; 14.4 s with the software renderer forced (14.4 s before), both passing.
 
+## The public URL
+
+Commit `59e5fd6` was deployed to <https://fardoor.rapidoai.dev/> as release `20260924-59e5fd6b4d69`; the served files checked match the commit. The jam gate, as published:
+
+```text
+=== 404 JAM VERDICT ===
+url             https://fardoor.rapidoai.dev/
+utc             2026-09-24T22:52:51.609Z
+commit          59e5fd6b4d69546d7475df2e6b3c1f6eee72b9ce
+viewport        390x844 @3x phone, real touch, Android Chrome UA
+network         4G: 4 Mbps down, 1 Mbps up, 60 ms latency, CPU 2x slower
+ready           4.7 s   budget 20 s   PASS
+weight          3.7 MB   budget 10 MB   PASS
+started         yes (tap on #startb)
+moved           3.2 m   needs 1 m   PASS
+peak draws      425   budget 900   PASS
+peak tris       365,525   budget 1,500,000   PASS
+median fps      60 (ANGLE (Apple, ANGLE Metal Renderer: Apple M5 Max, Unspecified Version))
+errors          0   PASS
+404s            0   PASS
+external deps   none
+outside folder  none, every file came from the game folder
+RESULT: PASS
+=== END ===
+```
+
+With the software renderer forced it was ready in 10.1 s (9.7 s before this round) and passed too ([phone verdict](gate-live/phone-verdict.json), [software verdict](gate-live/software-verdict.json), [frame in motion](gate-live/phone-moving.png)).
+
 ## Limits
 
 Nobody has listened to the music or the winds yet, on speakers or on a phone; the levels above are offline measurements. Nothing here was played by hand or on a physical phone.
