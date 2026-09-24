@@ -17,3 +17,35 @@ On 25 September 2026 the owner asked for a last level through the forest to the 
 - **Menus and level flow:** `node scripts/menu-check.mjs outputs/menu-check` passes 19 of 19 ([results](menu-check.json)).
 - **Jam gate on the local server:** ready in 9.6 s with the workstation's GPU (9.6 s before this round), 3.7 MB, 425 draw calls and 365,525 triangles at peak; 14.5 s with the software renderer forced (14.4 s before), both passing.
 - **Not run again:** the touch and relic checks and the play-through from the title, since the controls, the relics and the first three levels are untouched; all three passed on `59e5fd6` (`receipts/verification-soundtrack-and-grass/`).
+
+## The public URL
+
+Commit `54eccbb` was deployed to <https://fardoor.rapidoai.dev/> as release `20260924-54eccbbd18e0`; the served files checked match the commit. The jam gate, as published:
+
+```text
+=== 404 JAM VERDICT ===
+url             https://fardoor.rapidoai.dev/
+utc             2026-09-24T23:43:11.201Z
+commit          54eccbbd18e080d2d5f5b4322e16f6cff4d5e197
+viewport        390x844 @3x phone, real touch, Android Chrome UA
+network         4G: 4 Mbps down, 1 Mbps up, 60 ms latency, CPU 2x slower
+ready           5.7 s   budget 20 s   PASS
+weight          3.7 MB   budget 10 MB   PASS
+started         yes (tap on #startb)
+moved           3.2 m   needs 1 m   PASS
+peak draws      425   budget 900   PASS
+peak tris       365,525   budget 1,500,000   PASS
+median fps      60 (ANGLE (Apple, ANGLE Metal Renderer: Apple M5 Max, Unspecified Version))
+errors          0   PASS
+404s            0   PASS
+external deps   none
+outside folder  none, every file came from the game folder
+RESULT: PASS
+=== END ===
+```
+
+With the software renderer forced it was ready in 10.0 s (10.1 s before this round) and passed too ([phone verdict](gate-live/phone-verdict.json), [software verdict](gate-live/software-verdict.json), [frame in motion](gate-live/phone-moving.png)).
+
+## Limits
+
+Nobody has watched the new ending by hand or heard its music yet. The portrait frames come from a desktop GPU at a phone's size: during the ending a phone draws three worlds a frame (the frozen reach, the forest and the sea) and may drop frames there. The level the owner first described, with poisonous animals, traps and guards, was not built.
