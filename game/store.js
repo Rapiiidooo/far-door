@@ -4,13 +4,18 @@
 const SETTINGS_KEY = "far-door-settings";
 const PROGRESS_KEY = "far-door-progress";
 
+// A phone starts one step down in quality: its small screen gains little from the pixels.
+const phone =
+  matchMedia("(pointer: coarse)").matches &&
+  Math.min(screen.width, screen.height) <= 500;
+
 const DEFAULT_SETTINGS = {
   sensitivity: 1,
   invertY: false,
   volume: 0.8,
   music: 0.7,
   effects: 0.9,
-  quality: "high",
+  quality: phone ? "balanced" : "high",
   markers: true,
   hints: true,
   shake: true,

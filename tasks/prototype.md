@@ -4,3 +4,5 @@ The rework the owner asked for on 24 September 2026 is done and verified, and so
 
 - [ ] The owner plays the follow-ups and the isles by hand, on the hosted build (the opening, the notes, pushing and pulling the block, turning the mirrors, the jumps, the pylons and bridges, Mira's journal) and reports what still feels wrong.
 - [ ] Check by hand what the automated runs cannot: a gamepad, sound levels, dodging stamps by hand, and a slower GPU.
+- [ ] Play the touch controls on a physical phone, in portrait and on its side (`receipts/verification-jam/`).
+- [ ] The jam entry: the owner decides whether to publish the source, withdraw Hungry for Trouble's pull request and open Far Door's, before 25 September 23:59 UTC.

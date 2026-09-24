@@ -629,7 +629,16 @@ export class Hero {
     const f = this.facing;
     const ax = Math.abs(f.x) > Math.abs(f.z);
     const n = ax ? { x: Math.sign(f.x), z: 0 } : { x: 0, z: Math.sign(f.z) };
-    const b = this.world.topAt(this.pos.x, this.pos.z, this.feet, 0.05);
+    // Stopped on the lip by a careful walk, the body's centre can stand just past it: then
+    // the ground is under the heels.
+    const b =
+      this.world.topAt(this.pos.x, this.pos.z, this.feet, 0.05) ||
+      this.world.topAt(
+        this.pos.x - n.x * R * 0.6,
+        this.pos.z - n.z * R * 0.6,
+        this.feet,
+        0.05,
+      );
     if (!b) return null;
     const faceX = n.x ? (n.x > 0 ? b.maxX : b.minX) : null,
       faceZ = n.z ? (n.z > 0 ? b.maxZ : b.minZ) : null;

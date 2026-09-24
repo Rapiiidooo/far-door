@@ -57,7 +57,8 @@ export const EXTRA = [
   [8, -10, 32, 10, 7.0, 32.35, "rock", "masonry"],
 ];
 
-export const START = { x: 21, z: 37.2, yaw: Math.PI };
+// Back from the terrace's edge, west of the camp, facing the court: the first steps have room.
+export const START = { x: 19.4, z: 39, yaw: Math.PI };
 // The foot of the broken stair, for the Levels menu's second start.
 export const FLOOR = { x: 19.6, z: 27.2, yaw: -2.4 };
 

@@ -244,15 +244,33 @@ try {
   await press("Enter");
   await until((g) => !g.cinematic, 4000, "skip the opening");
   await sleep(1500);
-  // Back towards the camp's crate until the prompt offers the notes.
-  await page.keyboard.down("KeyS");
-  await page
-    .waitForFunction(
-      () => /Read/.test(document.querySelector("#prompt").textContent),
-      { timeout: 6000 },
-    )
-    .catch(() => {});
-  await page.keyboard.up("KeyS");
+  // Over to the camp's crate until the prompt offers the notes.
+  const reads = () =>
+    page.evaluate(() =>
+      /Read/.test(document.querySelector("#prompt.on")?.textContent || ""),
+    );
+  const down = new Set();
+  for (const t0 = Date.now(); Date.now() - t0 < 8000 && !(await reads());) {
+    g = await game();
+    const dx = 22.08 - g.pos[0],
+      dz = 40.5 - g.pos[1];
+    const fx = Math.sin(g.camYaw),
+      fz = Math.cos(g.camYaw);
+    const f = dx * fx + dz * fz,
+      r = dx * -fz + dz * fx,
+      d = Math.hypot(dx, dz) || 1;
+    const want = new Set();
+    if (f / d > 0.38) want.add("KeyW");
+    if (f / d < -0.38) want.add("KeyS");
+    if (r / d > 0.38) want.add("KeyD");
+    if (r / d < -0.38) want.add("KeyA");
+    for (const k of [...down])
+      if (!want.has(k)) (await page.keyboard.up(k), down.delete(k));
+    for (const k of want)
+      if (!down.has(k)) (await page.keyboard.down(k), down.add(k));
+    await sleep(40);
+  }
+  for (const k of down) await page.keyboard.up(k);
   await sleep(300);
   await press("KeyE");
   await sleep(400);

@@ -2,7 +2,10 @@
 <html lang="en">
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover"
+    />
     <title>Far Door</title>
     <meta
       name="description"
@@ -44,6 +47,21 @@
         <p class="hint-body"></p>
       </div>
       <p id="prompt" aria-live="polite"></p>
+    </div>
+
+    <!-- On phones and tablets: a stick to move, a drag on the picture to look, and the actions. -->
+    <div id="touch" hidden>
+      <div id="stick" aria-label="Move"><div class="knob"></div></div>
+      <div class="touch-actions">
+        <button type="button" data-touch="roll" class="small">Roll</button>
+        <button type="button" data-touch="throw" class="small">Throw</button>
+        <button type="button" data-touch="drop" class="small">Hang</button>
+        <button type="button" data-touch="interact">Use</button>
+        <button type="button" data-touch="jump" class="big">Jump</button>
+      </div>
+      <button type="button" data-touch="pause" class="pause" aria-label="Pause">
+        II
+      </button>
     </div>
 
     <div id="letterbox" aria-hidden="true">
@@ -130,7 +148,7 @@
 
     <section id="loading" class="screen">
       <div class="loading-card">
-        <p class="kicker">A prototype</p>
+        <p class="kicker">An expedition in three worlds</p>
         <h1>Far Door</h1>
         <div class="bar"><span id="load-fill"></span></div>
         <p id="load-step">Unpacking the expedition…</p>
@@ -139,12 +157,12 @@
 
     <section id="menu" class="screen" hidden>
       <div class="panel" data-screen="main">
-        <p class="kicker">A prototype</p>
+        <p class="kicker">An expedition in three worlds</p>
         <h1>Far Door</h1>
         <p class="tagline">Every tomb hides an address.</p>
         <nav class="menu-list">
           <button type="button" data-action="continue">Continue</button>
-          <button type="button" data-action="new">New game</button>
+          <button type="button" data-action="new" id="startb">New game</button>
           <button type="button" data-action="levels">Levels</button>
           <button type="button" data-action="settings">Settings</button>
           <button type="button" data-action="controls">Controls</button>
@@ -305,7 +323,7 @@
 
     <section id="credits" hidden aria-label="Credits">
       <div class="roll" id="credits-roll">
-        <p class="kicker">A prototype</p>
+        <p class="kicker">An expedition in three worlds</p>
         <h1>Far Door</h1>
         <p class="line">To be continued.</p>
         <div class="block">

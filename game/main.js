@@ -8,6 +8,7 @@ import { Hero } from "./hero.js";
 import { HeroAnimator, placeholderHero } from "./hero-anim.js";
 import { FollowCamera } from "./follow-camera.js";
 import { Input } from "./input.js";
+import { TouchControls } from "./touch.js";
 import { Beams } from "./beams.js";
 import { Hud } from "./hud.js";
 import { Menu } from "./menu.js";
@@ -41,9 +42,26 @@ const renderer = new THREE.WebGLRenderer({
   antialias: true,
   powerPreference: "high-performance",
 });
+// A machine without a graphics chip draws in software (SwiftShader, llvmpipe). It gets a
+// lighter picture, and the worlds beyond the doors compile when first reached, not at load.
+const software = (() => {
+  try {
+    const gl = renderer.getContext();
+    const info = gl.getExtension("WEBGL_debug_renderer_info");
+    const name = gl.getParameter(
+      info ? info.UNMASKED_RENDERER_WEBGL : gl.RENDERER,
+    );
+    return /swiftshader|llvmpipe|softpipe|software|basic render/i.test(name);
+  } catch {
+    return false;
+  }
+})();
 const PIXEL_RATIO = { high: 1.5, balanced: 1.1, fast: 0.85 };
 const pixelRatio = () =>
-  Math.min(devicePixelRatio, PIXEL_RATIO[settings.quality] || 1.5);
+  Math.min(
+    devicePixelRatio,
+    software ? 0.75 : PIXEL_RATIO[settings.quality] || 1.5,
+  );
 renderer.setPixelRatio(pixelRatio());
 renderer.setSize(innerWidth, innerHeight);
 renderer.shadowMap.enabled = true;
@@ -72,6 +90,7 @@ const camera = new THREE.PerspectiveCamera(
   0.1,
   1200,
 );
+fitCamera();
 camera.position.set(21, 11, 44);
 camera.lookAt(15, 4, 12);
 const rig = createRig(THREE, renderer, scene, {
@@ -165,6 +184,7 @@ const assets = {
 const world = new World();
 const level = new Level(scene, world, assets);
 const input = new Input(canvas, settings);
+const touch = new TouchControls(input, canvas);
 const hud = new Hud(input, settings);
 const sound = new Sound(settings);
 const dust = new Dust(scene);
@@ -195,7 +215,11 @@ const loadBar = document.querySelector("#load-fill");
 const loadStep = document.querySelector("#load-step");
 function loading(fraction, text) {
   loadBar.style.width = `${Math.round(fraction * 100)}%`;
-  if (text) loadStep.textContent = text;
+  if (text) {
+    loadStep.textContent = text;
+    // Each loading step is a mark on the page's timeline, so a slow start can be taken apart.
+    performance.mark(text);
+  }
 }
 const frameYield = () => new Promise((r) => requestAnimationFrame(() => r()));
 
@@ -365,6 +389,10 @@ async function precompile() {
   rig.refresh(scene);
   await compile(rig.post?.rt ?? null, scene);
   rig.render(camera, 0.016);
+  if (software) {
+    state.programs = renderer.info.programs.length;
+    return;
+  }
   loading(0.84, "Lighting the checkpoint…");
   await frameYield();
   await compile(gate.target, worldTwo.scene, [worldTwo.clipPlane]);
@@ -608,7 +636,7 @@ function pause(on) {
 }
 
 function lockPointer() {
-  if (!params.has("nolock")) input.lockPointer();
+  if (!params.has("nolock") && !input.usingTouch) input.lockPointer();
 }
 
 const menu = new Menu(document.querySelector("#menu"), {
@@ -635,6 +663,7 @@ function menuAction(action, el) {
       return menu.push("controls");
     case "credits":
       menu.close({ fade: true });
+      skipHelp();
       return credits.play(() => {
         refreshMainMenu();
         menu.open("main");
@@ -672,8 +701,15 @@ function refreshMainMenu() {
   cont.hidden = !progress.last || progress.last === "court";
   const chapter = CHAPTERS.find((c) => c.id === progress.last);
   if (chapter) cont.textContent = `Continue · ${chapter.title}`;
-  document.querySelector('[data-help="menu"]').innerHTML =
-    `${hud.keys("KeyW", "KeyS")} or mouse to choose · <kbd>Enter</kbd> to confirm`;
+  document.querySelector('[data-help="menu"]').innerHTML = input.usingTouch
+    ? "Tap to choose"
+    : `${hud.keys("KeyW", "KeyS")} or mouse to choose · <kbd>Enter</kbd> to confirm`;
+}
+
+function skipHelp() {
+  document.querySelector('[data-help="skip"]').innerHTML = input.usingTouch
+    ? "Tap to skip"
+    : "<kbd>Esc</kbd> or <kbd>Enter</kbd> to skip";
 }
 
 function refreshLevels() {
@@ -714,20 +750,36 @@ function refreshLevels() {
 
 function refreshControls() {
   const k = (c) => `<kbd>${input.keyLabel(c)}</kbd>`;
-  const rows = [
-    [`${k("KeyW")}${k("KeyA")}${k("KeyS")}${k("KeyD")}`, "Move"],
-    ["Mouse", "Look"],
-    ["<kbd>Space</kbd>", "Jump, climb up"],
-    [`${k("KeyE")} hold`, "Grab a block, turn a mirror, talk, take"],
-    [`${k("KeyC")}`, "Hang from an edge, let go"],
-    ["<kbd>Shift</kbd> hold", "Walk without falling off edges"],
-    [`${k("KeyQ")} or right click`, "Roll"],
-    [`${k("KeyR")} or left click`, "Throw the disc"],
-    ["<kbd>Esc</kbd>", "Pause"],
-  ];
+  const rows = input.usingTouch
+    ? touchControls()
+    : [
+        [`${k("KeyW")}${k("KeyA")}${k("KeyS")}${k("KeyD")}`, "Move"],
+        ["Mouse", "Look"],
+        ["<kbd>Space</kbd>", "Jump, climb up"],
+        [`${k("KeyE")} hold`, "Grab a block, turn a mirror, talk, take"],
+        [`${k("KeyC")}`, "Hang from an edge, let go"],
+        ["<kbd>Shift</kbd> hold", "Walk without falling off edges"],
+        [`${k("KeyQ")} or right click`, "Roll"],
+        [`${k("KeyR")} or left click`, "Throw the disc"],
+        ["<kbd>Esc</kbd>", "Pause"],
+      ];
   document.querySelector("#controls-keys").innerHTML = rows
     .map(([a, b]) => `<tr><td>${a}</td><td>${b}</td></tr>`)
     .join("");
+}
+
+// The on-screen controls, by the names their buttons carry. Some only show when they apply.
+function touchControls() {
+  return [
+    ["Stick", "Move: a light push walks and stops at edges, a full push runs"],
+    ["Drag the picture", "Look"],
+    ["<kbd>Jump</kbd>", "Jump, climb up"],
+    ["<kbd>Use</kbd> hold", "Grab a block, turn a mirror, talk, take"],
+    ["<kbd>Hang</kbd>", "Hang from an edge, let go"],
+    ["<kbd>Throw</kbd>", "Throw the disc, while you carry it"],
+    ["<kbd>Roll</kbd>", "Roll, beyond the first door"],
+    ["<kbd>II</kbd>", "Pause"],
+  ];
 }
 
 function wireMenu() {
@@ -747,8 +799,7 @@ function wireMenu() {
   bind("set-markers", "markers");
   bind("set-hints", "hints");
   bind("set-shake", "shake");
-  document.querySelector('[data-help="skip"]').innerHTML =
-    "<kbd>Esc</kbd> or <kbd>Enter</kbd> to skip";
+  skipHelp();
 }
 
 function settingChanged(el) {
@@ -864,6 +915,7 @@ function finale() {
     state.mode = "credits";
     hud.hide();
     document.exitPointerLock?.();
+    skipHelp();
     credits.play(() => toTitle());
   });
   setTimeout(() => {
@@ -888,7 +940,8 @@ function frame(now) {
   requestAnimationFrame(frame);
   timer.update(now);
   const raw = timer.getDelta();
-  const dt = Math.min(raw, 1 / 30);
+  // Real time down to 20 frames a second, as on a busy phone; slower than that, the game slows.
+  const dt = Math.min(raw, 1 / 20);
   state.time += dt;
   state.frames++;
   state.fpsClock += raw;
@@ -931,6 +984,14 @@ function frame(now) {
     placeHero(dt);
   }
   credits.update(dt);
+  touch.update({
+    play: state.mode === "play" && !state.paused && !state.reading,
+    cinematic: !!state.cinematic,
+    holding: state.where !== "court" && hero.holding,
+    prompt: hero.prompt,
+    hanging: hero.state === "hang",
+    beyond: state.where !== "court",
+  });
   if (state.mode !== "loading") render(dt);
   input.endFrame();
   publish();
@@ -957,14 +1018,14 @@ function step(dt) {
     interactPressed: !blocked && input.pressed("interact"),
     interactHeld: !blocked && input.held("interact"),
     drop: !blocked && input.pressed("drop"),
-    walk: !blocked && input.held("walk"),
+    walk: !blocked && (input.held("walk") || input.touchWalk),
     roll: !blocked && input.pressed("roll"),
   };
   // A cinematic can be skipped with Enter or jump.
   if (state.cinematic?.skip && (input.pressed("skip") || input.pressed("jump")))
     state.cinematic.skip();
-  // Two physics substeps keep ledge catches reliable at low frame rates.
-  const sub = dt > 1 / 50 ? 2 : 1;
+  // Substeps of at most 1/50 s keep ledge catches reliable at low frame rates.
+  const sub = Math.max(1, Math.ceil(dt * 50 - 1e-6));
   for (let i = 0; i < sub; i++) {
     hero.update(dt / sub, commands);
     commands.jump =
@@ -1199,11 +1260,19 @@ function islesTelemetry() {
   };
 }
 
+// A tall phone screen sees the world through a slot: widen the vertical view there, so the
+// horizontal one keeps enough of the level around the explorer to play by.
+function fitCamera() {
+  const aspect = innerWidth / innerHeight;
+  camera.aspect = aspect;
+  camera.fov = aspect < 1 ? Math.min(80, 58 + (1 - aspect) * 40) : 58;
+  camera.updateProjectionMatrix();
+}
+
 function resize() {
   renderer.setPixelRatio(pixelRatio());
   renderer.setSize(innerWidth, innerHeight);
-  camera.aspect = innerWidth / innerHeight;
-  camera.updateProjectionMatrix();
+  fitCamera();
   rig.resize(innerWidth, innerHeight);
   gate?.resize();
   worldTwo?.resize(innerWidth, innerHeight);

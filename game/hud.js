@@ -208,9 +208,12 @@ export class Hud {
       el.querySelectorAll("[data-glyph]").forEach(
         (g) => (g.innerHTML = svg(g.dataset.glyph)),
       );
+      const them = which === "mira" ? "it" : "them";
       el.querySelectorAll("[data-help]").forEach(
         (h) =>
-          (h.innerHTML = `${this.k("interact")} or <kbd>Esc</kbd> to put ${which === "mira" ? "it" : "them"} back`),
+          (h.innerHTML = this.input.usingTouch
+            ? `Tap to put ${them} back`
+            : `${this.k("interact")} or <kbd>Esc</kbd> to put ${them} back`),
       );
     }
     el.hidden = !on;

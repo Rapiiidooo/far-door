@@ -1,6 +1,7 @@
-// Keyboard, mouse and gamepad folded into one set of intentions. Keys are read by physical
-// position (event.code), so ZQSD on an AZERTY keyboard moves like WASD, and prompts ask the
-// layout map for the printed label.
+// Keyboard, mouse, gamepad and touch folded into one set of intentions. Keys are read by
+// physical position (event.code), so ZQSD on an AZERTY keyboard moves like WASD, and prompts
+// ask the layout map for the printed label. The on-screen stick and buttons (touch.js) feed
+// `touchMove`, `touchDown` and the `touch:` edges.
 
 const MOVE = {
   forward: ["KeyW", "ArrowUp"],
@@ -40,6 +41,10 @@ export class Input {
     this.padMove = { x: 0, y: 0 };
     this.padDown = new Set();
     this.usingPad = false;
+    this.touchMove = { x: 0, y: 0 };
+    this.touchDown = new Set();
+    this.touchWalk = false;
+    this.usingTouch = false;
     this.labels = new Map();
     this.dragging = false;
     // Look sensitivity and inversion live in the shared settings (store.js).
@@ -50,6 +55,7 @@ export class Input {
       this.down.add(e.code);
       this.edges.add(e.code);
       this.usingPad = false;
+      this.usingTouch = false;
     });
     addEventListener("keyup", (e) => this.down.delete(e.code));
     addEventListener("blur", () => this.down.clear());
@@ -123,17 +129,25 @@ export class Input {
       if (pad.buttons[index]?.pressed) this.padDown.add(name);
     for (const name of this.padDown)
       if (!before.has(name)) this.edges.add("pad:" + name);
-    if (this.padDown.size || Math.hypot(this.padMove.x, this.padMove.y) > 0.3)
+    if (this.padDown.size || Math.hypot(this.padMove.x, this.padMove.y) > 0.3) {
       this.usingPad = true;
+      this.usingTouch = false;
+    }
   }
 
   // Stick or keys, as x (right) and y (forward), length at most 1.
   get move() {
     const key = (list) => list.some((c) => this.down.has(c));
     let x =
-      (key(MOVE.right) ? 1 : 0) - (key(MOVE.left) ? 1 : 0) + this.padMove.x;
+      (key(MOVE.right) ? 1 : 0) -
+      (key(MOVE.left) ? 1 : 0) +
+      this.padMove.x +
+      this.touchMove.x;
     let y =
-      (key(MOVE.forward) ? 1 : 0) - (key(MOVE.back) ? 1 : 0) + this.padMove.y;
+      (key(MOVE.forward) ? 1 : 0) -
+      (key(MOVE.back) ? 1 : 0) +
+      this.padMove.y +
+      this.touchMove.y;
     const len = Math.hypot(x, y);
     if (len > 1) {
       x /= len;
@@ -144,14 +158,17 @@ export class Input {
 
   held(action) {
     return (
-      ACTIONS[action].some((c) => this.down.has(c)) || this.padDown.has(action)
+      ACTIONS[action].some((c) => this.down.has(c)) ||
+      this.padDown.has(action) ||
+      this.touchDown.has(action)
     );
   }
 
   pressed(action) {
     return (
       ACTIONS[action].some((c) => this.edges.has(c)) ||
-      this.edges.has("pad:" + action)
+      this.edges.has("pad:" + action) ||
+      this.edges.has("touch:" + action)
     );
   }
 
@@ -163,6 +180,7 @@ export class Input {
   clear() {
     this.down.clear();
     this.edges.clear();
+    this.touchDown.clear();
     this.lookX = this.lookY = 0;
   }
 
@@ -182,6 +200,19 @@ export class Input {
 
   // Printed name of a control for prompts, following the current device and layout.
   label(action) {
+    // The on-screen buttons carry these names.
+    if (this.usingTouch)
+      return (
+        {
+          jump: "Jump",
+          interact: "Use",
+          drop: "Hang",
+          walk: "Stick",
+          throw: "Throw",
+          roll: "Roll",
+          pause: "Pause",
+        }[action] || action
+      );
     if (this.usingPad)
       return (
         {
@@ -211,13 +242,14 @@ export class Input {
 
   // The printed label of a key on the current layout: KeyW reads Z on AZERTY.
   keyLabel(code) {
-    if (this.usingPad)
+    if (this.usingPad || this.usingTouch)
       return { KeyW: "↑", KeyS: "↓", KeyA: "←", KeyD: "→" }[code] || code;
     return this.labels.get(code) || code.replace("Key", "");
   }
 
   moveLabel() {
     if (this.usingPad) return "Left stick";
+    if (this.usingTouch) return "Stick";
     return ["KeyW", "KeyA", "KeyS", "KeyD"]
       .map((c) => this.labels.get(c) || c.replace("Key", ""))
       .join("");

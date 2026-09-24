@@ -55,6 +55,8 @@ body {
   height: 100%;
   display: block;
   outline: none;
+  /* On a touch screen the picture is a look pad, never a page to pan or zoom. */
+  touch-action: none;
 }
 
 [hidden] {
@@ -728,6 +730,8 @@ h1 {
   height: 0;
   background: #050303;
   z-index: 12;
+  /* Only a frame: a touch on it still reaches the stick or the picture, and skips the shot. */
+  pointer-events: none;
   transition: height 0.7s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
@@ -1164,6 +1168,13 @@ h1 {
   text-transform: none;
 }
 
+/* A tall screen puts the chapter's title mid-height, clear of the lines of narration below. */
+@media (max-aspect-ratio: 3/4) {
+  #chapter-card {
+    bottom: 50vh;
+  }
+}
+
 @media (max-width: 720px) {
   #objective-box {
     max-width: calc(100% - 48px);
@@ -1174,6 +1185,208 @@ h1 {
     white-space: normal;
     width: calc(100% - 32px);
     text-align: center;
+  }
+}
+
+/* --- touch controls (touch.js) ------------------------------------------------ */
+
+#touch {
+  position: fixed;
+  inset: 0;
+  z-index: 12;
+  pointer-events: none;
+}
+
+#touch[hidden] {
+  display: none;
+}
+
+body.touch {
+  overscroll-behavior: none;
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-touch-callout: none;
+  /* The controls' margins, clear of rounded corners, notches and the home bar. */
+  --pad-left: max(16px, env(safe-area-inset-left));
+  --pad-right: max(16px, env(safe-area-inset-right));
+  --pad-bottom: max(24px, env(safe-area-inset-bottom));
+}
+
+#stick {
+  position: absolute;
+  left: var(--pad-left);
+  bottom: var(--pad-bottom);
+  width: 136px;
+  height: 136px;
+  border-radius: 50%;
+  background: radial-gradient(
+    circle,
+    rgba(16, 12, 10, 0.14),
+    rgba(16, 12, 10, 0.44)
+  );
+  border: 1.5px solid rgba(232, 207, 164, 0.42);
+  pointer-events: auto;
+  touch-action: none;
+  transition: opacity 0.3s;
+}
+
+#stick .knob {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 58px;
+  height: 58px;
+  margin: -29px 0 0 -29px;
+  border-radius: 50%;
+  background: rgba(232, 207, 164, 0.5);
+  border: 1.5px solid rgba(255, 244, 223, 0.85);
+  box-shadow: 0 0 14px rgba(57, 227, 208, 0.25);
+  pointer-events: none;
+}
+
+/* Past the walk zone the explorer runs, and may run off an edge. */
+#stick .knob.run {
+  background: rgba(57, 227, 208, 0.42);
+  border-color: var(--light);
+}
+
+#touch button {
+  position: absolute;
+  display: grid;
+  place-items: center;
+  padding: 0;
+  border-radius: 50%;
+  border: 1.5px solid rgba(232, 207, 164, 0.5);
+  background: rgba(16, 12, 10, 0.5);
+  color: var(--sand-bright);
+  font-family: var(--display);
+  font-weight: 700;
+  font-size: 0.82rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  pointer-events: auto;
+  touch-action: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+#touch button.down {
+  background: rgba(57, 227, 208, 0.42);
+  border-color: var(--light);
+}
+
+#touch button.off {
+  display: none;
+}
+
+/* The actions in two rows by the right thumb, Roll, Use and Jump below, Throw and Hang above,
+   hardly higher than the stick, so every line of text can sit above them all. */
+#touch [data-touch="jump"] {
+  right: var(--pad-right);
+  bottom: calc(var(--pad-bottom) + 4px);
+  width: 76px;
+  height: 76px;
+  font-size: 0.95rem;
+}
+
+#touch [data-touch="interact"] {
+  right: calc(var(--pad-right) + 88px);
+  bottom: var(--pad-bottom);
+  width: 60px;
+  height: 60px;
+  border-color: rgba(57, 227, 208, 0.6);
+}
+
+#touch [data-touch="roll"] {
+  right: calc(var(--pad-right) + 160px);
+  bottom: calc(var(--pad-bottom) + 4px);
+  width: 50px;
+  height: 50px;
+}
+
+#touch [data-touch="throw"] {
+  right: calc(var(--pad-right) + 91px);
+  bottom: calc(var(--pad-bottom) + 72px);
+  width: 54px;
+  height: 54px;
+}
+
+#touch [data-touch="drop"] {
+  right: calc(var(--pad-right) + 12px);
+  bottom: calc(var(--pad-bottom) + 92px);
+  width: 52px;
+  height: 52px;
+}
+
+#touch .pause {
+  top: max(14px, env(safe-area-inset-top));
+  right: max(14px, env(safe-area-inset-right));
+  width: 44px;
+  height: 44px;
+  font-size: 0.9rem;
+  letter-spacing: 0;
+}
+
+/* During a shot only the stick stays, faint: touching it, or the picture, skips. */
+#touch.cine button {
+  display: none;
+}
+
+#touch.cine #stick {
+  opacity: 0.22;
+}
+
+/* The prompt, the cards and the lines of narration sit above the controls; the health beads
+   make room for the pause button. */
+body.touch #prompt {
+  bottom: calc(var(--pad-bottom) + 156px);
+}
+
+body.touch #hint,
+body.touch #subtitle {
+  bottom: calc(var(--pad-bottom) + 206px);
+}
+
+body.touch #health {
+  right: calc(max(14px, env(safe-area-inset-right)) + 56px);
+}
+
+/* A phone on its side has little height: the texts share the gap between the stick and the
+   actions, and the objective shrinks into its corner. */
+@media (max-height: 500px) and (min-aspect-ratio: 1/1) {
+  body.touch {
+    --column: calc(100vw - 2 * (var(--pad-right) + 216px));
+  }
+
+  body.touch #objective-box {
+    top: max(10px, env(safe-area-inset-top));
+    left: var(--pad-left);
+    max-width: 36vw;
+    padding: 0.4rem 0.7rem 0.45rem;
+  }
+
+  body.touch #objective {
+    font-size: 0.88rem;
+  }
+
+  body.touch #objective-sub {
+    font-size: 0.76rem;
+  }
+
+  body.touch #address {
+    top: max(8px, env(safe-area-inset-top));
+  }
+
+  body.touch #prompt {
+    bottom: var(--pad-bottom);
+    max-width: var(--column);
+    white-space: normal;
+    text-align: center;
+  }
+
+  body.touch #hint,
+  body.touch #subtitle {
+    bottom: calc(var(--pad-bottom) + 48px);
+    width: var(--column);
   }
 }
 

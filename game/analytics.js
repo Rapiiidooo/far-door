@@ -1,8 +1,8 @@
 // Pageviews for the hosted build, through the site's own /analytics route to a private Umami.
 // The collection ID is public; dashboard access and the proxy configuration stay private.
-// Nothing runs on a local preview, and Do Not Track, Global Privacy Control and Umami's own
-// opt-out are respected. Only the page itself is reported: no search, hash, detailed referrer,
-// custom event or identifier.
+// Nothing runs on a local preview or in an automated browser (the jam gate, test runs), and
+// Do Not Track, Global Privacy Control and Umami's own opt-out are respected. Only the page
+// itself is reported: no search, hash, detailed referrer, custom event or identifier.
 const website = "e7a2dc08-58e3-4c04-8940-bd67b7b6db42";
 const domain = "fardoor.rapidoai.dev";
 
@@ -15,7 +15,7 @@ function optedOut() {
   );
 }
 
-if (location.hostname === domain && !optedOut()) {
+if (location.hostname === domain && !navigator.webdriver && !optedOut()) {
   window.farDoorAnalyticsPayload = (type, payload) => {
     if (optedOut() || type !== "event" || payload.name || payload.id)
       return false;

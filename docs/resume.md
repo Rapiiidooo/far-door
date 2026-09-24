@@ -1,6 +1,6 @@
 # Far Door handoff
 
-Far Door is the owner's second game idea: an original mix of tomb exploration (third-person traversal in carved ruins) and a gate network to other worlds, with a comic bureaucratic checkpoint beyond the first gate. It is a prototype only. The owner asked not to submit it anywhere: the 404 jam allows one entry per person and that entry is Hungry for Trouble. At the owner's request it is hosted at <https://fardoor.rapidoai.dev/>, which is not a submission. Keep names, logos and signature designs of existing franchises out of it; the red lines are in [the style lock](style-lock.md).
+Far Door is the owner's second game idea: an original mix of tomb exploration (third-person traversal in carved ruins) and a gate network to other worlds, with a comic bureaucratic checkpoint beyond the first gate. It began as a prototype the owner did not want submitted, because the 404 jam allows one entry per person and that entry was Hungry for Trouble. On 24 September the owner judged Far Door the stronger entry and asked for it to meet every jam requirement. Publishing its source, withdrawing Hungry for Trouble's pull request and opening Far Door's are each the owner's explicit decision. It is hosted at <https://fardoor.rapidoai.dev/>. Keep names, logos and signature designs of existing franchises out of it; the red lines are in [the style lock](style-lock.md).
 
 ## State
 
@@ -31,15 +31,23 @@ Then the owner asked for the planet in level 2 to stop showing over the scenery,
 - **Isle collisions:** `world.js` has an `isle` shape, a gently domed cap inside an irregular rim, measured once off the isle's mesh by raycasts (rim and dome by bearing, boulders as round colliders) and carried to each isle's scale and turn. Bridges and the lone rock are `unsafe`: the explorer never respawns on them.
 - **The new object:** `light_pylon`, through the recipe (three candidates, picked by eye in the game; see `receipts/candidates/light_pylon/`).
 
-- **Hosting:** the game is live at <https://fardoor.rapidoai.dev/> on its own VM in the owner's infrastructure, serving the `game/` folder of a committed release, with pageview analytics in the owner's Umami (`game/analytics.js`: production only, Do Not Track and GPC respected, the page alone). The private deployment notes and scripts, including how to publish a new release, are in `kusanagi/infra/services/far-door/`, outside this repository.
+- **Hosting:** the game is live at <https://fardoor.rapidoai.dev/> on its own VM in the owner's infrastructure, serving the `game/` folder of a committed release, with pageview analytics in the owner's Umami (`game/analytics.js`: production only, never in an automated browser, Do Not Track and GPC respected, the page alone). The private deployment notes and scripts, including how to publish a new release, live in the owner's infrastructure repository, outside this one.
 
-The latest evidence is in [receipts/verification-hosting](../receipts/verification-hosting/README.md) and [receipts/verification-level-3](../receipts/verification-level-3/README.md); the earlier rounds are in [receipts/verification-rework](../receipts/verification-rework/README.md). Nothing after the first rework has been played by hand yet.
+Then the owner asked for everything the jam requires; the gate plays the live URL on a phone, with a real tap and a real finger:
+
+- **Touch controls** (`touch.js`): a stick (a light push walks and never steps off an edge, a full push runs), a drag on the picture to look, and buttons for the actions that apply where the explorer is. Taps skip shots, the notes and the credits. The controls show while touch is in use, and the help texts and Controls screen follow the device.
+- **Phone layout:** texts sit above the buttons in portrait and between the stick and the buttons in landscape; the vertical field of view widens on tall screens; phones start on balanced quality.
+- **The gate's drag:** `#startb` is New game and `#stick` the stick, so the gate runs with no options. The terrace start moved back from the edge, still facing the court, so the drag walks 3 m and stops at the lip.
+- **Slow machines:** real time down to 20 frames a second with physics substeps. Without a GPU (SwiftShader, llvmpipe) the pixel ratio drops to 0.75 and only the court compiles at load.
+- **Fixes met on the way:** after a careful walk to a lip the hang found no ground under the body's centre, and the letterbox caught touches meant for the stick.
+
+The latest evidence is in [receipts/verification-jam](../receipts/verification-jam/README.md), [receipts/verification-hosting](../receipts/verification-hosting/README.md) and [receipts/verification-level-3](../receipts/verification-level-3/README.md); the earlier rounds are in [receipts/verification-rework](../receipts/verification-rework/README.md). Nothing after the first rework has been played by hand yet, and no physical phone has played the touch controls.
 
 ## Layout
 
 `game/` is a static folder with vendored three.js 0.186 (`npm run vendor` refreshes it). `assetlib.js`, `surfaces.js` and `rig.js` are unmodified copies from the recipe harness; do not reformat them.
 
-- **Flow:** `main.js` (loading, precompile, chapters, crossings, the notes, the finale, loop), `menu.js`, `hud.js`, `store.js`, `story.js` (the court's steps and the scripted shots with subtitles), `credits.js`, `sound.js`, `input.js`. The texts of both notes are in `index.html`.
+- **Flow:** `main.js` (loading, precompile, chapters, crossings, the notes, the finale, loop), `menu.js`, `hud.js`, `store.js`, `story.js` (the court's steps and the scripted shots with subtitles), `credits.js`, `sound.js`, `input.js` and `touch.js` (the on-screen controls). The texts of both notes are in `index.html`.
 - **Movement:** `hero.js` (traversal and combat states), `hero-anim.js` (springs, gait, overlays, arm IK), `follow-camera.js`.
 - **The court:** `court.js` (map, props and their fitted shapes, ropes, starts), `level.js`, `cliffs.js`, `terrain.js`, `beams.js`, and `gate.js`, which holds the gate, its set piece, its portal and its colliders.
 - **Level 2:** `world-two.js` (valley, ridges, lanterns, both gates, the disc) and `checkpoint.js` (booth, wall, plates, Wardens, clerk, phases, guide). The Warden AI is in `wardens.js`, the pooled stamp ink and rings in `fx.js`, the speech bubbles in `bubbles.js`.
@@ -59,6 +67,9 @@ Development URL parameters: `?nolock=1` plays without pointer lock, `?chapter=co
 - A pylon that is already burning must not draw the disc's aim, or a second pylon behind it can never be struck.
 - Only cameras look down their -Z; a plain `Object3D` used as a pose probe faces the target with its +Z. Cinematic probes are cameras.
 - The r186 cascaded-shadow chunk never fills `material.dfg`, so `main.js` patches it, or every fully metallic surface renders black. Mirror faces keep their flat polished material.
+- Ground is found under the explorer's footprint, so a body can stand with its centre just past a lip. Anything that looks for the ledge under the explorer must also look under the heels.
+- Under SwiftShader, ANGLE builds pipelines at the first draw: `compileAsync` returns at once and the first frame pays, about 4 s for the court on this workstation.
+- Any full-screen layer over the game must let touches through (`pointer-events: none`), or it swallows the stick or the tap that skips a shot. Automated checks that tap elsewhere will not notice: repeat the gate's own gesture.
 
 ## Assets
 
