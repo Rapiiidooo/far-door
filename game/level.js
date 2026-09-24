@@ -8,6 +8,10 @@ import {
 } from "./terrain.js";
 import { glyphMaterial, makeGlyph } from "./glyphs.js";
 import { buildCliffs } from "./cliffs.js";
+import { plantGrass, clumps } from "./grass.js";
+
+// The court's grass, bleached to straw by the sun, darker where it roots in the sand.
+const DRY_GRASS = [0x6e5b37, 0xc4a86c];
 
 // The canyon's skyline: low in the west where the sun comes over, tallest behind the gate,
 // with a slot cut deep into the west wall, where the sun falls through onto the catcher
@@ -232,6 +236,7 @@ export class Level {
       this.root.add(o);
       this.addShapes(name, x, y, z, yaw);
     }
+    await this.plantGrass();
     // Placed by the lip point the asset declares, turned with the face it hangs down.
     for (const [x, y, z, yaw] of COURT.ROPES) {
       const o = await this.assets.make("expedition_rope", {
@@ -451,6 +456,43 @@ export class Level {
     const mesh = new THREE.Mesh(g, sand);
     mesh.receiveShadow = true;
     this.root.add(mesh);
+  }
+
+  // Dry grass in the lee of the walls, round the fallen stones and along the terrace, where
+  // what little rain there is collects: clumps of [x, z, radius, tufts], kept off anything
+  // built, so a clump round a stone rings its foot.
+  async plantGrass() {
+    const { MAP, CELL, heightOf } = COURT;
+    let seed = 17;
+    const rand = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
+    const centres = [
+      [27.1, 14.2, 1, 7],
+      [27.3, 17.6, 0.8, 5],
+      [26.3, 26.2, 2, 14],
+      [26.5, 21, 1.4, 9],
+      [25.8, 30.5, 1.4, 9],
+      [24.3, 34.9, 2.2, 12],
+      [27.2, 33.2, 0.9, 6],
+      [3.6, 16.9, 2, 14],
+      [3.2, 27.5, 1.5, 9],
+      [3.3, 33.1, 0.9, 6],
+      [15.9, 34.3, 1.1, 7],
+      [11.2, 34.4, 0.8, 5],
+      [12, 18.7, 0.6, 4],
+      [18, 18.7, 0.6, 4],
+      [19.9, 39.6, 0.9, 6],
+      [11.4, 40.2, 0.8, 5],
+      [15.2, 41.3, 0.7, 4],
+    ];
+    const ground = (x, z) => {
+      const ch = MAP[Math.floor(z / CELL)]?.[Math.floor(x / CELL)];
+      if (ch !== "." && ch !== "g") return null;
+      const h = heightOf(ch);
+      if (this.world.occupied(x, z, 0.3, h + 0.05, h + 0.6)) return null;
+      return h + this.driftAt(x, z, h);
+    };
+    const spots = clumps(centres, ground, rand, [0.9, 1.5]);
+    await plantGrass(this.assets, this.root, spots, { colors: DRY_GRASS });
   }
 
   // Height of the sand drift at a point on the court floor, the same shape buildDrifts lays

@@ -1,4 +1,5 @@
 import * as THREE from "three";
+import { plantGrass, clumps } from "./grass.js";
 
 // The fifth world, only glimpsed: through the great ring at the end of the frozen reach, a wild
 // forest of huge old trees, ferns and mushrooms whose gills glow in the shade, under warm
@@ -65,6 +66,7 @@ const HILLS = [
   [150, -250, 24, 70],
 ];
 const FERNS = 70,
+  MEADOW = 80,
   MUSHROOMS = 22,
   SPORES = 280,
   FAIRIES = 90;
@@ -106,6 +108,7 @@ export class ForestView {
       ferns.push([x, z, rand() * 6.3, 0.8 + rand() * 0.8]);
     }
     await this.instance("fern_cluster", ferns);
+    await this.buildMeadow();
     const shrooms = [];
     for (let i = 0; i < MUSHROOMS; i++) {
       const t = TREES[i % TREES.length];
@@ -176,6 +179,27 @@ export class ForestView {
       });
       inst.computeBoundingSphere();
       this.scene.add(inst);
+    });
+  }
+
+  // Grass over the whole floor in clumps, thickest by the door and widening with the avenue,
+  // off the path and clear of the trunks. Its own seed, so nothing else moves.
+  async buildMeadow() {
+    const rand = seeded(23);
+    const centres = [];
+    for (let i = 0; i < MEADOW; i++) {
+      const z = -1 - 88 * Math.pow(rand(), 1.5);
+      const x = (rand() * 2 - 1) * (9 + 0.25 * -z);
+      centres.push([x, z, 1.2 + rand() * 1.6, 4 + Math.floor(rand() * 5)]);
+    }
+    const ground = (x, z) => {
+      if (z > -0.4 || (z > -72 && Math.abs(x - pathX(z)) < 1.7)) return null;
+      for (const [tx, tz, , k] of TREES)
+        if ((x - tx) ** 2 + (z - tz) ** 2 < (2.4 * k) ** 2) return null;
+      return this.heightAt(x, z);
+    };
+    await plantGrass(this.assets, this.scene, clumps(centres, ground, rand), {
+      cell: 20,
     });
   }
 
@@ -272,10 +296,7 @@ export class ForestView {
     const pp = path.geometry.attributes.position;
     for (let i = 0; i < pp.count; i++) {
       const z = pp.getZ(i) - 37;
-      pp.setX(
-        i,
-        pp.getX(i) + Math.sin(z * 0.09) * 2.2 + Math.max(0, -z - 30) * 0.08,
-      );
+      pp.setX(i, pp.getX(i) + pathX(z));
       pp.setY(i, this.heightAt(pp.getX(i), z) + 0.1);
       pp.setZ(i, z);
     }
@@ -657,6 +678,11 @@ export class ForestView {
     this.sky.position.copy(camera.position);
     renderer.render(this.scene, camera);
   }
+}
+
+// Where the path's middle runs at depth z: it wanders, then bears right towards the giant.
+function pathX(z) {
+  return Math.sin(z * 0.09) * 2.2 + Math.max(0, -z - 30) * 0.08;
 }
 
 function seeded(seed) {

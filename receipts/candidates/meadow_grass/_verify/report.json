@@ -1,0 +1,116 @@
+[
+ {
+  "ok": true,
+  "mounts": null,
+  "meshes": 2,
+  "tris": 612,
+  "materials": 2,
+  "size": [
+   0.631,
+   0.616,
+   0.676
+  ],
+  "groundOffset": 0,
+  "centreOffset": [
+   0,
+   0
+  ],
+  "sides": {
+   "front": {
+    "coverage": 0.0549,
+    "edgeDensity": 0.4279
+   },
+   "right": {
+    "coverage": 0.0537,
+    "edgeDensity": 0.4305
+   },
+   "back": {
+    "coverage": 0.053,
+    "edgeDensity": 0.4071
+   },
+   "left": {
+    "coverage": 0.0574,
+    "edgeDensity": 0.363
+   }
+  },
+  "error": null,
+  "name": "meadow_grass_a",
+  "problems": []
+ },
+ {
+  "ok": true,
+  "mounts": null,
+  "meshes": 2,
+  "tris": 784,
+  "materials": 2,
+  "size": [
+   0.701,
+   0.572,
+   0.655
+  ],
+  "groundOffset": 0,
+  "centreOffset": [
+   0,
+   0
+  ],
+  "sides": {
+   "front": {
+    "coverage": 0.0599,
+    "edgeDensity": 0.5101
+   },
+   "right": {
+    "coverage": 0.0567,
+    "edgeDensity": 0.5269
+   },
+   "back": {
+    "coverage": 0.0524,
+    "edgeDensity": 0.5284
+   },
+   "left": {
+    "coverage": 0.0512,
+    "edgeDensity": 0.5568
+   }
+  },
+  "error": null,
+  "name": "meadow_grass_b",
+  "problems": []
+ },
+ {
+  "ok": true,
+  "mounts": null,
+  "meshes": 2,
+  "tris": 774,
+  "materials": 2,
+  "size": [
+   0.67,
+   0.601,
+   0.695
+  ],
+  "groundOffset": 0,
+  "centreOffset": [
+   0,
+   0
+  ],
+  "sides": {
+   "front": {
+    "coverage": 0.0464,
+    "edgeDensity": 0.4483
+   },
+   "right": {
+    "coverage": 0.0497,
+    "edgeDensity": 0.4472
+   },
+   "back": {
+    "coverage": 0.0422,
+    "edgeDensity": 0.4539
+   },
+   "left": {
+    "coverage": 0.0477,
+    "edgeDensity": 0.418
+   }
+  },
+  "error": null,
+  "name": "meadow_grass_c",
+  "problems": []
+ }
+]

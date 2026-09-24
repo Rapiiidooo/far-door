@@ -1,0 +1,185 @@
+{
+  "results": [
+    {
+      "name": "the gate's drag skips the opening and walks a metre",
+      "ok": true,
+      "detail": "3.19 m"
+    },
+    {
+      "name": "the title asks for taps",
+      "ok": true,
+      "detail": "Tap to choose"
+    },
+    {
+      "name": "no controls over the title",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "Controls lists the on-screen controls",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "a phone starts on balanced quality",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "the opening's title and narration stay apart",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "only the stick shows during the shot",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "a tap on the picture skips the opening",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "the court shows jump, use and pause only",
+      "ok": true,
+      "detail": "interact,jump,pause"
+    },
+    {
+      "name": "nothing covers the play text",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "the stick walks the explorer to the camp",
+      "ok": true,
+      "detail": "20.84,39.80 \"Use Read the expedition's notes\""
+    },
+    {
+      "name": "Use opens the notes, which say how to put them back",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "the controls step aside for the notes",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "a tap puts the notes back and the story moves on",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "nothing covers the first hint",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "a light push stops at the terrace's edge",
+      "ok": true,
+      "detail": "19.85,35.81 feet 8.00"
+    },
+    {
+      "name": "Hang shows at the edge",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "nothing covers the edge's prompt",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "Hang hangs from the edge",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "Jump climbs back onto the terrace",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "a drag on the picture turns the view",
+      "ok": true,
+      "detail": "6.03 → 6.61"
+    },
+    {
+      "name": "the pause button pauses",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "Resume returns to the controls",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "nothing covers the text in landscape",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "a prompt and a card fit in landscape",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "the checkpoint adds Roll",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "nothing covers the checkpoint's text",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "a prompt and a card fit beside every control",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "the checkpoint fits in landscape",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "nothing covers the isles' text",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "the isles fit a prompt and a card",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "the frozen reach fits every control",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "the frozen reach fits in landscape",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "the credits say a tap skips them",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "a tap skips the credits",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "no page or console error",
+      "ok": true,
+      "detail": ""
+    }
+  ],
+  "errors": []
+}

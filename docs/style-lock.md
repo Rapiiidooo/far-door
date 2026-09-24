@@ -49,6 +49,7 @@ Working title: Far Door. Every tomb holds the address of a gate; an explorer red
 
 - Metres. The level is a grid of 2 m cells with heights in 0.5 m steps. The hero is 1.75 m tall. A push block is 1.9 m on each side. A sun mirror is 1.9 m tall. A glyph stela is 2.4 m tall. The gate ring is 9 m across. The seated colossus is 14 m tall. A Warden is 1.15 m tall. The sun disc is 0.45 m across. An address plate is 1.8 m across. A path lantern is 2.4 m tall. A floating isle is about 14 m across. A light pylon is 2.8 m tall. An ice block is 1.9 m on each side. A snow pine is about 7 m tall. A forest tree is about 16 m tall.
 - Base at y = 0, centred on x and z, front faces +Z.
+- Grass is one tuft, `meadow_grass`, 0.6 m tall, recoloured in each world: straw in the court, sage on the isles, its own moss and fern greens in the forest.
 - Flat colours with sensible roughness; procedural surfaces are applied at load time. Name materials from the contract's list only: `plaster`, `stone`, `timber`, `tile`, `metal`, `fabric`, `foliage`, `ground`. Sandstone and basalt are `stone`, bronze is `metal`, cloth is `fabric`, leather is `fabric`.
 - Emissive turquoise parts are separate meshes with their own material (`emissive: 0x39e3d0`) so the game can switch them from dormant to lit.
 - Silhouettes read at 20 m in strong sun and haze: chunky masses, stepped profiles and deep grooves, never fine filigree that disappears.
@@ -69,7 +70,7 @@ The gate opens onto a bureaucratic checkpoint of the gate network, run by the Wa
 
 ## The third world: the dawn isles
 
-The checkpoint's far door opens onto a sky at dawn: pale limestone isles float over a sea of golden cloud, with more rings of the network hanging in the distance. It is the third level: the explorer follows Mira's trail from isle to isle, across bridges of turquoise light that the builders' pylons project when the sun disc, charged with light, strikes their lens. It stays simple and bright: warm light, soft haze, no creatures. The builders' pylons and crystals are the same sandstone, bone limestone, bronze and turquoise as in the court; the expedition's frayed ropes and last camp are the same weathered timber, canvas and rope as on the terrace.
+The checkpoint's far door opens onto a sky at dawn: pale limestone isles float over a sea of golden cloud, with more rings of the network hanging in the distance. It is the third level: the explorer follows Mira's trail from isle to isle, across bridges of turquoise light that the builders' pylons project when the sun disc, charged with light, strikes their lens. It stays simple and bright: warm light, soft haze, clumps of sage grass round the rims, no creatures. The builders' pylons and crystals are the same sandstone, bone limestone, bronze and turquoise as in the court; the expedition's frayed ropes and last camp are the same weathered timber, canvas and rope as on the terrace.
 
 ## The fourth world: the frozen reach
 

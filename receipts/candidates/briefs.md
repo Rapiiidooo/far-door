@@ -232,3 +232,11 @@ A row of icicles hanging from a rock lip, 2.4 m long along X: a thin crust of gl
 ## frozen_falls
 
 A frozen waterfall down a cliff face, 5 m wide and 8 m tall, flat at the back where it meets the rock: a curtain of vertical ice columns and ribbed folds of ice blue and deep ice that spill over a lip at the top, bulge out in the middle, and pool at the bottom into a low rounded apron of ice 1.5 m deep, with glacier white frost on the ledges and bulges and a few icicles at the lip. Declare `g.userData.mounts = 'back'`. It must read from 30 m as a waterfall caught in ice. Budget: at most 6,000 triangles.
+
+# Seventh wave
+
+Handed out on 24 September 2026, when the owner asked for grass with more triangles than the isles' flat fans of spikes. Same contract, style lock and fallback as above.
+
+## meadow_grass
+
+A tuft of soft meadow grass about 0.6 m tall and 0.7 m across, meant to be scattered by the hundred over the floating isles and the forest floor: twenty-four to forty slender blades rising from a tight base about 0.15 m across and fanning out in every direction, each blade a thin tapering strip (about 2 cm wide at its root, pointed at its tip) built in four or five segments so it arches smoothly and twists a little, the tallest near the middle standing almost upright, the outer ones shorter and bowing outward until their tips droop; three or four thin stalks rise above the blades carrying small oat-like seed heads. Two materials, both named `foliage` and double-sided: the lower part of every blade moss green, the upper part and the tips fern green (split each blade between the two materials, no vertex colours), and the seed heads in the fern green material. It must read at 5 m as a soft clump of grass, never as a star of flat spikes. Budget: 300 to 800 triangles, since hundreds are instanced.

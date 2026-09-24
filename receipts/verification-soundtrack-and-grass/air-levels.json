@@ -1,0 +1,36 @@
+{
+ "places": [
+  {
+   "where": "court",
+   "from": 0,
+   "rmsDb": -43.2,
+   "peakDb": -30.6
+  },
+  {
+   "where": "two",
+   "from": 12,
+   "rmsDb": -48.4,
+   "peakDb": -34.9
+  },
+  {
+   "where": "three",
+   "from": 24,
+   "rmsDb": -45.5,
+   "peakDb": -32.8
+  },
+  {
+   "where": "four",
+   "from": 36,
+   "rmsDb": -46.5,
+   "peakDb": -31.2
+  },
+  {
+   "where": "forest",
+   "from": 48,
+   "rmsDb": -44.5,
+   "peakDb": -32.6
+  }
+ ],
+ "peakDb": -30.6,
+ "note": "Each world's wind and footfalls at a jog, effects only, default settings; 12 s per place, loudness from 8 s in. Rendered offline by scripts/music-preview.mjs --effects."
+}

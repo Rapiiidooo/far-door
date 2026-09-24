@@ -24,6 +24,7 @@ import { Bubbles } from "./bubbles.js";
 import { CourtStory } from "./story.js";
 import { Credits } from "./credits.js";
 import { Relics, RELICS } from "./relics.js";
+import { grassTime } from "./grass.js";
 import { drawColliders } from "./debug-colliders.js";
 import {
   settings,
@@ -182,6 +183,7 @@ const ASSETS = [
   "mira_scarf",
   "icicle_cluster",
   "frozen_falls",
+  "meadow_grass",
 ];
 const available = new Map();
 async function probe(name) {
@@ -514,6 +516,7 @@ function goTo(where, opts = {}) {
   if (state.where === "three" && where !== "three") worldThree.leave();
   if (state.where === "four" && where !== "four") worldFour.leave();
   state.where = where;
+  sound.setPlace(where);
   dressHero(where);
   if (where === "court") {
     worldTwo.active = false;
@@ -1061,6 +1064,7 @@ function updateCrossing(dt) {
 function finale() {
   finishGame();
   sound.setMusic("finale");
+  sound.setPlace("forest");
   state.cinematic = worldFour.finaleShot(hero, () => {
     state.mode = "credits";
     hud.hide();
@@ -1093,6 +1097,7 @@ function frame(now) {
   // Real time down to 20 frames a second, as on a busy phone; slower than that, the game slows.
   const dt = Math.min(raw, 1 / 20);
   state.time += dt;
+  grassTime.value = state.time;
   state.frames++;
   state.fpsClock += raw;
   if (state.fpsClock >= 0.5) {
@@ -1132,6 +1137,8 @@ function frame(now) {
       if (state.cinematic.done) state.cinematic = null;
     }
     placeHero(dt);
+    // The forest's birds and leaves go on under the credits.
+    sound.update(dt, hero, null);
   }
   credits.update(dt);
   touch.update({

@@ -1,5 +1,6 @@
 import * as THREE from "three";
 import { progress, findRelic } from "./store.js";
+import { clearGrass } from "./grass.js";
 
 // Five things the expeditions left behind, hidden along the way for the curious. Each is
 // found once and for good, like an achievement: taken, it leaves its world and is listed on
@@ -109,6 +110,8 @@ export class Relics {
       }
       const ground = w.world.ground(x, z, 0.05, 1e4, 0);
       const y = ground + (w.lift?.(x, z, ground) ?? 0);
+      // No tuft grows over it: small things lie low.
+      clearGrass(w.scene, x, z, 0.9);
       const model =
         (await this.assets.make(def.asset, {
           keepHierarchy: !!def.light?.flame,

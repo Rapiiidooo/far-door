@@ -131,6 +131,19 @@ export class World {
     return best;
   }
 
+  // Whether anything solid stands at a point between the heights `low` and `high`, so set
+  // dressing does not grow through props.
+  occupied(x, z, radius, low, high) {
+    return this.boxes.some(
+      (b) =>
+        b.solid &&
+        b.shape !== "isle" &&
+        b.maxY > low &&
+        b.minY < high &&
+        discHits(x, z, radius, b),
+    );
+  }
+
   // Pushes a cylinder out of every collider overlapping its body above the step height.
   // Returns the last wall normal touched, so the caller can slide or detect a push.
   resolve(pos, radius, feet, height, stepUp) {

@@ -1,6 +1,7 @@
 import * as THREE from "three";
 import { isleAt } from "./world.js";
 import { PROP_SHAPES } from "./court.js";
+import { plantGrass, clumps } from "./grass.js";
 
 // The third level, the dawn isles. Mira's expedition crossed them on ropes while dawn drifted
 // the isles together, and the ropes hang snapped from the rims. The explorer carries her disc:
@@ -12,6 +13,8 @@ import { PROP_SHAPES } from "./court.js";
 
 const V = (x, y, z) => new THREE.Vector3(x, y, z);
 const TURQUOISE = new THREE.Color(0x39e3d0);
+// The isles' grass, desert sage greyed in the shade at its roots and lit pale at its tips.
+const SAGE = [0x6b7852, 0xb8bb88];
 
 // The playable isles, in the order they are crossed: where the asset stands, the height of its
 // top at the centre, its scale and turn. The small ones are too short-lived to wait on, so a
@@ -159,6 +162,7 @@ export class Isles {
     for (const [on, toward] of ROPES) await this.addRope(on, toward);
     await this.buildCamp();
     for (const spot of DRESSING) await this.dress(...spot);
+    await this.plantGrass();
     for (const i of this.isles) if (i.drift) this.measureDrift(i);
     this.reset();
   }
@@ -174,6 +178,10 @@ export class Isles {
 
   async addIsle(def) {
     const o = (await this.assets.make("floating_isle")) || fallbackIsle();
+    // Its flat tufts give way to the grass planted once everything stands.
+    o.traverse((m) => {
+      if (m.isMesh && m.material.name === "foliage") m.visible = false;
+    });
     const top = o.userData.top ?? 10;
     o.scale.multiplyScalar(def.s);
     o.position.set(def.x, def.top - top * def.s, def.z);
@@ -198,6 +206,57 @@ export class Isles {
       home: o.position.clone(),
       rest: o.rotation.clone(),
     });
+  }
+
+  // Grass in clumps round each cap, clear of the middle, the boulders and anything built on
+  // it. The ferry carries its own in its frame, so they drift with it; the stones stay bare.
+  async plantGrass() {
+    let seed = 41;
+    const rand = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
+    const fixed = [];
+    for (const isle of this.isles) {
+      if (isle.crumble) continue;
+      const c = isle.collider;
+      const centres = [];
+      const n = Math.max(2, Math.round(8.5 * isle.s));
+      for (let i = 0; i < n; i++) {
+        const a = ((i + rand() * 0.7) / n) * Math.PI * 2;
+        const rim = isleAt(c, c.x + Math.cos(a), c.z + Math.sin(a)).rim;
+        const r = rim * (0.55 + rand() * 0.25);
+        centres.push([
+          c.x + Math.cos(a) * r,
+          c.z + Math.sin(a) * r,
+          0.6 + 0.5 * isle.s,
+          4 + Math.floor(rand() * 4),
+        ]);
+      }
+      const spots = clumps(centres, (x, z) => this.capAt(isle, x, z), rand);
+      if (!isle.drift) {
+        fixed.push(...spots);
+        continue;
+      }
+      const o = isle.object;
+      o.updateMatrixWorld(true);
+      const inv = o.matrixWorld.clone().invert(),
+        p = V(0, 0, 0);
+      const local = spots.map(([x, y, z, yaw, k]) => {
+        p.set(x, y, z).applyMatrix4(inv);
+        return [p.x, p.y, p.z, yaw, k / isle.s];
+      });
+      await plantGrass(this.assets, o, local, { colors: SAGE, cell: 1e3 });
+    }
+    await plantGrass(this.assets, this.scene, fixed, { colors: SAGE });
+  }
+
+  // The height of a cap where grass can grow: short of the rim, off the boulders and where
+  // nothing is built. Anywhere else, null.
+  capAt(isle, x, z) {
+    const p = isleAt(isle.collider, x, z);
+    if (p.rho > p.rim * 0.88) return null;
+    for (const b of isle.bumps)
+      if (Math.hypot(x - b.x, z - b.z) < b.r + 0.25) return null;
+    if (this.groundAt(x, z) > p.top + 0.12) return null;
+    return p.top;
   }
 
   // The ferry's run along its line: from a stride off the rim of the isle before to a stride

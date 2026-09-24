@@ -1,0 +1,170 @@
+<!doctype html>
+<html><head><meta charset="utf-8">
+<script type="importmap">{ "imports": { "three": "/game/vendor/three.module.js", "three/addons/": "/game/vendor/" } }</script>
+<style>body{margin:0;background:#000}canvas{display:block}</style></head>
+<body>
+<script type="module">
+// Scratch: a patch of grass tufts drawn the way the game will draw them, one InstancedMesh
+// per material at random yaw and 0.6 to 1.4 scale, under the isles' or the forest's light,
+// with the game's three.js (r186). Renders a grid: one row per candidate, one column per view.
+import * as THREE from 'three';
+import { applySurfaces } from '/game/surfaces.js';
+const q = new URLSearchParams(location.search);
+const CW = +(q.get('cw') || 640), CH = +(q.get('ch') || 360);
+const srcs = (q.get('srcs') || '').split(',').filter(Boolean);
+const views = JSON.parse(q.get('views') || '[[0,2.6,5.2,0,0.3,0,58]]');
+const mode = q.get('mode') || 'isles';
+const count = +(q.get('n') || 20);
+const radius = +(q.get('r') || 1.4);
+const surf = q.get('surf') === '1';
+const wind = +(q.get('wind') || 0);
+
+const renderer = new THREE.WebGLRenderer({ antialias: true, preserveDrawingBuffer: true });
+renderer.setSize(CW * views.length, CH * srcs.length, false);
+renderer.outputColorSpace = THREE.SRGBColorSpace;
+renderer.toneMapping = THREE.ACESFilmicToneMapping;
+renderer.toneMappingExposure = +(q.get('exp') || 1.0);
+document.body.appendChild(renderer.domElement);
+
+const scene = new THREE.Scene();
+let groundColor;
+if (mode === 'forest') {
+  scene.background = new THREE.Color(0x6a8750);
+  scene.fog = new THREE.FogExp2(0x6a8750, 0.0046);
+  const sun = new THREE.DirectionalLight(0xffe2a0, 2.4);
+  sun.position.set(-18, 40, -30);
+  scene.add(sun, sun.target);
+  scene.add(new THREE.HemisphereLight(0xd8eab0, 0x2f3d1c, 1.15));
+  groundColor = 0x4a6b33;
+} else if (mode === 'verify') {
+  scene.background = new THREE.Color(0x22262b);
+  scene.add(new THREE.HemisphereLight(0xffffff, 0x556677, 2.0));
+  const sun = new THREE.DirectionalLight(0xffffff, 1.9);
+  sun.position.set(5, 9, 7);
+  scene.add(sun);
+  groundColor = 0x6b6f75;
+  renderer.toneMapping = THREE.NoToneMapping;
+} else {
+  scene.background = new THREE.Color(0xdcb690);
+  scene.fog = new THREE.FogExp2(0xdcb690, 0.0016);
+  const SUN = new THREE.Vector3(0.62, 0.2, -0.76).normalize();
+  const sun = new THREE.DirectionalLight(0xffd6a0, 3.6);
+  sun.position.copy(SUN).multiplyScalar(80);
+  if (q.get('shadow')) {
+    // the isles' own shadow settings (world-three.js), on a tighter frustum
+    renderer.shadowMap.enabled = true;
+    sun.castShadow = true;
+    sun.shadow.mapSize.set(2048, 2048);
+    const sc = sun.shadow.camera; sc.left = sc.bottom = -24; sc.right = sc.top = 24; sc.near = 1; sc.far = 200;
+    sun.shadow.bias = -0.0004;
+    sun.shadow.normalBias = +(q.get('nb') || 0.03);
+  }
+  scene.add(sun, sun.target);
+  scene.add(new THREE.HemisphereLight(0x9fb6e6, 0xe8b884, 1.25));
+  // a rough stand-in for the isles' sky environment: warm horizon, blue zenith
+  const sky = new THREE.Mesh(new THREE.SphereGeometry(50, 32, 16), new THREE.ShaderMaterial({
+    side: THREE.BackSide,
+    vertexShader: 'varying vec3 vP; void main(){ vP = normalize(position); gl_Position = projectionMatrix * modelViewMatrix * vec4(position,1.0); }',
+    fragmentShader: 'varying vec3 vP; void main(){ float h = clamp(vP.y, -1.0, 1.0); vec3 hor = vec3(1.25,0.78,0.48); vec3 zen = vec3(0.30,0.40,0.62); vec3 bel = vec3(0.70,0.56,0.45); vec3 c = h > 0.0 ? mix(hor, zen, pow(h, 0.6)) : mix(hor, bel, pow(-h, 0.5)); gl_FragColor = vec4(c, 1.0); }',
+  }));
+  const pmrem = new THREE.PMREMGenerator(renderer);
+  const env = new THREE.Scene(); env.add(sky);
+  scene.environment = pmrem.fromScene(env, 0.04).texture;
+  scene.environmentIntensity = 0.7;
+  groundColor = 0xeadcc0;
+}
+const ground = new THREE.Mesh(new THREE.CircleGeometry(40, 48).rotateX(-Math.PI / 2),
+  new THREE.MeshStandardMaterial({ color: groundColor, roughness: 0.92 }));
+ground.receiveShadow = true;
+scene.add(ground);
+
+// the isles' old tuft, rebuilt from floating_isle.js fan() and tuft(), for comparison
+function oldTuft() {
+  const V2 = (x, y) => new THREE.Vector2(x, y);
+  const pts = [V2(-0.09, 0)];
+  const blades = [[-0.85, 0.38], [-0.28, 0.48], [0.3, 0.46], [0.88, 0.36]];
+  blades.forEach(([a, l], i) => {
+    pts.push(V2(Math.sin(a) * l, Math.cos(a) * l));
+    if (i < blades.length - 1) { const b = (a + blades[i + 1][0]) / 2; pts.push(V2(Math.sin(b) * 0.1, 0.07 + Math.cos(b) * 0.04)); }
+  });
+  pts.push(V2(0.09, 0));
+  const geos = [0, 1].map((k) => {
+    const geo = new THREE.ExtrudeGeometry(new THREE.Shape(pts), { depth: 0.035, bevelEnabled: false }).translate(0, 0, -0.0175).rotateY((k * Math.PI) / 2).scale(1.3, 1.3, 1.3);
+    const o = geo.toNonIndexed(); o.computeVertexNormals(); return o;
+  });
+  const g = new THREE.Group();
+  const m = new THREE.MeshStandardMaterial({ color: 0x7a8766, roughness: 0.85, metalness: 0 });
+  m.name = 'foliage';
+  for (const geo of geos) g.add(new THREE.Mesh(geo, m));
+  return g;
+}
+
+// mulberry32: the placement must not cluster the way a small Park-Miller seed does
+let seed = +(q.get('seed') || 7) >>> 0;
+const rnd = () => { seed = (seed + 0x6d2b79f5) >>> 0; let t = seed; t = Math.imul(t ^ (t >>> 15), t | 1); t ^= t + Math.imul(t ^ (t >>> 7), t | 61); return ((t ^ (t >>> 14)) >>> 0) / 4294967296; };
+const spots = [];
+for (let i = 0; i < count; i++) {
+  const a = rnd() * Math.PI * 2, r = radius * Math.sqrt(rnd());
+  spots.push([Math.cos(a) * r, Math.sin(a) * r * 0.8, rnd() * Math.PI * 2, 0.6 + 0.8 * rnd()]);
+}
+
+if (q.get('fixed')) spots.splice(0, spots.length, [0, 0, +(q.get('yaw') || 0), 1]);
+const rows = [];
+let info = { ok: true, notes: [] };
+try {
+  for (const src of srcs) {
+    let obj = src === 'old' ? oldTuft() : (await import(src + '?v=' + Date.now())).default(THREE);
+    if (surf) applySurfaces(THREE, obj, {});
+    obj.updateMatrixWorld(true);
+    const row = new THREE.Group();
+    let tris = 0;
+    const place = new THREE.Matrix4(), qq = new THREE.Quaternion(), up = new THREE.Vector3(0, 1, 0);
+    obj.traverse((m) => {
+      if (!m.isMesh) return;
+      let material = m.material;
+      if (q.get('faces')) {
+        // debug: front faces green, back faces red
+        material = new THREE.ShaderMaterial({ side: THREE.DoubleSide,
+          vertexShader: '#include <common>\n void main(){ gl_Position = projectionMatrix * modelViewMatrix * instanceMatrix * vec4(position,1.0); }',
+          fragmentShader: 'void main(){ gl_FragColor = gl_FrontFacing ? vec4(0.2,0.75,0.25,1.0) : vec4(0.95,0.1,0.1,1.0); }' });
+      }
+      if (wind) {
+        // the game's wind in spirit: sideways in proportion to height above the base
+        material = material.clone();
+        material.onBeforeCompile = (sh) => {
+          sh.vertexShader = sh.vertexShader.replace('#include <begin_vertex>',
+            `#include <begin_vertex>\n transformed.x += ${wind.toFixed(3)} * transformed.y * transformed.y * 1.6;`);
+        };
+      }
+      const inst = new THREE.InstancedMesh(m.geometry, material, spots.length);
+      spots.forEach(([x, z, yaw, k], i) => {
+        place.compose(new THREE.Vector3(x, 0, z), qq.setFromAxisAngle(up, yaw), new THREE.Vector3(k, k, k));
+        inst.setMatrixAt(i, place.clone().multiply(m.matrixWorld));
+      });
+      inst.computeBoundingSphere();
+      inst.castShadow = inst.receiveShadow = !!q.get('shadow');
+      tris += (m.geometry.index ? m.geometry.index.count : m.geometry.attributes.position.count) / 3;
+      row.add(inst);
+    });
+    info.notes.push(`${src}: ${tris} tris per tuft`);
+    row.visible = false;
+    scene.add(row);
+    rows.push(row);
+  }
+  const cam = new THREE.PerspectiveCamera(58, CW / CH, 0.1, 1200);   // the game's near and far planes
+  renderer.setScissorTest(true);
+  rows.forEach((row, ri) => {
+    rows.forEach((r) => (r.visible = r === row));
+    views.forEach(([x, y, z, lx, ly, lz, fov], vi) => {
+      cam.position.set(x, y, z); cam.fov = fov || 58; cam.updateProjectionMatrix();
+      cam.lookAt(lx, ly, lz);
+      const px = vi * CW, py = (srcs.length - 1 - ri) * CH;
+      renderer.setViewport(px, py, CW, CH);
+      renderer.setScissor(px, py, CW, CH);
+      renderer.render(scene, cam);
+    });
+  });
+} catch (e) { info = { ok: false, error: String(e && e.stack || e) }; }
+window.__INFO__ = info;
+window.__DONE__ = true;
+</script></body></html>

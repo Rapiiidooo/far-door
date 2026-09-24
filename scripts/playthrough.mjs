@@ -55,7 +55,8 @@ async function shot(name) {
     path: `${out}/${String(++shots).padStart(2, "0")}-${name}.png`,
   });
 }
-function steer(s, x, z) {
+// `lat` is how far off to the side the spot may lie before a side key corrects the course.
+function steer(s, x, z, lat = 0.38) {
   const dx = x - s.pos[0],
     dz = z - s.pos[1],
     d = Math.hypot(dx, dz) || 1;
@@ -66,15 +67,19 @@ function steer(s, x, z) {
   const keys = [];
   if (f > 0.38) keys.push("KeyW");
   if (f < -0.38) keys.push("KeyS");
-  if (r > 0.38) keys.push("KeyD");
-  if (r < -0.38) keys.push("KeyA");
+  if (r > lat) keys.push("KeyD");
+  if (r < -lat) keys.push("KeyA");
   return { keys, d };
 }
-async function go(x, z, { tol = 0.35, walk = true, timeout = 12000 } = {}) {
+async function go(
+  x,
+  z,
+  { tol = 0.35, walk = true, timeout = 12000, lat = 0.38 } = {},
+) {
   const t0 = Date.now();
   while (Date.now() - t0 < timeout) {
     const s = await state();
-    const { keys, d } = steer(s, x, z);
+    const { keys, d } = steer(s, x, z, lat);
     if (d < tol) {
       await hold(new Set());
       return s;
@@ -670,6 +675,12 @@ async function isles() {
   const onto = (p, k = 0.4) => [p.emit[0], p.emit[1] + dirOf(p) * k];
   const walkTo = ([x, z], opts = {}) =>
     go(x, z, { tol: 0.4, walk: false, ...opts });
+  // Along a bridge of light, 1.9 m wide: face down it first and hold the line closely, or a
+  // camera a few degrees off its axis walks the explorer off its side over twelve metres.
+  const along = async ([x, z]) => {
+    await turnTo(x, z);
+    return walkTo([x, z], { timeout: 9000, lat: 0.12 });
+  };
   // A clear spot 2.4 m from a crystal, towards the middle of its isle.
   const near = (w, id) => {
     const [ax, az] = at[id];
@@ -686,7 +697,7 @@ async function isles() {
   let p = pylon(s, "first");
   await walkTo(beside(p));
   await walkTo(onto(p));
-  await walkTo([p.emit[0], p.to + dirOf(p) * 1.2], { timeout: 9000 });
+  await along([p.emit[0], p.to + dirOf(p) * 1.2]);
   s = await until((s) => s.isles.on === "gap", 3000, "cross the first bridge");
   note("crossed the first bridge");
   // The second: its pylon stands on the far isle, facing back across the gap.
@@ -697,7 +708,7 @@ async function isles() {
   s = await state();
   p = pylon(s, "across");
   await walkTo([p.emit[0], p.to + dirOf(p) * 0.6]);
-  await walkTo(onto(p, -0.3), { timeout: 9000 });
+  await along(onto(p, -0.3));
   await walkTo(beside(p));
   s = await until(
     (s) => s.isles.on === "pair",
@@ -717,10 +728,10 @@ async function isles() {
   const q = pylon(s, "twinB");
   await walkTo(beside(p));
   await walkTo(onto(p));
-  await walkTo([p.emit[0], p.to + dirOf(p) * 0.4], { timeout: 9000 });
+  await along([p.emit[0], p.to + dirOf(p) * 0.4]);
   await walkTo(beside(q));
   await walkTo(onto(q));
-  await walkTo([q.emit[0], q.to + dirOf(q) * 1.5], { timeout: 9000 });
+  await along([q.emit[0], q.to + dirOf(q) * 1.5]);
   s = await until((s) => s.isles.on === "ledge", 3000, "reach the ledge");
   note("crossed both bridges of the pair");
   // The ferry: aboard while it rests off the ledge, off while it rests off the far isle.
@@ -764,7 +775,7 @@ async function isles() {
   p = pylon(s, "relay1");
   await walkTo(beside(p));
   await walkTo(onto(p));
-  await walkTo([p.emit[0], p.to + dirOf(p) * 1.4], { timeout: 9000 });
+  await along([p.emit[0], p.to + dirOf(p) * 1.4]);
   s = await until((s) => s.isles.on === "midway", 3000, "cross to midway");
   note(`on the small isle, ${s.isles.disc.charged ? "still glowing" : "dark"}`);
   await wake("relay2", W[3]);
@@ -772,7 +783,7 @@ async function isles() {
   s = await state();
   p = pylon(s, "relay2");
   await walkTo([p.emit[0], p.to + dirOf(p) * 0.6]);
-  await walkTo(onto(p, -0.3), { timeout: 9000 });
+  await along(onto(p, -0.3));
   await walkTo(beside(p));
   s = await until((s) => s.isles.on === "camp", 3000, "reach the camp");
   note("crossed to Mira's camp");

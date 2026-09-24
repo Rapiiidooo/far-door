@@ -1,0 +1,13 @@
+# meadow_grass candidates
+
+The brief is "meadow_grass" in [the seventh wave](../briefs.md). One agent built three candidates from the same brief and style lock, each with its own construction strategy, and verified them together (`_verify/sheet.png`, `--size=560`). Each is two meshes, the lower parts of the blades in moss green and the upper parts and seed heads in fern green, both `foliage` and double-sided, rooted at y = 0 near the centre. The agent also rendered patches of twenty copies at random yaw and scale beside the isles' old tufts, under the isles' and the forest's light (`scratch/patch_isles_old_abc.png`, `scratch/patch_forest_abc.png`).
+
+- `meadow_grass_a`, primitives: 36 blades, each a one-quad-wide, five-segment plane bent onto a tapered, twisted arch, and three bent stalks hung with grains. Verifier: `ok meadow_grass_a 612 tris 2 meshes 0.631x0.616x0.676m`.
+- `meadow_grass_b` (picked), profiles: 32 hand-built strips swept along arcs that lean from upright at the root to a droop at the tip, each blade two sheets a hair apart sharing one normal field that leans up and out from the tuft, and four nodding stalks with oat heads. Verifier: `ok meadow_grass_b 784 tris 2 meshes 0.701x0.572x0.655m`.
+- `meadow_grass_c`, a second reading: six sub-clumps of five blades folded along their midribs round a central group, with branching oat heads. Verifier: `ok meadow_grass_c 774 tris 2 meshes 0.67x0.601x0.695m`.
+
+Picked B in the game, on the arrival isle's rim ([the three](ingame-isles.png)) and through the great ring onto the forest ([the three](ingame-forest.png)). On the isles all three read as grass where the old tufts read as fans of spikes, and B is the fullest. In the forest, which is seen against the light, A and C turn into dark separate tufts while B stays evenly lit and covers the floor as a meadow: with a single sheet, double-sided blades flip their normals on the back face and half the blades light from behind, and B's two sheets are the fix.
+
+The game plants it by the hundred as instanced copies, one draw call per material and patch, and recolours it for each world: straw in the court, sage on the isles, its own greens in the forest. The vertex shader bends it in the wind by height (`game/grass.js`).
+
+Weaknesses, from the agent's report: it is the heaviest of the three because the second sheet doubles the blades; its shared normals make it read by silhouette and colour more than by shading, a little matte in flat light; hairline back-face slivers show at grazing edges, below a pixel at 5 m; and its soft shading depends on its hand-set normals, so nothing may recompute them after loading.
