@@ -79,6 +79,20 @@ export class Hud {
     p.hidden = !on;
   }
 
+  // A short dip to black with a line of text, so a respawn reads as a consequence.
+  blackout(kind) {
+    const f = this.el("fade");
+    const line = this.el("fade-line");
+    line.textContent =
+      kind === "deep" ? "The dark swallows the fall." : "Too far to fall.";
+    f.classList.add("dark");
+    f.style.opacity = 1;
+    setTimeout(() => {
+      f.style.opacity = 0;
+      setTimeout(() => f.classList.remove("dark"), 400);
+    }, 650);
+  }
+
   flash(strength = 0.6) {
     const f = this.el("fade");
     f.style.opacity = strength;

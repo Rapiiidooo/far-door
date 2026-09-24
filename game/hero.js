@@ -17,7 +17,7 @@ const R = 0.32,
   CLIMB_TIME = 0.95,
   VAULT_TIME = 0.55,
   SHOVE_TIME = 1.05,
-  TURN_RATE = 0.9;
+  TURN_RATE = 0.75;
 
 const wrapAngle = (a) => Math.atan2(Math.sin(a), Math.cos(a));
 
@@ -42,6 +42,10 @@ export class Hero {
     this.safe = { x: 0, z: 0, feet: 0, yaw: Math.PI };
     this.events = [];
     this.stepLift = 0;
+    // Positional snaps (squaring up to a block, catching a ledge) are absorbed here and
+    // eased out by the renderer, so the body glides instead of teleporting.
+    this.snap = { x: 0, z: 0 };
+    this.sinceJump = 9;
   }
 
   spawn(x, z, feet, yaw) {
@@ -67,13 +71,20 @@ export class Hero {
     this.regrab = Math.max(0, this.regrab - dt);
     this.landing = Math.max(0, this.landing - dt * 3);
     this.stepLift *= Math.exp(-dt * 14);
+    const decay = Math.exp(-dt * 11);
+    this.snap.x *= decay;
+    this.snap.z *= decay;
+    this.sinceJump += dt;
     if (input.jump) this.buffer = BUFFER;
     else this.buffer = Math.max(0, this.buffer - dt);
     const wish = worldWish(input.move, input.camYaw);
     this.wish = wish;
     this.prompt = "";
     this[this.state](dt, input, wish);
-    if (this.feet < -5 && this.state === "air") this.respawn();
+    if (this.feet < -5 && this.state === "air") {
+      this.lastFall = "deep";
+      this.respawn();
+    }
   }
 
   // --- ground ---------------------------------------------------------------
@@ -124,6 +135,8 @@ export class Hero {
       this.coyote = 0;
       this.state = "air";
       this.vel.y = JUMP;
+      this.sinceJump = 0;
+      this.jumpCut = false;
       this.fallStart = this.feet;
       // A standing jump still carries you forward if the stick asks for it.
       if (this.speed < 2.4 && wish.len > 0.3) {
@@ -154,7 +167,18 @@ export class Hero {
   // --- air ------------------------------------------------------------------
   air(dt, input, wish) {
     const w = this.world;
-    this.vel.y -= GRAVITY * dt;
+    // Letting go of jump early cuts the rise short; falling is a little heavier than
+    // rising, which keeps arcs readable without feeling floaty.
+    if (
+      !input.jumpHeld &&
+      !this.jumpCut &&
+      this.vel.y > 2 &&
+      this.sinceJump < 0.35
+    ) {
+      this.vel.y *= 0.55;
+      this.jumpCut = true;
+    }
+    this.vel.y -= GRAVITY * (this.vel.y < 0 ? 1.3 : 1) * dt;
     const air = 1 - Math.exp(-2.2 * dt);
     if (wish.len > 0.05) {
       this.vel.x += (wish.x * RUN - this.vel.x) * air * 0.5;
@@ -166,6 +190,8 @@ export class Hero {
       this.buffer = 0;
       this.coyote = 0;
       this.vel.y = JUMP;
+      this.sinceJump = 0;
+      this.jumpCut = false;
       this.events.push("jump");
     }
     this.coyote -= dt;
@@ -183,14 +209,19 @@ export class Hero {
     // Hands catch a ledge on the way down, or near the top of the jump.
     if (this.vel.y < 2.5 && this.regrab <= 0 && !input.drop) {
       const ledge = this.findLedge(1.3, this.hands + 0.4, R + 0.3);
-      if (ledge) return this.beginHang(ledge);
+      // Only a wall the explorer is heading into, or hanging still beside, is caught.
+      if (ledge && this.vel.x * ledge.n.x + this.vel.z * ledge.n.z < 0.8)
+        return this.beginHang(ledge);
     }
     if (this.vel.y <= 0) {
       const g = w.ground(this.pos.x, this.pos.z, R * 0.6, this.feet, 0.25);
       if (this.feet <= g + 1e-3) {
         const drop = this.fallStart - g;
         // A fall of more than two storeys ends the attempt, as it would on real stone.
-        if (drop > 6.5) return this.respawn();
+        if (drop > 6.5) {
+          this.lastFall = "high";
+          return this.respawn();
+        }
         this.feet = g;
         this.landing = clamp(-this.vel.y / 14, 0.15, 1);
         this.vel.y = 0;
@@ -207,7 +238,13 @@ export class Hero {
     this.ledge = ledge;
     this.vel.x = this.vel.y = this.vel.z = 0;
     this.yaw = Math.atan2(-ledge.n.x, -ledge.n.z);
+    const ox = this.pos.x,
+      oz = this.pos.z,
+      of = this.feet;
     this.placeOnLedge(ledge.hand.x, ledge.hand.z);
+    this.snap.x += ox - this.pos.x;
+    this.snap.z += oz - this.pos.z;
+    this.stepLift += of - this.feet;
     this.backHold = 0;
     this.events.push("grab");
   }
@@ -391,10 +428,10 @@ export class Hero {
     this.prompt = "turning";
     this.t += dt;
     if (!input.interactHeld) return this.land();
-    const spin = -input.move.x;
+    const spin = input.move.x;
     this.turning = spin;
     if (Math.abs(spin) > 0.2)
-      this.level.turnMirror(this.grip.ref, spin * TURN_RATE * dt);
+      this.level.turnMirror(this.grip.ref, -spin * TURN_RATE * dt);
   }
 
   // --- queries --------------------------------------------------------------
@@ -425,10 +462,14 @@ export class Hero {
   faceBox(b) {
     const n = sideNormal(this.pos, b);
     this.yaw = Math.atan2(-n.x, -n.z);
+    const ox = this.pos.x,
+      oz = this.pos.z;
     if (n.x) this.pos.x = (n.x > 0 ? b.maxX : b.minX) + n.x * (R + 0.1);
     if (n.z) this.pos.z = (n.z > 0 ? b.maxZ : b.minZ) + n.z * (R + 0.1);
     if (n.x) this.pos.z = clamp(this.pos.z, b.minZ + 0.3, b.maxZ - 0.3);
     if (n.z) this.pos.x = clamp(this.pos.x, b.minX + 0.3, b.maxX - 0.3);
+    this.snap.x += ox - this.pos.x;
+    this.snap.z += oz - this.pos.z;
     return n;
   }
 
@@ -437,7 +478,13 @@ export class Hero {
     const f = this.facing;
     let best = null;
     for (const b of this.world.boxes) {
-      if (!b.solid || b.kind === "mirror" || b.kind === "stela") continue;
+      if (
+        !b.solid ||
+        b.kind === "mirror" ||
+        b.kind === "stela" ||
+        b.kind === "fire"
+      )
+        continue;
       const top = b.maxY;
       if (top < this.feet + low || top > this.feet + high) continue;
       if (b.maxX - b.minX < 0.6 && b.maxZ - b.minZ < 0.6) continue;

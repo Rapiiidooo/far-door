@@ -1,7 +1,41 @@
 import * as THREE from "three";
 import * as COURT from "./court.js";
-import { FaceBuilder, greedyRects, terrainMaterial } from "./terrain.js";
+import {
+  FaceBuilder,
+  aoField,
+  greedyRects,
+  terrainMaterial,
+} from "./terrain.js";
 import { glyphMaterial, makeGlyph } from "./glyphs.js";
+import { buildCliffs } from "./cliffs.js";
+
+// The canyon's skyline: low in the west where the sun comes over, tallest behind the gate,
+// with a notch where the light falls through onto the catcher mirror.
+function rimHeight(x, z) {
+  const W = COURT.MAP[0].length * COURT.CELL,
+    D = COURT.MAP.length * COURT.CELL;
+  const sides = [
+    [11, Math.abs(x - 2)],
+    [21, Math.abs(z - 4)],
+    [15.5, Math.abs(x - (W - 2))],
+    [16.5, Math.abs(z - (D - 2))],
+  ];
+  let wsum = 0,
+    h = 0;
+  for (const [height, d] of sides) {
+    const w = 1 / Math.pow(d + 0.5, 3);
+    wsum += w;
+    h += height * w;
+  }
+  h /= wsum;
+  const n =
+    Math.sin(x * 0.21 + z * 0.13) * 1.6 +
+    Math.sin(x * 0.07 - z * 0.19 + 1.3) * 2.2 +
+    Math.sin((x + z) * 0.43) * 0.7;
+  h += n;
+  if (x < 4) h -= 4.5 * Math.exp(-Math.pow((z - 21) / 1.7, 2));
+  return h;
+}
 
 // Builds the court from its map: colliders for the hero, merged terrain meshes, and the
 // things that move (blocks slide one cell, mirrors turn on their drums).
@@ -24,8 +58,10 @@ export class Level {
     const rock = terrainMaterial("rock", 0xb57f4f),
       floor = terrainMaterial("floor", 0xc4935f),
       sand = terrainMaterial("sand", 0xd4a373, 0.98),
-      dark = terrainMaterial("rock", 0x8a5433);
-    this.materials = { rock, floor, sand, dark };
+      dark = terrainMaterial("rock", 0x8a5433),
+      masonry = terrainMaterial("masonry", 0xbd8a58);
+    this.materials = { rock, floor, sand, dark, masonry };
+    this.buildOcclusion();
     // Faces on the outer rim of the map are never seen.
     const faces = new FaceBuilder({
       minX: 0,
@@ -43,9 +79,20 @@ export class Level {
         z0 = r.j0 * CELL,
         z1 = (r.j1 + 1) * CELL;
       this.world.add(x0, base, z0, x1, r.h, z1, "rock");
+      // Platforms and stairs are the builders' dressed stone; the standing wall is rock.
+      const built =
+        r.ch !== "." && r.ch !== "_" && r.ch !== "~" && r.ch !== "o";
       const top =
-        r.ch === "." ? floor : r.ch === "_" ? sand : r.ch === "~" ? dark : rock;
-      faces.box(x0, base, z0, x1, r.h, z1, rock, top);
+        r.ch === "."
+          ? floor
+          : r.ch === "_"
+            ? sand
+            : r.ch === "~"
+              ? dark
+              : built
+                ? masonry
+                : rock;
+      faces.box(x0, base, z0, x1, r.h, z1, built ? masonry : rock, top);
     }
     // Cliff heights follow a smooth noise around the rim, in 1.5 m steps, and runs of equal
     // height merge into broad slabs so the rim reads as rock rather than a row of pillars.
@@ -76,31 +123,27 @@ export class Level {
         x1 = (r.i1 + 1) * CELL,
         z0 = r.j0 * CELL,
         z1 = (r.j1 + 1) * CELL;
+      // Colliders only: the canyon wall is drawn by one continuous skin below.
       this.world.add(x0, base, z0, x1, r.h, z1, "rock");
-      faces.box(x0, base, z0, x1, r.h, z1, rock);
-      // Tumbled crown blocks break the straight top edge.
-      const count = Math.ceil(((x1 - x0) * (z1 - z0)) / 6);
-      for (let k = 0; k < count; k++) {
-        if (rand() < 0.35) continue;
-        const w = 0.9 + rand() * 1.6,
-          d = 0.9 + rand() * 1.6,
-          cx = x0 + 0.4 + rand() * (x1 - x0 - 0.8),
-          cz = z0 + 0.4 + rand() * (z1 - z0 - 0.8);
-        faces.box(
-          cx - w / 2,
-          r.h - 0.3,
-          cz - d / 2,
-          cx + w / 2,
-          r.h + 0.5 + rand() * 1.8,
-          cz + d / 2,
-          rock,
-        );
-      }
     }
-    for (const [x0, y0, z0, x1, y1, z1, kind] of COURT.EXTRA) {
+    void rand;
+    this.root.add(
+      buildCliffs(rock, {
+        corners: [
+          [CELL, 2 * CELL],
+          [(MAP[0].length - 1) * CELL, 2 * CELL],
+          [(MAP[0].length - 1) * CELL, (MAP.length - 1) * CELL],
+          [CELL, (MAP.length - 1) * CELL],
+        ],
+        top: rimHeight,
+      }),
+    );
+    for (const [x0, y0, z0, x1, y1, z1, kind, look] of COURT.EXTRA) {
       this.world.add(x0, y0, z0, x1, y1, z1, kind);
-      faces.box(x0, y0, z0, x1, y1, z1, rock);
+      const mat = look === "masonry" ? masonry : rock;
+      faces.box(x0, y0, z0, x1, y1, z1, mat);
     }
+    this.buildDrifts(sand);
     faces.build(this.root);
 
     for (const b of COURT.BLOCKS) await this.addBlock(b);
@@ -140,7 +183,15 @@ export class Level {
     for (const c of COURT.COLOSSI) {
       const o = await put("guardian_colossus", c.x, c.z, c.yaw);
       if (!o) this.root.add(fallbackColossus(c));
-      this.world.add(c.x - 4.2, -10, c.z - 4.8, c.x + 4.2, 14, c.z + 4.8, "rock");
+      this.world.add(
+        c.x - 4.2,
+        -10,
+        c.z - 4.8,
+        c.x + 4.2,
+        14,
+        c.z + 4.8,
+        "rock",
+      );
     }
     for (const [x, z, yaw] of COURT.COLUMNS) {
       await put("broken_column", x, z, yaw);
@@ -151,7 +202,7 @@ export class Level {
     for (const [x, z] of COURT.BRAZIERS) {
       await put("brazier", x, z);
       const top = 0.98;
-      this.world.add(x - 0.45, -10, z - 0.45, x + 0.45, 1.1, z + 0.45, "prop");
+      this.world.add(x - 0.45, -10, z - 0.45, x + 0.45, 1.1, z + 0.45, "fire");
       const light = new THREE.PointLight(0xff9a4a, 6, 9, 1.8);
       light.position.set(x, top + 0.45, z);
       this.root.add(light);
@@ -169,6 +220,127 @@ export class Level {
       });
       this.fires.push({ light, x, z, top, tongues, seed: Math.random() * 10 });
     }
+  }
+
+  // Soft darkening on the ground near taller rock, precomputed at half-metre resolution
+  // from the height map and sampled by the terrain shaders.
+  buildOcclusion() {
+    const { MAP, CELL, heightOf } = COURT;
+    const cols = MAP[0].length,
+      rows = MAP.length;
+    const res = 0.5,
+      w = Math.round((cols * CELL) / res),
+      d = Math.round((rows * CELL) / res);
+    const heightAtCell = (i, j) =>
+      i < 0 || j < 0 || i >= cols || j >= rows ? 20 : heightOf(MAP[j][i]);
+    const data = new Uint8Array(w * d * 4);
+    for (let pz = 0; pz < d; pz++)
+      for (let px = 0; px < w; px++) {
+        const x = (px + 0.5) * res,
+          z = (pz + 0.5) * res;
+        const ci = Math.floor(x / CELL),
+          cj = Math.floor(z / CELL);
+        const here = heightAtCell(ci, cj);
+        let occ = 0;
+        for (let j = cj - 2; j <= cj + 2; j++)
+          for (let i = ci - 2; i <= ci + 2; i++) {
+            const h = heightAtCell(i, j);
+            const rise = h - here;
+            if (rise < 0.8) continue;
+            const dx = Math.max(i * CELL - x, 0, x - (i + 1) * CELL),
+              dz = Math.max(j * CELL - z, 0, z - (j + 1) * CELL);
+            const dist = Math.hypot(dx, dz);
+            occ = Math.max(
+              occ,
+              Math.exp(-dist / 0.95) * Math.min(1, rise / 2.5),
+            );
+          }
+        const v = Math.round(255 * (1 - 0.55 * occ));
+        const k = (pz * w + px) * 4;
+        data[k] = data[k + 1] = data[k + 2] = v;
+        data[k + 3] = 255;
+      }
+    const tex = new THREE.DataTexture(data, w, d);
+    tex.magFilter = tex.minFilter = THREE.LinearFilter;
+    tex.needsUpdate = true;
+    aoField.texture = tex;
+    aoField.box.set(0, 0, cols * CELL, rows * CELL);
+  }
+
+  // Wind-blown sand banked against the foot of every wall on the court floor.
+  buildDrifts(sand) {
+    const { MAP, CELL, heightOf } = COURT;
+    const pos = [],
+      uv = [];
+    const hAt = (i, j) =>
+      j < 0 || j >= MAP.length || i < 0 || i >= MAP[0].length
+        ? 30
+        : heightOf(MAP[j][i]);
+    const bump = (x, z) =>
+      Math.sin(x * 2.3 + z * 1.7) * 0.5 + Math.sin(x * 0.9 - z * 1.3) * 0.5;
+    const quad = (a, b, c, e) => {
+      for (const p of [a, b, c, a, c, e]) {
+        pos.push(p[0], p[1], p[2]);
+        uv.push(p[0] / 2, p[2] / 2);
+      }
+    };
+    for (let j = 0; j < MAP.length; j++)
+      for (let i = 0; i < MAP[0].length; i++) {
+        const ch = MAP[j][i];
+        if (ch !== "." && ch !== "_") continue;
+        const h0 = heightOf(ch);
+        for (const [di, dj] of [
+          [1, 0],
+          [-1, 0],
+          [0, 1],
+          [0, -1],
+        ]) {
+          if (hAt(i + di, j + dj) < h0 + 0.9) continue;
+          // Edge endpoints along the wall and the direction pointing away from it.
+          const cx = (i + 0.5) * CELL,
+            cz = (j + 0.5) * CELL;
+          const wx = cx + (di * CELL) / 2,
+            wz = cz + (dj * CELL) / 2;
+          const tx = -dj,
+            tz = di;
+          const segs = 6,
+            rings = 5,
+            reach = 1.5;
+          const grid = [];
+          for (let a = 0; a <= segs; a++) {
+            const s = a / segs - 0.5;
+            const taper = 1 - Math.pow(Math.abs(s) * 2, 6) * 0.35;
+            const row = [];
+            for (let b = 0; b <= rings; b++) {
+              const r = b / rings;
+              const x = wx + tx * s * CELL - di * (r * reach - 0.12),
+                z = wz + tz * s * CELL - dj * (r * reach - 0.12);
+              const height =
+                (0.42 + 0.14 * bump(x, z)) * Math.pow(1 - r, 1.6) * taper;
+              row.push([x, h0 + 0.01 + Math.max(0, height), z]);
+            }
+            grid.push(row);
+          }
+          for (let a = 0; a < segs; a++)
+            for (let b = 0; b < rings; b++) {
+              const p00 = grid[a][b],
+                p10 = grid[a + 1][b],
+                p11 = grid[a + 1][b + 1],
+                p01 = grid[a][b + 1];
+              // Wind the quad so its face points up whichever wall it leans on.
+              const flip = di * tz - dj * tx > 0;
+              if (flip) quad(p00, p01, p11, p10);
+              else quad(p00, p10, p11, p01);
+            }
+        }
+      }
+    const g = new THREE.BufferGeometry();
+    g.setAttribute("position", new THREE.Float32BufferAttribute(pos, 3));
+    g.setAttribute("uv", new THREE.Float32BufferAttribute(uv, 2));
+    g.computeVertexNormals();
+    const mesh = new THREE.Mesh(g, sand);
+    mesh.receiveShadow = true;
+    this.root.add(mesh);
   }
 
   // --- blocks ---------------------------------------------------------------

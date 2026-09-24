@@ -107,12 +107,30 @@ async function aim(mirror, target, key) {
     throw new Error(
       `could not take hold of ${mirror}: ${before.state} at ${before.pos.map((v) => v.toFixed(2))}`,
     );
-  await hold(new Set(["KeyE", key]));
-  await until(
-    (s) => s.mirrors.find((m) => m.id === mirror).locked === target,
-    15000,
-    `aim ${mirror} at ${target}`,
-  );
+  // Turn one way; if the mirror stops at the edge of its face, turn the other way.
+  const t0 = Date.now();
+  let dir = key,
+    lastYaw = null,
+    still = 0;
+  await hold(new Set(["KeyE", dir]));
+  for (;;) {
+    const s = await state();
+    const m = s.mirrors.find((m) => m.id === mirror);
+    if (m.locked === target) break;
+    if (Date.now() - t0 > 20000)
+      throw new Error(`aim ${mirror} at ${target}: yaw ${m.yaw.toFixed(2)}`);
+    still =
+      lastYaw !== null && Math.abs(m.yaw - lastYaw) < 1e-4 && !m.locked
+        ? still + 1
+        : 0;
+    lastYaw = m.yaw;
+    if (still > 15) {
+      dir = dir === "KeyA" ? "KeyD" : "KeyA";
+      await hold(new Set(["KeyE", dir]));
+      still = 0;
+    }
+    await sleep(40);
+  }
   await hold(new Set(["KeyE"]));
   await sleep(700);
   await hold(new Set());

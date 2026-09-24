@@ -253,6 +253,26 @@ button:disabled {
   color: #d9fffa;
 }
 
+#fade.dark {
+  background: #0d0806;
+}
+
+#fade p {
+  position: absolute;
+  inset: auto 0 45% 0;
+  margin: 0;
+  text-align: center;
+  font-family: var(--display);
+  font-size: 1.6rem;
+  letter-spacing: 0.08em;
+  color: #e8cfa4;
+  opacity: 0;
+}
+
+#fade.dark p {
+  opacity: 1;
+}
+
 #fade {
   position: fixed;
   inset: 0;

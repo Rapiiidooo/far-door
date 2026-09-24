@@ -45,3 +45,63 @@ A temple front carved into a cliff face, 16 m wide, 13 m tall and 3 m deep, flat
 ## basalt_spire
 
 An alien volcanic rock formation 9 m tall in night basalt: three leaning hexagonal columns of different heights fused at the base, ash-lilac mineral streaks along their upper faces, and a few broken hexagonal stubs around the foot, 4 m across at the base. Budget: at most 6,000 triangles.
+
+# Second wave
+
+Handed out on 24 September 2026 with the updated style lock, for the camp on the terrace and the checkpoint in the second world. Same contract and fallback as above.
+
+## warden
+
+An articulated comic construct 1.15 m tall: a round, slightly pear-shaped body of warden-chalk stone with a stamp-ochre sash across it; an oversized head that is almost entirely an aged-bronze mask 0.55 m tall, domed on top and flat in front, with one vertical slit for an eye in ancient-light turquoise (its own mesh); short thick arms with three-fingered stone hands; two stubby legs with round flat feet. It carries in its right hand an enormous customs stamp: a stout timber handle with a round basalt stamping head 0.35 m across, the face of the head carved with a disc motif. Joints, each a `Group` at its pivot with geometry as offset children and zero rotation at rest: `g.userData.joints = { body, head, leftArm, rightArm, leftLeg, rightLeg, stamp }`. `body` pivots at the hips (about 0.3 m) and parents `head` (neck, about 0.62 m) and both arms (shoulders); legs pivot at the hips; `stamp` pivots in the right hand and belongs to `rightArm`. The left side is +X. Expose `g.userData.parts = { eye }`. Budget: at most 6,000 triangles.
+
+## sun_disc
+
+A bronze throwing disc 0.45 m across and 0.06 m thick, lying flat with its faces up and down: a stepped outer rim with twelve shallow notches, radial ribs on both faces, a round lens of ancient-light turquoise 0.12 m across set through the centre (its own mesh), and a leather grip strap across the underside. It must read as a precious ancient weapon at a glance, not a plate. Expose `g.userData.parts = { lens }`. Budget: at most 3,000 triangles.
+
+## customs_booth
+
+A squat checkpoint kiosk of night basalt with warden-chalk panels, 2.4 m wide, 2 m deep and 2.8 m tall, with a wide dark window opening facing +Z above a counter ledge that holds a round stamp and a stack of thin slate papers; a stepped roof crowned by a round lamp dome of ancient-light turquoise 0.5 m across (its own mesh); on its left side (+X) a barrier post 1.2 m tall carrying a striped barrier arm 4 m long, stamp ochre and warden chalk in alternating bands, resting horizontally and pointing towards +X. The arm is a `Group` pivoting at the top of its post so it can lift. Expose `g.userData.joints = { barrier }` and `g.userData.parts = { lamp }`. Overall about 6.5 m wide including the arm. Budget: at most 12,000 triangles.
+
+## confiscation_bin
+
+A chest 1.2 m wide, 0.8 m deep and 0.8 m tall of basalt with aged-bronze bands and corner caps, with a hinged lid propped open, overflowing with confiscated junk: a single boot, a dented kettle, a rolled map, a hat and a tangle of rope, all slightly spilling over the rim; a small stamp-ochre tag on a stick stuck into the pile. The lid is a `Group` pivoting on its back hinge. Expose `g.userData.joints = { lid }`. Budget: at most 7,000 triangles.
+
+## queue_post
+
+A queue stanchion 1.0 m tall: a round basalt base 0.35 m across, a slim aged-bronze post, a warden-chalk ball on top, and a thick rope of stamp ochre hanging from the ball in a sagging loop 1.4 m long towards +X, ending in a bronze hook at post height. Budget: at most 2,500 triangles.
+
+## crystal_emitter
+
+A light source for the second world, 2.1 m tall: a stepped basalt pedestal 1.2 m tall with carved grooves, an aged-bronze cage of three curved ribs rising from it, and inside the cage a floating faceted crystal of ancient-light turquoise 0.6 m tall (its own mesh), not touching the ribs. Expose `g.userData.parts = { crystal }` and plain data `g.userData.beam = [x, y, z]` for the crystal's centre. Budget: at most 5,000 triangles.
+
+## lumen_plant
+
+Alien flora 1.3 m tall: a cluster of five curved, thick stalks of night basalt colour rising from a knotted root mound, each ending in a bulbous translucent pod of lumen lilac (the pods are their own mesh, emissive), with smaller buds along the stalks. Expose `g.userData.parts = { pods }`. Budget: at most 5,000 triangles.
+
+## expedition_tent
+
+An abandoned explorer's tent 2.6 m long, 1.8 m wide and 1.6 m tall: an A-frame of weathered timber poles crossing at the top at each end, sun-bleached canvas with two darker patches draped over a ridge pole, the front flap tied open showing a rolled bedroll inside, guy ropes running out to timber pegs, and a folded camp stool beside the entrance. Front faces +Z. Budget: at most 7,000 triangles.
+
+## supply_crates
+
+A cluster 1.8 m wide, 1.2 m deep and 1.3 m tall: two stacked weathered-timber crates with rope handles and nailed battens, a third crate beside them with its lid leaning against it and straw and a rolled map inside, and a small banded barrel. Budget: at most 6,000 triangles.
+
+## clay_urns
+
+Three terracotta urns of different sizes (0.5, 0.75 and 1.0 m tall) standing together with incised rings and small handles, the smallest broken with three shards lying beside it. Budget: at most 5,000 triangles.
+
+## fallen_head
+
+The colossal head of a fallen guardian statue lying on its side, half sunk in sand, 4.5 m long, 2.6 m tall and 3 m deep: a bone-limestone mask with a single vertical slit, the sandstone headdress tiers broken off at the top, a deep crack across the mask, and a low sand drift built up against its underside so it sits in the ground. Budget: at most 12,000 triangles.
+
+## boulder_cluster
+
+Three weathered sandstone boulders (2.2, 1.5 and 0.9 m tall) resting against each other, faceted and chamfered, with horizontal strata grooves and burnt sienna undersides. Budget: at most 4,000 triangles.
+
+## desert_agave
+
+A desert plant 1.0 m tall: a rosette of eighteen thick, pointed, slightly curled leaves in desert sage with paler tips, growing from a small mound of sand, plus one tall dry flower stalk. Budget: at most 4,000 triangles.
+
+## glyph_banner
+
+An ancient banner 3.6 m tall: a weathered-timber pole with a crossbar near the top from which hangs a long tattered cloth of bone and burnt sienna in two vertical bands with a raised disc-and-crescent patch in the middle, its lower edge torn into three tails, stiffened as if caught in a breeze. The pole stands in a small pile of stones. Budget: at most 4,000 triangles.

@@ -24,10 +24,17 @@ Working title: Far Door. Every tomb holds the address of a gate; an explorer red
 | Explorer skin      | `0x9c6b4e` | The small visible part of the face                                                 |
 | Night basalt       | `0x2a2830` | Second world only: black rock and sand                                             |
 | Ash lilac          | `0x8c7fa3` | Second world only: dust, pale rock highlights                                      |
+| Weathered timber   | `0x8a6a48` | The previous expedition: crates, tent poles, banner poles                          |
+| Rope               | `0xb49a6a` | Lashings, guy ropes, handles                                                       |
+| Terracotta         | `0xa8603a` | Clay urns and pottery shards                                                       |
+| Desert sage        | `0x7a8766` | The few desert plants, dusty and pale                                              |
+| Warden chalk       | `0xc9c2d8` | Second world only: the Wardens' bodies and the checkpoint's painted parts          |
+| Stamp ochre        | `0xd9a441` | Second world only: stamps, barrier stripes, the Wardens' sashes                    |
+| Lumen lilac        | `0xd98cff` | Emissive only, second world flora; never on anything built                         |
 
 ## Fixed decisions
 
-- Metres. The level is a grid of 2 m cells with heights in 0.5 m steps. The hero is 1.75 m tall. A push block is 1.9 m on each side. A sun mirror is 1.9 m tall. A glyph stela is 2.4 m tall. The gate ring is 9 m across. The seated colossus is 14 m tall.
+- Metres. The level is a grid of 2 m cells with heights in 0.5 m steps. The hero is 1.75 m tall. A push block is 1.9 m on each side. A sun mirror is 1.9 m tall. A glyph stela is 2.4 m tall. The gate ring is 9 m across. The seated colossus is 14 m tall. A Warden is 1.15 m tall. The sun disc is 0.45 m across.
 - Base at y = 0, centred on x and z, front faces +Z.
 - Flat colours with sensible roughness; procedural surfaces are applied at load time. Name materials from the contract's list only: `plaster`, `stone`, `timber`, `tile`, `metal`, `fabric`, `foliage`, `ground`. Sandstone and basalt are `stone`, bronze is `metal`, cloth is `fabric`, leather is `fabric`.
 - Emissive turquoise parts are separate meshes with their own material (`emissive: 0x39e3d0`) so the game can switch them from dormant to lit.
@@ -39,8 +46,18 @@ Stepped, chamfered masses; rounded medallions; crescent and disc motifs; paralle
 
 It must not read as any real culture. No pyramids, obelisks, ankhs, animal-headed figures, pharaoh headdresses, hieroglyph walls or Mesoamerican serpent heads.
 
+## The previous expedition
+
+Someone camped on the terrace before the explorer: a canvas tent, crates, a banner, lanterns. Timber is weathered grey-brown, canvas is patched and sun-bleached, ropes are frayed. It tells a story without words and gives the start a human scale.
+
+## The second world: the checkpoint
+
+The gate opens onto a bureaucratic checkpoint of the gate network, run by the Wardens: squat constructs of pale chalk stone with an oversized aged-bronze mask for a head, a glowing turquoise slit for an eye, stubby legs and an enormous customs stamp. They are comic, not frightening: exaggerated proportions, waddling, officious. Their world is night basalt and ash lilac under a violet sky, with lilac-glowing flora; the checkpoint itself is basalt with warden-chalk panels and stamp-ochre stripes. Turquoise still marks the builders' technology: eyes, lenses, lamps and the gate.
+
 ## Red lines (keep clear of existing franchises)
 
 - The gate is a plain carved ring on a stepped dais. No chevrons or clamps around its rim, no rotating inner symbol ring, no dialling pedestal with symbol keys, no liquid or splashing vortex.
 - The hero has no braid, tank top, shorts or twin pistols. The hero wears a field jacket, a vermilion scarf, a cap with bronze goggles, gloves and a satchel.
 - No names, logos or visual quotations from existing games, films or series.
+- The Wardens are masked stone constructs, not goblins, orcs, gnomes or any franchise's creatures: no pointed ears, green skin or tusks.
+- Health is shown as small bronze pips, not hearts; the thrown disc is a bronze sun disc, not a boomerang shape from any game.

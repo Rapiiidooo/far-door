@@ -8,6 +8,10 @@ import { surface } from "./surfaces.js";
 
 const NOISE = /* glsl */ `
 varying vec3 vFDWorld;
+varying vec3 vFDNormal;
+uniform sampler2D uAO;
+uniform vec4 uAOBox;
+float fdAO(vec2 xz) { return texture2D(uAO, (xz - uAOBox.xy) / uAOBox.zw).r; }
 float fdHash(vec2 p) { return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453); }
 float fdNoise(vec2 p) {
   vec2 i = floor(p), f = fract(p);
@@ -39,18 +43,54 @@ const TINTS = {
     tint *= mix(0.5, 1.0, seam);
     float drift = smoothstep(0.58, 0.85, fdNoise(vFDWorld.xz * 0.11) + fdNoise(vFDWorld.xz * 0.47) * 0.28);
     tint = mix(tint, vec3(1.13, 1.03, 0.86), drift * 0.75);
-    diffuseColor.rgb *= tint;
+    diffuseColor.rgb *= tint * fdAO(vFDWorld.xz);
   }`,
   sand: /* glsl */ `{
     vec2 p = vFDWorld.xz;
     float ripple = sin(p.x * 3.1 + sin(p.y * 0.7) * 2.0 + fdNoise(p * 0.6) * 3.0) * 0.5 + 0.5;
     vec3 tint = mix(vec3(0.9, 0.84, 0.76), vec3(1.06, 1.0, 0.92), ripple);
-    diffuseColor.rgb *= tint * mix(0.9, 1.05, fdNoise(p * 0.3));
+    diffuseColor.rgb *= tint * mix(0.9, 1.05, fdNoise(p * 0.3)) * mix(1.0, fdAO(p), 0.7);
+  }`,
+  // Dressed stone: coursed blocks on the faces, worn slabs on top, as the builders cut them.
+  masonry: /* glsl */ `{
+    vec3 p = vFDWorld;
+    vec3 nrm = normalize(vFDNormal);
+    vec3 tint;
+    if (abs(nrm.y) > 0.5) {
+      vec2 q = p.xz * 0.72;
+      float row = floor(q.y);
+      q.x += fdHash(vec2(row, 7.7)) * 0.8;
+      vec2 cell = floor(q), f = fract(q);
+      float edge = min(min(f.x, 1.0 - f.x), min(f.y, 1.0 - f.y));
+      tint = mix(vec3(0.86, 0.8, 0.74), vec3(1.05, 0.99, 0.92), fdHash(cell));
+      tint *= mix(0.6, 1.0, smoothstep(0.01, 0.06, edge));
+      tint *= mix(1.0, fdAO(p.xz), 0.6);
+    } else {
+      float u = abs(nrm.x) > 0.5 ? p.z : p.x;
+      float course = floor(p.y / 0.55);
+      float len = 1.1 + fdHash(vec2(course, 9.1)) * 0.7;
+      float along = (u + fdHash(vec2(course, 1.3)) * 3.0) / len;
+      float block = floor(along);
+      float fu = fract(along), fv = fract(p.y / 0.55);
+      float edge = min(min(fu, 1.0 - fu) * len * 1.8, min(fv, 1.0 - fv));
+      float chip = fdNoise(p.xz * 3.0 + p.y * 2.0);
+      float seam = smoothstep(0.015, 0.07 + chip * 0.05, edge);
+      tint = mix(vec3(0.78, 0.7, 0.62), vec3(1.06, 0.98, 0.9), fdHash(vec2(block, course)));
+      tint *= mix(0.5, 1.0, seam);
+      tint *= mix(0.72, 1.0, smoothstep(-1.0, 1.4, p.y));
+    }
+    diffuseColor.rgb *= tint;
   }`,
 };
 
+// A 1x1 white texture: no occlusion until a level supplies its own.
+const NO_AO = new THREE.DataTexture(new Uint8Array([255, 255, 255, 255]), 1, 1);
+NO_AO.needsUpdate = true;
+export const aoField = { texture: NO_AO, box: new THREE.Vector4(0, 0, 1, 1) };
+
 export function terrainMaterial(kind, color, roughness = 0.94) {
   const recipe = kind === "sand" ? "ground" : "stone";
+  if (kind === "masonry") roughness = Math.min(roughness, 0.88);
   const s = surface(THREE, recipe, 512);
   const m = new THREE.MeshStandardMaterial({
     color,
@@ -64,11 +104,24 @@ export function terrainMaterial(kind, color, roughness = 0.94) {
   m.userData.tileMeters = s.tileMeters * (kind === "rock" ? 2.2 : 1.6);
   m.userData.rough = kind === "rock";
   m.onBeforeCompile = (shader) => {
+    shader.uniforms.uAO = {
+      get value() {
+        return aoField.texture;
+      },
+    };
+    shader.uniforms.uAOBox = {
+      get value() {
+        return aoField.box;
+      },
+    };
     shader.vertexShader = shader.vertexShader
-      .replace("#include <common>", "#include <common>\nvarying vec3 vFDWorld;")
+      .replace(
+        "#include <common>",
+        "#include <common>\nvarying vec3 vFDWorld;\nvarying vec3 vFDNormal;",
+      )
       .replace(
         "#include <begin_vertex>",
-        "#include <begin_vertex>\nvFDWorld = (modelMatrix * vec4(transformed, 1.0)).xyz;",
+        "#include <begin_vertex>\nvFDWorld = (modelMatrix * vec4(transformed, 1.0)).xyz;\nvFDNormal = mat3(modelMatrix) * objectNormal;",
       );
     shader.fragmentShader = shader.fragmentShader
       .replace("#include <common>", "#include <common>\n" + NOISE)

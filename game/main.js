@@ -169,7 +169,10 @@ async function load() {
   hero.spawn(COURT.START.x, COURT.START.z, 8, COURT.START.yaw);
   // Development shortcut: ?at=x,z,feet starts elsewhere in the court.
   const at = params.get("at")?.split(",").map(Number);
-  if (at?.length === 3) hero.spawn(at[0], at[1], at[2], Math.PI);
+  if (at?.length >= 3) {
+    hero.spawn(at[0], at[1], at[2], ((at[3] ?? 180) * Math.PI) / 180);
+    follow.snap(hero);
+  }
   follow.snap(hero);
   follow.pitch = 0.28;
   rig.refresh(scene);
@@ -280,6 +283,7 @@ function step(dt) {
     move,
     camYaw: follow.yaw,
     jump: input.pressed("jump"),
+    jumpHeld: input.held("jump"),
     interactPressed: input.pressed("interact"),
     interactHeld: input.held("interact"),
     drop: input.pressed("drop"),
@@ -328,8 +332,6 @@ function step(dt) {
 }
 
 function place(dt) {
-  heroModel.position.set(hero.pos.x, hero.feet + hero.stepLift, hero.pos.z);
-  heroModel.rotation.y = hero.yaw;
   animator.update(dt, hero, reduced);
 }
 
@@ -347,7 +349,7 @@ function onHeroEvent(e) {
     const b = hero.grip?.ref;
     if (b) dust.burst(b.x, 0, b.z, 1.1, 16);
   }
-  if (e === "respawn") hud.flash();
+  if (e === "respawn") hud.blackout(hero.lastFall);
   sound.play(e);
 }
 
