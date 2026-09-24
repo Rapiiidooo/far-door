@@ -1,6 +1,6 @@
 # Far Door handoff
 
-Far Door is the owner's second game idea: an original mix of tomb exploration (third-person traversal in carved ruins) and a gate network to other worlds, with a comic bureaucratic checkpoint beyond the first gate. It is a prototype only. The owner asked not to submit it anywhere: the 404 jam allows one entry per person and that entry is Hungry for Trouble. Keep names, logos and signature designs of existing franchises out of it; the red lines are in [the style lock](style-lock.md).
+Far Door is the owner's second game idea: an original mix of tomb exploration (third-person traversal in carved ruins) and a gate network to other worlds, with a comic bureaucratic checkpoint beyond the first gate. It is a prototype only. The owner asked not to submit it anywhere: the 404 jam allows one entry per person and that entry is Hungry for Trouble. At the owner's request it is hosted at <https://fardoor.rapidoai.dev/>, which is not a submission. Keep names, logos and signature designs of existing franchises out of it; the red lines are in [the style lock](style-lock.md).
 
 ## State
 
@@ -31,7 +31,9 @@ Then the owner asked for the planet in level 2 to stop showing over the scenery,
 - **Isle collisions:** `world.js` has an `isle` shape, a gently domed cap inside an irregular rim, measured once off the isle's mesh by raycasts (rim and dome by bearing, boulders as round colliders) and carried to each isle's scale and turn. Bridges and the lone rock are `unsafe`: the explorer never respawns on them.
 - **The new object:** `light_pylon`, through the recipe (three candidates, picked by eye in the game; see `receipts/candidates/light_pylon/`).
 
-The latest evidence is in [receipts/verification-level-3](../receipts/verification-level-3/README.md); the earlier rounds are in [receipts/verification-rework](../receipts/verification-rework/README.md). Nothing after the first rework has been played by hand yet.
+- **Hosting:** the game is live at <https://fardoor.rapidoai.dev/> on its own VM in the owner's infrastructure, serving the `game/` folder of a committed release, with pageview analytics in the owner's Umami (`game/analytics.js`: production only, Do Not Track and GPC respected, the page alone). The private deployment notes and scripts, including how to publish a new release, are in `kusanagi/infra/services/far-door/`, outside this repository.
+
+The latest evidence is in [receipts/verification-hosting](../receipts/verification-hosting/README.md) and [receipts/verification-level-3](../receipts/verification-level-3/README.md); the earlier rounds are in [receipts/verification-rework](../receipts/verification-rework/README.md). Nothing after the first rework has been played by hand yet.
 
 ## Layout
 

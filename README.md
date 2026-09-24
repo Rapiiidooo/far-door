@@ -2,7 +2,7 @@
 
 A browser prototype in three levels. An explorer follows a lost expedition down into a sunken desert ruin and bends sunlight with bronze mirrors onto the three glyphs of an address, and the stone ring before the ruin opens onto another world. There, a gate network's customs checkpoint will not let anyone through without the destination address stamped by its Wardens, who only stamp offenders. A second door opens onto a sky of floating isles, crossed on bridges of light that the builders' pylons throw when struck by a charged sun disc, to the expedition leader's last camp and a ring whose address is missing a glyph. The credits follow.
 
-It is a private prototype, not a contest entry. Every 3D object is Three.js code produced through the [404 game recipe](../404-game-recipe/GAME.md) loop: a written brief, three candidates, the verifier's four-sided sheet and a choice by eye. The briefs and sheets are in [receipts/candidates](receipts/candidates/).
+It is a prototype, not a contest entry, played at <https://fardoor.rapidoai.dev/>. Every 3D object is Three.js code produced through the [404 game recipe](../404-game-recipe/GAME.md) loop: a written brief, three candidates, the verifier's four-sided sheet and a choice by eye. The briefs and sheets are in [receipts/candidates](receipts/candidates/).
 
 ## Run it
 
