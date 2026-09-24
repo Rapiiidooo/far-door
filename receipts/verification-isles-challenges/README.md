@@ -17,6 +17,34 @@ Objectives, markers, one-time cards and lines of narration cover each new sectio
 
 `node scripts/playthrough.mjs outputs/playthrough` played from the title through the three levels to the credits and back, with no page or console error ([log](playthrough-log.json)). On the isles it waited for the ferry's rest to board it and for the other rest to step off, ran the three stones from one jump to the next (they were falling and trembling behind it), charged the disc once for the relay, crossed to the small isle still glowing, woke the far pylon from there, and reached the camp, the journal and the closing shot ([pair](23-isles-pair.png), [camp](26-isles-camp.png), [finale](28-finale.png)). No shader program was compiled in play: 126 at the first start and 126 at the end. `--from=w3` plays the isles alone and passes too.
 
+## The public URL
+
+Commit `1c9cac4` was deployed to <https://fardoor.rapidoai.dev/> as release `20260924-1c9cac408025`; the served files checked match the commit, the favicon included. The jam gate, as published:
+
+```text
+=== 404 JAM VERDICT ===
+url             https://fardoor.rapidoai.dev/
+utc             2026-09-24T17:46:08.097Z
+commit          1c9cac408025620f2bbae93d13cca88168bf7d65
+viewport        390x844 @3x phone, real touch, Android Chrome UA
+network         4G: 4 Mbps down, 1 Mbps up, 60 ms latency, CPU 2x slower
+ready           4.1 s   budget 20 s   PASS
+weight          3.3 MB   budget 10 MB   PASS
+started         yes (tap on #startb)
+moved           3.2 m   needs 1 m   PASS
+peak draws      382   budget 900   PASS
+peak tris       311,317   budget 1,500,000   PASS
+median fps      60 (ANGLE (Apple, ANGLE Metal Renderer: Apple M5 Max, Unspecified Version))
+errors          0   PASS
+404s            0   PASS
+external deps   none
+outside folder  none, every file came from the game folder
+RESULT: PASS
+=== END ===
+```
+
+With the software renderer forced it was ready in 8.4 s and passed too ([phone verdict](gate-live/phone-verdict.json), [software verdict](gate-live/software-verdict.json), [frame in motion](gate-live/phone-moving.png)).
+
 ## Other checks
 
 - **Menus and level flow:** `node scripts/menu-check.mjs outputs/menu-check` passes 18 of 18 ([results](menu-check.json)).

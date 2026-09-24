@@ -1,0 +1,69 @@
+{
+  "url": "https://fardoor.rapidoai.dev/",
+  "utc": "2026-09-24T17:46:38.252Z",
+  "commit": "1c9cac408025620f2bbae93d13cca88168bf7d65",
+  "viewport": {
+    "width": 390,
+    "height": 844,
+    "deviceScaleFactor": 3,
+    "isMobile": true,
+    "hasTouch": true
+  },
+  "desktop": false,
+  "network": {
+    "name": "4G",
+    "downMbps": 4,
+    "upMbps": 1,
+    "latencyMs": 60,
+    "cpuSlowdown": 2
+  },
+  "budgets": {
+    "READY_S": 20,
+    "MB": 10,
+    "DRAWS": 900,
+    "TRIS": 1500000,
+    "MOVE_M": 1
+  },
+  "ready_s": 8.424,
+  "load_note": null,
+  "body_bytes": 3262273,
+  "wire_bytes": 899443,
+  "mb": 3.26,
+  "mb_note": "body bytes over 1e6; wire_bytes is the compressed transfer",
+  "start_control": "#startb",
+  "tapped": true,
+  "started": true,
+  "start_gone_after_tap": true,
+  "start_note": null,
+  "held": "#stick",
+  "hold_ms": 6000,
+  "pos_before": [
+    19.4,
+    39
+  ],
+  "pos_after": [
+    19.4,
+    35.81002529480896
+  ],
+  "moved_m": 3.19,
+  "path_m": 3.19,
+  "peak_draws": 382,
+  "peak_tris": 311317,
+  "median_fps": 11,
+  "software": true,
+  "renderer": "ANGLE (Google, Vulkan 1.3.0 (SwiftShader Device (LLVM 10.0.0) (0x0000C0DE)), SwiftShader driver)",
+  "webgpu": true,
+  "errors": [],
+  "missing": [],
+  "requests": 86,
+  "external_hosts": [],
+  "cdn_hosts": [],
+  "outside_folder": [],
+  "screenshots": {
+    "loaded": "software-loaded.png",
+    "started": "software-started.png",
+    "moving": "software-moving.png"
+  },
+  "fails": [],
+  "result": "PASS"
+}
