@@ -14,6 +14,34 @@ The game had no touch controls, so a phone could not play it. These changes answ
 - **The title:** "An expedition in three worlds" replaces "A prototype" on the loading, title and credits screens.
 - **Analytics:** an automated browser (`navigator.webdriver`) no longer loads the tracker. The gate reports a phone's user agent, which Umami's bot filter would have counted as a visit.
 
+## The gate against the public URL
+
+Commit `fa3d0dd` was deployed to <https://fardoor.rapidoai.dev/> on 24 September 2026 as release `20260924-fa3d0dd74dd3`; every served file checked matches the commit. The gate, as published, from the recipe folder:
+
+```text
+=== 404 JAM VERDICT ===
+url             https://fardoor.rapidoai.dev/
+utc             2026-09-24T17:08:07.330Z
+commit          fa3d0dd74dd31bb6563d81817942efd0cb350a8a
+viewport        390x844 @3x phone, real touch, Android Chrome UA
+network         4G: 4 Mbps down, 1 Mbps up, 60 ms latency, CPU 2x slower
+ready           3.7 s   budget 20 s   PASS
+weight          3.3 MB   budget 10 MB   PASS
+started         yes (tap on #startb)
+moved           3.2 m   needs 1 m   PASS
+peak draws      382   budget 900   PASS
+peak tris       311,317   budget 1,500,000   PASS
+median fps      60 (ANGLE (Apple, ANGLE Metal Renderer: Apple M5 Max, Unspecified Version))
+errors          0   PASS
+404s            0   PASS
+external deps   none
+outside folder  none, every file came from the game folder
+RESULT: PASS
+=== END ===
+```
+
+The same gate with the software renderer forced was ready in 8.0 s and passed too: 3.2 m walked, 382 draws, 12 frames a second ([phone verdict](gate-live/phone-verdict.json), [software verdict](gate-live/software-verdict.json), [frame in motion](gate-live/phone-moving.png)).
+
 ## The gate against the local server
 
 Run from the recipe folder with the installed Chrome, against `npm start` (files served uncompressed):
