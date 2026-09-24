@@ -5,15 +5,20 @@ import { PROP_SHAPES } from "./court.js";
 // The third level, the dawn isles. Mira's expedition crossed them on ropes while dawn drifted
 // the isles together, and the ropes hang snapped from the rims. The explorer carries her disc:
 // charged in a crystal's beam and thrown at a builders' pylon, it wakes the pylon, which throws
-// a stepped bridge of light to the next isle for a few seconds. Her last camp, her journal and
-// a ring whose address is missing a glyph wait on the far isle.
+// a stepped bridge of light to the next isle for a few seconds. Further on, one isle still
+// drifts between two others, a line of small stones gives way under the feet, and a last pair
+// of pylons must be woken on one charge with a bridge between them. Her last camp, her journal
+// and a ring whose address is missing a glyph wait on the far isle.
 
 const V = (x, y, z) => new THREE.Vector3(x, y, z);
 const TURQUOISE = new THREE.Color(0x39e3d0);
 
 // The playable isles, in the order they are crossed: where the asset stands, the height of its
-// top at the centre, its scale and turn. The lone rock is too small to wait on, so a fall from
-// it returns the explorer to the isle before.
+// top at the centre, its scale and turn. The small ones are too short-lived to wait on, so a
+// fall from one returns the explorer to the last isle that holds. The ferry drifts along its
+// line between the isles either side, pausing a stride off each rim; the stones crumble a
+// moment after they are stood on and rise again a few seconds later. A yaw of -0.44 turns
+// the cap's two boulders to the sides, clear of a path along z.
 export const ISLES = [
   { id: "arrival", x: 0, z: -2, top: 0, s: 1.3, yaw: 0.4 },
   { id: "step1", x: 1.4, z: -14.6, top: 0.4, s: 0.35, yaw: 1.1 },
@@ -22,18 +27,61 @@ export const ISLES = [
   { id: "gap", x: 6, z: -52, top: 2.6, s: 1.0, yaw: 2.0 },
   { id: "pair", x: 10, z: -71, top: 3.8, s: 0.8, yaw: 3.1 },
   { id: "rock", x: 12, z: -86.5, top: 5.0, s: 0.4, yaw: 0.3, unsafe: true },
-  // Turned so the cap's two boulders lie at the sides, clear of the camp and the ring.
-  { id: "camp", x: 12, z: -106.5, top: 6.2, s: 1.6, yaw: -0.44 },
+  { id: "ledge", x: 12, z: -103.6, top: 6.2, s: 1.0, yaw: -0.44 },
+  {
+    id: "ferry",
+    x: 12,
+    z: -114.5,
+    top: 6.4,
+    s: 0.5,
+    yaw: -0.44,
+    unsafe: true,
+    drift: { between: ["ledge", "far"], gap: 1.4, dwell: 2.6, travel: 5 },
+  },
+  { id: "far", x: 12, z: -133.1, top: 6.8, s: 0.8, yaw: -0.44 },
+  {
+    id: "stone1",
+    x: 10.4,
+    z: -142.05,
+    top: 7.1,
+    s: 0.3,
+    yaw: 0.7,
+    crumble: true,
+  },
+  {
+    id: "stone2",
+    x: 13.6,
+    z: -147.13,
+    top: 7.4,
+    s: 0.3,
+    yaw: 2.9,
+    crumble: true,
+  },
+  {
+    id: "stone3",
+    x: 10.4,
+    z: -152.21,
+    top: 7.7,
+    s: 0.3,
+    yaw: 1.8,
+    crumble: true,
+  },
+  { id: "landing", x: 12, z: -161.8, top: 8.0, s: 0.9, yaw: -0.44 },
+  { id: "midway", x: 12, z: -180, top: 8.6, s: 0.4, yaw: 2.6, unsafe: true },
+  { id: "camp", x: 12, z: -202.6, top: 9.2, s: 1.6, yaw: -0.44 },
 ];
 
 // Each pylon wakes a bridge along z on the line `x`, from its isle to the next. Its threshold
 // sits 0.8 m inside the rim on that line and the bridge runs 1.2 m onto the far isle, both
 // measured from the isles. `lasts` is how long the bridge holds once the pylon wakes.
 export const PYLONS = [
-  { id: "first", on: "well", to: "gap", x: 5, lasts: 20 },
-  { id: "across", on: "pair", to: "gap", x: 8.6, lasts: 16 },
-  { id: "twinA", on: "pair", to: "rock", x: 12, lasts: 12 },
-  { id: "twinB", on: "rock", to: "camp", x: 12, lasts: 12 },
+  { id: "first", on: "well", to: "gap", x: 5, lasts: 15 },
+  { id: "across", on: "pair", to: "gap", x: 8.6, lasts: 12 },
+  { id: "twinA", on: "pair", to: "rock", x: 12, lasts: 10 },
+  { id: "twinB", on: "rock", to: "ledge", x: 12, lasts: 10 },
+  // The relay: one charge, a short bridge to a small isle, then the far pylon from there.
+  { id: "relay1", on: "landing", to: "midway", x: 12, lasts: 7 },
+  { id: "relay2", on: "camp", to: "midway", x: 12, lasts: 9 },
 ];
 
 // The crystals whose beams charge the disc, one on each isle that has a pylon to wake, placed
@@ -42,6 +90,7 @@ export const WELLS = [
   { on: "well", dx: -2.4, dz: -1.2 },
   { on: "gap", dx: -2.6, dz: -2.2 },
   { on: "pair", dx: -2.8, dz: -0.8 },
+  { on: "landing", dx: -2.6, dz: 1.2 },
 ];
 
 // Where the expedition roped across, a rope hangs snapped from the rim facing the next isle.
@@ -50,6 +99,9 @@ export const ROPES = [
   ["well", "gap"],
   ["gap", "pair"],
   ["pair", "rock"],
+  ["ledge", "ferry"],
+  ["far", "stone1"],
+  ["landing", "midway"],
 ];
 
 // Mira's last camp, placed from the camp isle's centre, and the ring whose address she could
@@ -66,7 +118,12 @@ const GROW = 0.7,
   FADE = 1.3,
   WARN = 3,
   THRESHOLD = 0.8,
-  LANDING = 1.2;
+  LANDING = 1.2,
+  // A stone trembles this long under the feet, falls, stays gone, then rises back.
+  TREMBLE = 1.1,
+  FALL = 2.2,
+  GONE = 1.8,
+  RISE = 1.4;
 
 export class Isles {
   constructor(scene, world, assets, services) {
@@ -88,6 +145,7 @@ export class Isles {
     for (const def of PYLONS) await this.addPylon(def);
     for (const [on, toward] of ROPES) await this.addRope(on, toward);
     await this.buildCamp();
+    for (const i of this.isles) if (i.drift) this.measureDrift(i);
     this.reset();
   }
 
@@ -109,12 +167,68 @@ export class Isles {
     this.scene.add(o);
     o.updateMatrixWorld(true);
     const c = isleCollider(this.shape || flatShape(), o);
-    const collider = this.world.addIsle(c, def.unsafe ? { unsafe: true } : {});
-    for (const b of c.bumps)
+    const collider = this.world.addIsle(
+      c,
+      def.unsafe || def.crumble ? { unsafe: true } : {},
+    );
+    const bumps = c.bumps.map((b) =>
       this.world.addRound(b.x, b.z, b.r, c.minY, b.top, "prop", null, {
         cam: false,
-      });
-    this.isles.push({ ...def, object: o, collider });
+      }),
+    );
+    this.isles.push({
+      ...def,
+      object: o,
+      collider,
+      bumps,
+      home: o.position.clone(),
+      rest: o.rotation.clone(),
+    });
+  }
+
+  // The ferry's run along its line: from a stride off the rim of the isle before to a stride
+  // off the rim of the isle after, measured on the isles' caps.
+  measureDrift(isle) {
+    const { between, gap } = isle.drift;
+    const c = isle.collider;
+    const back = this.rimAlong(isle, c.x, 1) - c.z,
+      front = c.z - this.rimAlong(isle, c.x, -1);
+    isle.run = {
+      a: this.rimAlong(this.isle(between[0]), c.x, -1) - gap - back,
+      b: this.rimAlong(this.isle(between[1]), c.x, 1) + gap + front,
+    };
+    this.placeFerry(isle, 0);
+  }
+
+  // Moves an isle, its cap, its boulders and its mesh together.
+  shift(isle, dx, dz) {
+    for (const b of [isle.collider, ...isle.bumps]) {
+      b.x += dx;
+      b.z += dz;
+      b.minX += dx;
+      b.maxX += dx;
+      b.minZ += dz;
+      b.maxZ += dz;
+    }
+    isle.object.position.x += dx;
+    isle.object.position.z += dz;
+  }
+
+  // Where the ferry is `t` seconds into its round: resting off the first isle, drifting over,
+  // resting off the second, drifting back.
+  placeFerry(isle, t) {
+    const { dwell, travel } = isle.drift;
+    const period = 2 * (dwell + travel);
+    let u = ((t % period) + period) % period,
+      f;
+    if (u < dwell) f = 0;
+    else if ((u -= dwell) < travel) f = ease(u / travel);
+    else if ((u -= travel) < dwell) f = 1;
+    else f = 1 - ease((u - dwell) / travel);
+    const z = isle.run.a + (isle.run.b - isle.run.a) * f;
+    const dz = z - isle.collider.z;
+    this.shift(isle, 0, dz);
+    return dz;
   }
 
   // Where an isle's ground ends along the line x, going from its centre in direction dir.
@@ -378,6 +492,8 @@ export class Isles {
   // --- the frame ------------------------------------------------------------------------------
   update(dt, hero) {
     this.time += dt;
+    this.drift(dt, hero);
+    this.crumble(dt, hero);
     for (const p of this.pylons) {
       p.bridge.update(dt);
       // A woken lens burns while its bridge holds and flickers as it starts to go.
@@ -404,10 +520,91 @@ export class Isles {
 
   standing(hero) {
     for (const i of this.isles) {
+      if (!i.collider.solid) continue;
       const p = isleAt(i.collider, hero.pos.x, hero.pos.z);
       if (p.rho <= p.rim + 0.25 && Math.abs(hero.feet - p.top) < 0.35) return i;
     }
     return null;
+  }
+
+  // Feet on this isle's cap, not in the air above it.
+  grounded(isle, hero) {
+    if (!["ground", "roll", "turn", "use"].includes(hero.state)) return false;
+    const p = isleAt(isle.collider, hero.pos.x, hero.pos.z);
+    return p.rho <= p.rim + 0.25 && Math.abs(hero.feet - p.top) < 0.12;
+  }
+
+  // The ferry carries whoever stands on it.
+  drift(dt, hero) {
+    this.driftT += dt;
+    for (const i of this.isles) {
+      if (!i.drift) continue;
+      const riding = this.grounded(i, hero);
+      const dz = this.placeFerry(i, this.driftT);
+      if (riding) hero.pos.z += dz;
+    }
+  }
+
+  // Stones tremble under the feet, fall away into the cloud and rise again.
+  crumble(dt, hero) {
+    const sound = this.services.sound;
+    for (const i of this.isles) {
+      if (!i.crumble) continue;
+      const o = i.object;
+      i.t += dt;
+      if (i.phase === "still" && this.grounded(i, hero)) {
+        i.phase = "tremble";
+        i.t = 0;
+        sound?.play("tremble");
+      } else if (i.phase === "tremble") {
+        const k = 0.03 * Math.min(1, i.t / TREMBLE);
+        o.position.set(
+          i.home.x + (Math.random() - 0.5) * k * 2,
+          i.home.y + (Math.random() - 0.5) * k,
+          i.home.z + (Math.random() - 0.5) * k * 2,
+        );
+        if (i.t >= TREMBLE) {
+          i.phase = "fall";
+          i.t = 0;
+          this.solid(i, false);
+          sound?.play("crumble");
+        }
+      } else if (i.phase === "fall") {
+        o.position.set(i.home.x, i.home.y - 9 * i.t * i.t, i.home.z);
+        o.rotation.set(i.rest.x + i.t * 0.25, i.rest.y, i.rest.z + i.t * 0.35);
+        if (i.t >= FALL) {
+          i.phase = "gone";
+          i.t = 0;
+          o.visible = false;
+        }
+      } else if (i.phase === "gone" && i.t >= GONE) {
+        i.phase = "rise";
+        i.t = 0;
+        o.visible = true;
+        o.rotation.copy(i.rest);
+      } else if (i.phase === "rise") {
+        o.position.set(
+          i.home.x,
+          i.home.y - 6 * (1 - ease(Math.min(1, i.t / RISE))),
+          i.home.z,
+        );
+        if (i.t >= RISE) this.settle(i);
+      }
+    }
+  }
+
+  solid(isle, on) {
+    for (const b of [isle.collider, ...isle.bumps]) b.solid = on;
+  }
+
+  // A stone back in its place, whole.
+  settle(isle) {
+    isle.phase = "still";
+    isle.t = 0;
+    isle.object.visible = true;
+    isle.object.position.copy(isle.home);
+    isle.object.rotation.copy(isle.rest);
+    this.solid(isle, true);
   }
 
   interactables() {
@@ -426,7 +623,7 @@ export class Isles {
   // The HUD's part: the objective and its markers, from how far the explorer has come.
   guide(hud, hero, disc) {
     const P = Object.fromEntries(this.pylons.map((p) => [p.id, p]));
-    const W = this.wells;
+    const W = Object.fromEntries(this.wells.map((w) => [w.on, w]));
     const landing = (id) => {
       const i = this.isle(id);
       return i ? V(i.collider.x, i.collider.maxY + 1.2, i.collider.z) : null;
@@ -435,18 +632,19 @@ export class Isles {
     const well = (w) => w.center.clone().add(V(0, 0.9, 0));
     const charged = disc?.charged;
     const at = this.reached;
+    const past = (id) => at >= ISLES.findIndex((d) => d.id === id);
     let objective = "",
       sub = "",
       marks = [],
       key;
     if (this.finished) key = "done";
     else if (this.read) key = "finale";
-    else if (at < 3) {
+    else if (!past("well")) {
       key = `trail:${at}`;
       objective = "Follow Mira's trail";
       sub = "Take a run at each gap and jump";
       marks = [landing(ISLES[at + 1].id)];
-    } else if (at === 3) {
+    } else if (!past("gap")) {
       const b = P.first.bridge;
       key = `first:${b.on ? "cross" : charged ? "lens" : "well"}`;
       objective = "Wake the pylon";
@@ -455,8 +653,8 @@ export class Isles {
         : charged
           ? "The disc glows: throw it at the pylon's lens"
           : "Throw the disc through the crystal's beam to charge it";
-      marks = [b.on ? landing("gap") : charged ? lens(P.first) : well(W[0])];
-    } else if (at === 4) {
+      marks = [b.on ? landing("gap") : charged ? lens(P.first) : well(W.well)];
+    } else if (!past("pair")) {
       const b = P.across.bridge;
       key = `across:${b.on ? "cross" : charged ? "lens" : "well"}`;
       objective = "Wake the pylon across the gap";
@@ -465,8 +663,8 @@ export class Isles {
         : charged
           ? "Throw the glowing disc at the far pylon's lens"
           : "Charge the disc in the crystal's beam";
-      marks = [b.on ? landing("pair") : charged ? lens(P.across) : well(W[1])];
-    } else if (at <= 6) {
+      marks = [b.on ? landing("pair") : charged ? lens(P.across) : well(W.gap)];
+    } else if (!past("ledge")) {
       const a = P.twinA.bridge,
         b = P.twinB.bridge;
       const dark = [P.twinA, P.twinB].filter((p) => !p.bridge.on);
@@ -481,12 +679,60 @@ export class Isles {
             ? "Wake both pylons before the disc's glow fades"
             : "Charge the disc in the crystal's beam";
       marks = !dark.length
-        ? [landing("camp")]
+        ? [landing("ledge")]
         : charged
           ? dark.map(lens)
           : stranded
             ? []
-            : [well(W[2])];
+            : [well(W.pair)];
+    } else if (!past("far")) {
+      // The ferry's marker rides with it: the HUD reads the vector every frame.
+      const ferry = this.isle("ferry");
+      const aboard = this.on === "ferry";
+      key = `ferry:${aboard}`;
+      objective = "Ride the drifting isle";
+      sub = aboard
+        ? "Jump off when it reaches the far isle"
+        : "Wait for it to drift close, then jump aboard";
+      this.ferryMark ??= V();
+      this.ferryMark.set(
+        ferry.collider.x,
+        ferry.collider.maxY + 1.2,
+        ferry.collider.z,
+      );
+      marks = [aboard ? landing("far") : this.ferryMark];
+    } else if (!past("landing")) {
+      key = "stones";
+      objective = "Cross the crumbling stones";
+      sub = "They give way under your feet: keep running";
+      marks = [landing("landing")];
+    } else if (!past("camp")) {
+      const a = P.relay1.bridge,
+        b = P.relay2.bridge;
+      const stranded = this.on === "midway" && !charged && !b.on && disc?.ready;
+      key = `relay:${a.on}:${b.on}:${charged}:${stranded}`;
+      objective = "Carry the light";
+      if (b.on) {
+        sub = "Cross before the light fades";
+        marks = [landing("camp")];
+      } else if (stranded) {
+        sub =
+          "No light here: throw back through the crystal's beam, or step off";
+        marks = [well(W.landing)];
+      } else if (this.on === "midway") {
+        sub = "Wake the far pylon before the disc's glow fades";
+        marks = [lens(P.relay2)];
+      } else if (a.on) {
+        sub = charged
+          ? "Cross while the disc still glows"
+          : "Charge the disc again, then cross";
+        marks = [charged ? landing("midway") : well(W.landing)];
+      } else {
+        sub = charged
+          ? "Wake the pylon, then cross while the disc still glows"
+          : "Charge the disc in the crystal's beam";
+        marks = [charged ? lens(P.relay1) : well(W.landing)];
+      }
     } else {
       key = "camp";
       objective = "Find Mira's camp";
@@ -511,11 +757,16 @@ export class Isles {
 
   reset() {
     this.time = 0;
+    this.driftT = 0;
     this.reached = 0;
     this.on = "arrival";
     this.read = false;
     this.finished = false;
     this.guideKey = null;
+    for (const i of this.isles) {
+      if (i.crumble) this.settle(i);
+      if (i.drift && i.run) this.placeFerry(i, 0);
+    }
     for (const p of this.pylons) {
       p.bridge.off();
       p.woke = 0;
@@ -655,6 +906,10 @@ class Bridge {
     for (const s of this.slabs)
       s.box.solid = s.mid <= this.grow && s.mid >= this.fade;
   }
+}
+
+function ease(t) {
+  return t * t * (3 - 2 * t);
 }
 
 function mergeBoxes(geos) {

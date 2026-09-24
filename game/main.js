@@ -1242,6 +1242,16 @@ function islesTelemetry() {
       left: +p.bridge.left.toFixed(2),
     })),
     note: I.notePos ? xz(I.notePos) : null,
+    ferry: I.isle("ferry")?.run
+      ? {
+          z: +I.isle("ferry").collider.z.toFixed(2),
+          a: +I.isle("ferry").run.a.toFixed(2),
+          b: +I.isle("ferry").run.b.toFixed(2),
+        }
+      : null,
+    stones: I.isles
+      .filter((i) => i.crumble)
+      .map((i) => ({ id: i.id, phase: i.phase })),
     // The rim of each isle facing the next one: where to take off.
     edges: I.isles.slice(0, -1).map((a, k) => {
       const c = a.collider,

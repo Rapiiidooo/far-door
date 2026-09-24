@@ -41,7 +41,15 @@ Then the owner asked for everything the jam requires; the gate plays the live UR
 - **Slow machines:** real time down to 20 frames a second with physics substeps. Without a GPU (SwiftShader, llvmpipe) the pixel ratio drops to 0.75 and only the court compiles at load.
 - **Fixes met on the way:** after a careful walk to a lip the hang found no ground under the body's centre, and the letterbox caught touches meant for the stick.
 
-The latest evidence is in [receipts/verification-jam](../receipts/verification-jam/README.md), [receipts/verification-hosting](../receipts/verification-hosting/README.md) and [receipts/verification-level-3](../receipts/verification-level-3/README.md); the earlier rounds are in [receipts/verification-rework](../receipts/verification-rework/README.md). Nothing after the first rework has been played by hand yet, and no physical phone has played the touch controls.
+The owner then found level 3 too short and too easy, and asked for more length and challenge, and a favicon:
+
+- **The ferry:** past the twin pylons, an isle drifts between two others, resting 2.6 s a stride off each rim, and carries whoever stands on it (`drift` in `ISLES`; the cap, its boulders and the mesh move together).
+- **The crumbling stones:** three small isles tremble for 1.1 s under the feet, fall into the cloud and rise again about five seconds later; they must be crossed at a run.
+- **The relay:** one charge for two pylons with a 12 m bridge between them; the far one stands on the camp's isle and is struck from the small isle in between. A throw back through the crystal's beam from there recharges the disc.
+- **Tighter bridges:** 15, 12, 10 and 10 s (20, 16, 12 and 12 before). The camp is now 203 m out instead of 106, and Mira's journal mentions the ferry and the stones.
+- **The favicon:** `game/favicon.svg` draws the ring, its light and the three medallions; `apple-touch-icon.png` is rendered from it.
+
+The latest evidence is in [receipts/verification-isles-challenges](../receipts/verification-isles-challenges/README.md), [receipts/verification-jam](../receipts/verification-jam/README.md), [receipts/verification-hosting](../receipts/verification-hosting/README.md) and [receipts/verification-level-3](../receipts/verification-level-3/README.md); the earlier rounds are in [receipts/verification-rework](../receipts/verification-rework/README.md). Nothing after the first rework has been played by hand yet, and no physical phone has played the touch controls.
 
 ## Layout
 
@@ -51,7 +59,7 @@ The latest evidence is in [receipts/verification-jam](../receipts/verification-j
 - **Movement:** `hero.js` (traversal and combat states), `hero-anim.js` (springs, gait, overlays, arm IK), `follow-camera.js`.
 - **The court:** `court.js` (map, props and their fitted shapes, ropes, starts), `level.js`, `cliffs.js`, `terrain.js`, `beams.js`, and `gate.js`, which holds the gate, its set piece, its portal and its colliders.
 - **Level 2:** `world-two.js` (valley, ridges, lanterns, both gates, the disc) and `checkpoint.js` (booth, wall, plates, Wardens, clerk, phases, guide). The Warden AI is in `wardens.js`, the pooled stamp ink and rings in `fx.js`, the speech bubbles in `bubbles.js`.
-- **Level 3:** `world-three.js` (sky, cloud sea, distant isles, the arrival ring, Mira's disc, the closing shot) and `isles.js` (the isles and their measured caps, crystals, pylons, bridges, ropes, Mira's camp and ring, the guide).
+- **Level 3:** `world-three.js` (sky, cloud sea, distant isles, the arrival ring, Mira's disc, the closing shot) and `isles.js` (the isles and their measured caps, the ferry and the crumbling stones, crystals, pylons, bridges, ropes, Mira's camp and ring, the guide).
 - **Glyphs:** `glyphs.js` builds them in 3D; `glyph-icons.js` draws them for the HUD and the stamp ink.
 
 Development URL parameters: `?nolock=1` plays without pointer lock, `?chapter=court|floor|checkpoint|isles` starts a level, `?w2=1` is the checkpoint, `?at=x,z,feet[,yawDeg]` starts elsewhere, `?lit=1` lights the court's address, `?barrier=1` raises the checkpoint barrier, `?cam=x,y,z,tx,ty,tz` holds the camera still, `?colliders=1` draws every collider, and `?debug=1` exposes the game on `window.__FD__`.
@@ -69,6 +77,7 @@ Development URL parameters: `?nolock=1` plays without pointer lock, `?chapter=co
 - The r186 cascaded-shadow chunk never fills `material.dfg`, so `main.js` patches it, or every fully metallic surface renders black. Mirror faces keep their flat polished material.
 - Ground is found under the explorer's footprint, so a body can stand with its centre just past a lip. Anything that looks for the ledge under the explorer must also look under the heels.
 - Under SwiftShader, ANGLE builds pipelines at the first draw: `compileAsync` returns at once and the first frame pays, about 4 s for the court on this workstation.
+- A moving isle moves its cap, its boulders, its bounding box and its mesh together, after the explorer's physics, and carries the explorer by the same step only when grounded on it; it is `unsafe`, so no respawn lands on it.
 - Any full-screen layer over the game must let touches through (`pointer-events: none`), or it swallows the stick or the tap that skips a shot. Automated checks that tap elsewhere will not notice: repeat the gate's own gesture.
 
 ## Assets

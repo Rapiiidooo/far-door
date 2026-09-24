@@ -4,7 +4,7 @@
 //   node scripts/playthrough.mjs [outDir] [--url=http://localhost:3002/?nolock=1]
 //   [--from=w2 | --from=w3] starts at the checkpoint or on the isles instead of the title.
 import puppeteer from "puppeteer-core";
-import { mkdir, writeFile } from "node:fs/promises";
+import { mkdir, rm, writeFile } from "node:fs/promises";
 
 const out = process.argv[2] || "outputs/playthrough";
 const fromW2 = process.argv.includes("--from=w2");
@@ -12,6 +12,7 @@ const fromW3 = process.argv.includes("--from=w3");
 const url =
   process.argv.find((a) => a.startsWith("--url="))?.slice(6) ||
   `http://localhost:3002/?nolock=1`;
+await rm(out, { recursive: true, force: true });
 await mkdir(out, { recursive: true });
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 const browser = await puppeteer.launch({
@@ -125,6 +126,43 @@ async function turnTo(x, z) {
 }
 // A running jump from one isle to the next: a run-up straight at it from inside the rim,
 // the jump at the rim, and steering through the air onto it.
+// A jump from wherever the explorer stands: run at the edge and take off just before it. The
+// crumbling stones leave no time for a run-up.
+async function hop(edge, target, id) {
+  const [ex, ez] = edge,
+    [tx, tz] = target;
+  const d = Math.hypot(tx - ex, tz - ez);
+  const ux = (tx - ex) / d,
+    uz = (tz - ez) / d;
+  let s,
+    t0 = Date.now();
+  for (;;) {
+    s = await state();
+    const along = (s.pos[0] - ex) * ux + (s.pos[1] - ez) * uz;
+    const keys = steer(s, tx, tz).keys;
+    if (along > -0.45) {
+      await hold(new Set([...keys, "Space"]));
+      break;
+    }
+    await hold(new Set(keys));
+    if (Date.now() - t0 > 4000) throw new Error(`run at ${id} stalled`);
+    await sleep(16);
+  }
+  await sleep(380);
+  t0 = Date.now();
+  for (;;) {
+    s = await state();
+    await hold(new Set(steer(s, tx, tz).keys));
+    if (s.state === "ground" && s.isles?.on === id) break;
+    if (Date.now() - t0 > 5000)
+      throw new Error(
+        `hop to ${id}: ${s.state} at ${s.pos.map((v) => v.toFixed(2))} feet ${s.feet.toFixed(2)}`,
+      );
+    await sleep(25);
+  }
+  await hold(new Set());
+  return s;
+}
 async function leap(edge, target, id) {
   const [ex, ez] = edge,
     [tx, tz] = target;
@@ -654,6 +692,59 @@ async function isles() {
   await walkTo(beside(q));
   await walkTo(onto(q));
   await walkTo([q.emit[0], q.to + dirOf(q) * 1.5], { timeout: 9000 });
+  s = await until((s) => s.isles.on === "ledge", 3000, "reach the ledge");
+  note("crossed both bridges of the pair");
+  // The ferry: aboard while it rests off the ledge, off while it rests off the far isle.
+  const k = (id) => ids.indexOf(id);
+  const ferryAt = (end) => (s) =>
+    Math.abs(s.isles.ferry.z - s.isles.ferry[end]) < 0.05;
+  s = await state();
+  const edge = s.isles.edges[k("ledge")];
+  await go(edge[0], edge[1] + 3.6, { tol: 0.3 });
+  await turnTo(edge[0], edge[1] - 6);
+  await until((s) => !ferryAt("a")(s), 16000, "the ferry leaves");
+  await until(ferryAt("a"), 16000, "the ferry returns");
+  s = await state();
+  await hop(s.isles.edges[k("ledge")], s.isles.isles[k("ferry")].at, "ferry");
+  note("aboard the drifting isle");
+  await shot("isles-ferry");
+  s = await until(ferryAt("b"), 16000, "the ferry reaches the far isle");
+  await hop(s.isles.edges[k("ferry")], at.far, "far");
+  note("off the ferry onto the far isle");
+  // The stones: one run, a jump from each before it falls.
+  s = await state();
+  await leap(s.isles.edges[k("far")], at.stone1, "stone1");
+  for (const [from, to] of [
+    ["stone1", "stone2"],
+    ["stone2", "stone3"],
+    ["stone3", "landing"],
+  ]) {
+    s = await state();
+    await hop(s.isles.edges[k(from)], at[to], to);
+  }
+  s = await state();
+  note(
+    `crossed the crumbling stones: ${s.isles.stones.map((t) => t.phase).join(", ")}`,
+  );
+  await shot("isles-stones");
+  // The relay: one charge for both pylons, the bridge between them crossed at once.
+  await walkTo(near(W[3], "landing"));
+  await charge(W[3]);
+  await wake("relay1", W[3]);
+  s = await state();
+  p = pylon(s, "relay1");
+  await walkTo(beside(p));
+  await walkTo(onto(p));
+  await walkTo([p.emit[0], p.to + dirOf(p) * 1.4], { timeout: 9000 });
+  s = await until((s) => s.isles.on === "midway", 3000, "cross to midway");
+  note(`on the small isle, ${s.isles.disc.charged ? "still glowing" : "dark"}`);
+  await wake("relay2", W[3]);
+  note("woke the far pylon of the relay");
+  s = await state();
+  p = pylon(s, "relay2");
+  await walkTo([p.emit[0], p.to + dirOf(p) * 0.6]);
+  await walkTo(onto(p, -0.3), { timeout: 9000 });
+  await walkTo(beside(p));
   s = await until((s) => s.isles.on === "camp", 3000, "reach the camp");
   note("crossed to Mira's camp");
   await shot("isles-camp");

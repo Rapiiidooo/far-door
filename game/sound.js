@@ -336,6 +336,12 @@ export class Sound {
         return this.bell(783.99, 2.6);
       case "bridge":
         return this.sweep(196, 587.3, 0.9, 0.06, "sine");
+      // A stone about to go: grit shaken loose, then the fall and its rubble.
+      case "tremble":
+        return this.burst(0.9, 520, 0.06, 0.9);
+      case "crumble":
+        this.burst(0.8, 240, 0.2, 0.6);
+        return setTimeout(() => this.burst(0.6, 150, 0.14, 0.5), 160);
       case "barrier":
         return this.sweep(180, 90, 1.2, 0.08, "sawtooth");
       case "clerk":

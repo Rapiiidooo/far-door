@@ -4,7 +4,7 @@ import { RenderPass } from "three/addons/postprocessing/RenderPass.js";
 import { UnrealBloomPass } from "three/addons/postprocessing/UnrealBloomPass.js";
 import { OutputPass } from "three/addons/postprocessing/OutputPass.js";
 import { World } from "./world.js";
-import { Isles, CAMP } from "./isles.js";
+import { Isles, CAMP, ISLES } from "./isles.js";
 import { SunDisc, fallbackDisc } from "./disc.js";
 
 // The third world and the third level: a sky at dawn over a sea of golden cloud, pale isles
@@ -388,7 +388,8 @@ export class WorldThree {
       this.once("rope", () =>
         hud.subtitle("A rope, snapped. They crossed these isles before me.", 4),
       );
-    if (I.reached >= 3)
+    const past = (id) => I.reached >= ISLES.findIndex((d) => d.id === id);
+    if (past("well"))
       this.once("pylons", () =>
         hud.hint(
           "Pylons",
@@ -396,7 +397,7 @@ export class WorldThree {
           10,
         ),
       );
-    if (I.reached >= 5)
+    if (past("pair"))
       this.once("pair", () =>
         hud.hint(
           "One charge",
@@ -404,7 +405,33 @@ export class WorldThree {
           9,
         ),
       );
-    if (I.reached >= 7)
+    if (past("ledge"))
+      this.once("drift", () => {
+        hud.subtitle("The isles still drift here, the way Mira wrote.", 4);
+        hud.hint(
+          "Drifting isles",
+          "Wait for the isle to drift close, then jump aboard. Jump off when it reaches the far isle.",
+          9,
+        );
+      });
+    if (past("far"))
+      this.once("stones", () =>
+        hud.hint(
+          "Crumbling stones",
+          "Each stone gives way a moment after you land. Keep running and jump from one to the next.",
+          9,
+        ),
+      );
+    if (past("landing"))
+      this.once("relay", () => {
+        hud.subtitle("One glow, two pylons, and a bridge between them.", 4);
+        hud.hint(
+          "Carry the light",
+          "Charge the disc, wake the pylon and cross at once: strike the far pylon before the glow fades.",
+          10,
+        );
+      });
+    if (past("camp"))
       this.once("camp", () => hud.subtitle("A camp. Mira's.", 3));
   }
 
