@@ -8,7 +8,7 @@ const OUT_TIME = 0.42,
   OUT_SPEED = 23,
   BACK_SPEED = 27,
   CATCH = 0.7,
-  CHARGE_TIME = 7,
+  CHARGE_TIME = 10,
   AIM_CONE = THREE.MathUtils.degToRad(26),
   AIM_RANGE = 24;
 
@@ -76,29 +76,49 @@ export class SunDisc {
 
   // Before the explorer takes it back: resting on the pile of confiscated things,
   // turning slowly and glowing so it can be seen from the path.
+  // The light stays in the scene once made: adding or removing a light recompiles every
+  // material in view, so taking the disc only turns it down.
   display(scene, at) {
     this.state = "display";
+    this.scene = scene;
     this.mesh.visible = true;
+    this.mesh.scale.setScalar(1);
     scene.add(this.mesh);
     this.displayAt = at.clone();
     this.mesh.position.copy(at);
-    this.displayLight = new THREE.PointLight(0x39e3d0, 4, 4, 1.8);
+    if (!this.displayLight) {
+      this.displayLight = new THREE.PointLight(0x39e3d0, 4, 4, 1.8);
+      scene.add(this.displayLight);
+    }
     this.displayLight.position.copy(at).add(new THREE.Vector3(0, 0.4, 0));
-    scene.add(this.displayLight);
+    this.displayLight.intensity = 4;
+    this.charge = 0;
   }
 
-  // The disc rides in the right hand, lying flat.
-  attach(hand) {
-    if (this.displayLight) {
-      this.displayLight.removeFromParent();
-      this.displayLight = null;
-    }
+  // Back on the pile of confiscated things.
+  reset() {
+    if (this.scene && this.displayAt) this.display(this.scene, this.displayAt);
+  }
+
+  // Leaving this world: the disc waits, out of sight, for the explorer to come back.
+  stow() {
+    if (this.state === "display") return;
+    this.scene?.attach(this.mesh);
+    this.mesh.visible = false;
+    this.state = "stowed";
+  }
+
+  // The disc rides in the right hand, lying flat under the palm. `grip` is the palm's
+  // position in the joint that carries it (a forearm when the model has no hand joint).
+  attach(hand, grip = this.grip) {
+    if (this.displayLight) this.displayLight.intensity = 0;
     this.hand = hand;
+    this.grip = grip || new THREE.Vector3(0, -0.36, 0.08);
     this.state = "held";
     this.mesh.visible = true;
     hand.add(this.mesh);
-    this.mesh.position.set(0, -0.36, 0.08);
-    this.mesh.rotation.set(0.2, 0, 0);
+    this.mesh.position.copy(this.grip).add(new THREE.Vector3(0, -0.035, 0.02));
+    this.mesh.rotation.set(0.15, 0, 0);
     this.mesh.scale.setScalar(
       1 / (hand.getWorldScale(new THREE.Vector3()).x || 1),
     );
@@ -106,7 +126,7 @@ export class SunDisc {
 
   handPosition(out = new THREE.Vector3()) {
     this.hand.updateWorldMatrix(true, false);
-    return out.set(0, -0.36, 0.08).applyMatrix4(this.hand.matrixWorld);
+    return out.copy(this.grip).applyMatrix4(this.hand.matrixWorld);
   }
 
   // Throws along the camera's heading, bending the aim onto the best target near it.
@@ -173,7 +193,12 @@ export class SunDisc {
       this.halo.material.opacity = 0.35 + Math.sin(this.spin * 3) * 0.1;
       return;
     }
-    if (this.state === "held" || this.state === "hidden") return;
+    if (
+      this.state === "held" ||
+      this.state === "hidden" ||
+      this.state === "stowed"
+    )
+      return;
     this.t += dt;
     this.spin += dt * 26;
     this.prev.copy(this.pos);

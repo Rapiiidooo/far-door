@@ -1,0 +1,13 @@
+# light_pylon candidates
+
+The brief is "light_pylon" in [the fourth wave](../briefs.md). Three agents built one candidate each from the same brief and style lock, each with its own construction strategy, and verified it in its own `scratch/` folder. The three verified together (`_verify/sheet.png`, `--size=560`):
+
+- `light_pylon_a` (picked), primitives: boxes and four-sided frustums for the stone, each tier and the bone band capped by chamfer frustums and the grooves set in as slices; a bronze U yoke with gussets and trunnion knuckles; a torus ring whose section is redrawn as a chamfered bar, with a bezel and rivets; a lens of a rim between two sphere caps; a stepped threshold plate with its crystal bar. Verifier: `ok light_pylon_a 3548 tris 7 meshes 1.16x2.8x1.65m`.
+- `light_pylon_b`, profiles: square lathes for the stone (foot course, tiers, tapering shaft, sienna-floored grooves, raised bone band), the ring, lens and rivets turned about +Z, the yoke as one chamfered extruded U, the plate as two chamfered slabs. Verifier: `ok light_pylon_b 4284 tris 6 meshes 1.118x2.8x1.65m`.
+- `light_pylon_c`, a second reading in cut masonry: hand-built chamfered blocks with a pinwheel plinth course and real 3.5 cm channels, a 16-sided ring gripped by claws that rise from a crescent through a slotted head. Verifier: `ok light_pylon_c 2948 tris 7 meshes 1.1x2.8x1.65m`.
+
+All three expose `parts.lens` and `parts.slot` as separate meshes with their own dormant crystal material, `lens: { center: [0, 2.35, -0.275], radius: 0.31 }` and an `emit` point at the plate's front edge (`[0, 0.04, 0.78]` for A). Each put the ring's centre at 2.35 m rather than the brief's 2.3 m: with a 0.9 m ring and the 2.8 m height, its foot has to sit in the yoke below the shaft's top.
+
+Picked A by looking at the three in the game, on the first pylon's isle under the dawn light, dormant and lit, at 6 and 12 m (`scratch/ingame_abc.png`). A's two bronze uprights frame the lens and catch the low sun, so from a distance it still reads as a lens held up on a stone. B's riveted ring reads as a ship's porthole. C's claws and notch vanish beyond about 10 m, where its ring merges into the head of the shaft. Lit, all three read the same.
+
+Weaknesses, from A's own report: the ring's lowest 0.14 m is hidden in the yoke's hub; the piece is 1.16 m wide, 6% over the plinth, because of the yoke's bosses; the lower shaft and the plate are plain and the grooves only read up close; the ring is merged with the static bronze, so only the lens could turn; there are four rivets on each face, eight in all, where the brief asked for four.

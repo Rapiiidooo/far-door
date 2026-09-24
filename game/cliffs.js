@@ -82,7 +82,30 @@ export function buildCliffs(
   material,
   { corners, top, base = -10, step = 0.7 },
 ) {
-  const loop = sampleLoop(corners, 1.4, step);
+  return skin(sampleLoop(corners, 1.4, step), true, material, top, base);
+}
+
+// An open ridge along a polyline, rock on the left of travel: the second world's valley sides.
+export function buildRidge(material, { points, top, base = -10, step = 0.7 }) {
+  const line = [];
+  for (let i = 0; i < points.length - 1; i++) {
+    const a = points[i],
+      b = points[i + 1];
+    const n = Math.max(
+      1,
+      Math.round(Math.hypot(b[0] - a[0], b[1] - a[1]) / step),
+    );
+    for (let k = 0; k < n; k++)
+      line.push([
+        a[0] + ((b[0] - a[0]) * k) / n,
+        a[1] + ((b[1] - a[1]) * k) / n,
+      ]);
+  }
+  line.push(points[points.length - 1]);
+  return skin(line, false, material, top, base);
+}
+
+function skin(loop, closed, material, top, base) {
   const cols = loop.length;
   // Along-track distance, for texture coordinates.
   const along = [0];
@@ -92,8 +115,8 @@ export function buildCliffs(
     along.push(along[i - 1] + Math.hypot(b[0] - a[0], b[1] - a[1]));
   }
   const columns = loop.map((p, i) => {
-    const a = loop[(i - 1 + cols) % cols],
-      b = loop[(i + 1) % cols];
+    const a = closed ? loop[(i - 1 + cols) % cols] : loop[Math.max(0, i - 1)],
+      b = closed ? loop[(i + 1) % cols] : loop[Math.min(cols - 1, i + 1)];
     const t = norm([b[0] - a[0], b[1] - a[1]]);
     const out = [t[1], -t[0]]; // left of travel: into the rock
     const h = top(p[0], p[1]);
@@ -120,11 +143,15 @@ export function buildCliffs(
       let d = depth;
       let yy = y;
       if (face) {
-        // Worn back by broad weathering, horizontal strata and a crisp shelf now and then.
+        // Worn by broad weathering and horizontal strata, but held within a hand's width
+        // of the collider face (-0.12 to +0.45 m): the explorer's body stops 0.19 m short
+        // of that face, so the rock is touched where it is drawn and never passed through.
         const broad = fbm(p[0] * 0.18, y * 0.22, p[1] * 0.18);
         const strata = Math.pow(Math.abs(Math.sin(y * 1.45 + broad * 2.6)), 5);
-        const brow = Math.min(1, Math.max(0, (y - base) / 3));
-        d += (0.25 + 1.1 * broad + 0.45 * strata) * brow;
+        d += Math.min(
+          0.45,
+          Math.max(-0.12, (broad - 0.45) * 0.9 + strata * 0.22),
+        );
       } else {
         yy += (fbm(p[0] * 0.3, depth, p[1] * 0.3) - 0.5) * 1.6;
         d += (fbm(p[1] * 0.25, depth * 0.5, p[0] * 0.25) - 0.5) * 1.2;
@@ -135,7 +162,7 @@ export function buildCliffs(
   const pos = [],
     uvs = [];
   const tile = material.userData.tileMeters || 2;
-  for (let i = 0; i < cols; i++) {
+  for (let i = 0; i < (closed ? cols : cols - 1); i++) {
     const A = P[i],
       B = P[(i + 1) % cols];
     for (let k = 0; k < A.length - 1; k++) {

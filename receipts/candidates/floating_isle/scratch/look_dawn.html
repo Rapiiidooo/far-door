@@ -1,0 +1,58 @@
+<!doctype html>
+<html><head><meta charset="utf-8">
+<script type="importmap">{ "imports": { "three": "/game/vendor/three.module.js", "three/addons/": "/game/vendor/" } }</script>
+<style>body{margin:0;background:#000}canvas{display:block}</style></head>
+<body>
+<script type="module">
+// Throwaway: isle candidates in a dawn sky. The game's rig with the sun forced low (the
+// third world does not exist yet, so this stands in for it), the game's haze settings, a
+// cloud-gold sea below, surfaces on through the game's assetlib.
+import * as THREE from 'three';
+import { createRig } from '/game/rig.js';
+import { ASSET } from '/game/assetlib.js';
+const q = new URLSearchParams(location.search);
+const W = +(q.get('w') || 1280), H = +(q.get('h') || 720);
+const renderer = new THREE.WebGLRenderer({ antialias: true, preserveDrawingBuffer: true });
+renderer.setSize(W, H, false);
+document.body.appendChild(renderer.domElement);
+const scene = new THREE.Scene();
+const camera = new THREE.PerspectiveCamera(58, W / H, 0.1, 2000);
+let info = { ok: false };
+try {
+  const rig = createRig(THREE, renderer, scene, {
+    elevation: +(q.get('el') || 9), azimuth: +(q.get('az') || 60), camera,
+    fogStart: +(q.get('fs') || 60), fogDensity: +(q.get('fd') || 0.0032), exposure: 0.86,
+  });
+  await rig.ready;
+  const cloud = new THREE.MeshStandardMaterial({ color: 0xf2d49a, roughness: 1 });
+  const sea = new THREE.Mesh(new THREE.PlaneGeometry(4000, 4000), cloud);
+  sea.rotation.x = -Math.PI / 2;
+  sea.position.y = -40;
+  scene.add(sea);
+  const srcs = (q.get('srcs') || '').split(',').filter(Boolean);
+  const place = JSON.parse(q.get('pos') || '[]');
+  const tops = [];
+  for (let i = 0; i < srcs.length; i++) {
+    const mod = await import(srcs[i]);
+    tops.push(mod.default(THREE).userData.top);
+    const obj = await ASSET(srcs[i], { surfaces: q.get('surf') !== '0' });
+    const [x, y, z, r] = place[i] || [0, 0, -60, 0];
+    obj.position.set(x, y, z); obj.rotation.y = r;
+    scene.add(obj);
+  }
+  scene.traverse((o) => { if (o.isMesh) { o.castShadow = true; o.receiveShadow = true; } });
+  rig.refresh(scene);
+  const views = JSON.parse(q.get('views') || '[[0,8,0,0,6,-60,58]]');
+  window.shot = async (i) => {
+    const [x, y, z, lx, ly, lz, fov] = views[i];
+    camera.position.set(x, y, z); camera.fov = fov || 58; camera.updateProjectionMatrix();
+    camera.lookAt(lx, ly, lz);
+    for (let k = 0; k < 4; k++) { rig.render(camera, 0.016); await new Promise((r) => requestAnimationFrame(r)); }
+    return true;
+  };
+  window.__VIEWS__ = views.length;
+  info = { ok: true, tops };
+} catch (e) { info = { ok: false, error: String(e && e.stack || e) }; }
+window.__INFO__ = info;
+window.__DONE__ = true;
+</script></body></html>

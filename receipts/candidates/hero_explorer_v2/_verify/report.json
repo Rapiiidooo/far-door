@@ -1,0 +1,116 @@
+[
+ {
+  "ok": true,
+  "mounts": null,
+  "meshes": 34,
+  "tris": 12512,
+  "materials": 8,
+  "size": [
+   0.649,
+   1.75,
+   0.411
+  ],
+  "groundOffset": 0,
+  "centreOffset": [
+   0,
+   0
+  ],
+  "sides": {
+   "front": {
+    "coverage": 0.1561,
+    "edgeDensity": 0.1201
+   },
+   "right": {
+    "coverage": 0.1079,
+    "edgeDensity": 0.1418
+   },
+   "back": {
+    "coverage": 0.1491,
+    "edgeDensity": 0.1615
+   },
+   "left": {
+    "coverage": 0.1083,
+    "edgeDensity": 0.1486
+   }
+  },
+  "error": null,
+  "name": "hero_explorer_a",
+  "problems": []
+ },
+ {
+  "ok": true,
+  "mounts": null,
+  "meshes": 36,
+  "tris": 13810,
+  "materials": 8,
+  "size": [
+   0.646,
+   1.751,
+   0.451
+  ],
+  "groundOffset": 0,
+  "centreOffset": [
+   0,
+   0
+  ],
+  "sides": {
+   "front": {
+    "coverage": 0.1576,
+    "edgeDensity": 0.1082
+   },
+   "right": {
+    "coverage": 0.1084,
+    "edgeDensity": 0.1293
+   },
+   "back": {
+    "coverage": 0.152,
+    "edgeDensity": 0.1202
+   },
+   "left": {
+    "coverage": 0.1118,
+    "edgeDensity": 0.132
+   }
+  },
+  "error": null,
+  "name": "hero_explorer_b",
+  "problems": []
+ },
+ {
+  "ok": true,
+  "mounts": null,
+  "meshes": 34,
+  "tris": 5734,
+  "materials": 8,
+  "size": [
+   0.643,
+   1.75,
+   0.433
+  ],
+  "groundOffset": 0,
+  "centreOffset": [
+   0,
+   0
+  ],
+  "sides": {
+   "front": {
+    "coverage": 0.1674,
+    "edgeDensity": 0.1208
+   },
+   "right": {
+    "coverage": 0.1143,
+    "edgeDensity": 0.1463
+   },
+   "back": {
+    "coverage": 0.161,
+    "edgeDensity": 0.1341
+   },
+   "left": {
+    "coverage": 0.1166,
+    "edgeDensity": 0.1512
+   }
+  },
+  "error": null,
+  "name": "hero_explorer_c",
+  "problems": []
+ }
+]

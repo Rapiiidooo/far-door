@@ -1,0 +1,40 @@
+[
+ {
+  "ok": true,
+  "mounts": null,
+  "meshes": 7,
+  "tris": 2948,
+  "materials": 7,
+  "size": [
+   1.1,
+   2.8,
+   1.65
+  ],
+  "groundOffset": 0,
+  "centreOffset": [
+   0,
+   0
+  ],
+  "sides": {
+   "front": {
+    "coverage": 0.1715,
+    "edgeDensity": 0.2593
+   },
+   "right": {
+    "coverage": 0.1318,
+    "edgeDensity": 0.2587
+   },
+   "back": {
+    "coverage": 0.1701,
+    "edgeDensity": 0.2303
+   },
+   "left": {
+    "coverage": 0.1316,
+    "edgeDensity": 0.2588
+   }
+  },
+  "error": null,
+  "name": "light_pylon_c",
+  "problems": []
+ }
+]

@@ -14,8 +14,10 @@ const JOINTS = [
   "head",
   "leftUpperArm",
   "leftLowerArm",
+  "leftHand",
   "rightUpperArm",
   "rightLowerArm",
+  "rightHand",
   "leftUpperLeg",
   "leftLowerLeg",
   "rightUpperLeg",
@@ -31,6 +33,8 @@ const TUNING = {
   rightUpperArm: [7, 0.75],
   leftLowerArm: [8, 0.8],
   rightLowerArm: [8, 0.8],
+  leftHand: [9, 0.8],
+  rightHand: [9, 0.8],
   leftUpperLeg: [9, 0.85],
   rightUpperLeg: [9, 0.85],
   leftLowerLeg: [10, 0.85],
@@ -90,10 +94,79 @@ export class HeroAnimator {
     this.lastState = "ground";
     this.scarf = { x: 0, z: 0, vx: 0, vz: 0 };
     this.look = { y: 0, target: 0, next: 3 };
+    // Where each palm sits in its hand (or forearm) joint, from the asset's rest data, and the
+    // palm's height with the arm straight overhead: the height the explorer hangs from.
+    this.ik = { left: this.arm("left", 1), right: this.arm("right", -1) };
+    this.palmReach = this.measureReach();
   }
 
-  update(dt, hero, reduced = false) {
+  arm(side, s) {
+    const J = this.joints;
+    const upper = J[side + "UpperArm"],
+      lower = J[side + "LowerArm"],
+      hand = J[side + "Hand"] || null;
+    if (!upper || !lower) return null;
+    this.model.updateMatrixWorld(true);
+    const rest = this.model.userData.palms?.[side];
+    const palmModel = rest
+      ? new THREE.Vector3(...rest)
+      : new THREE.Vector3(0.24 * s, 0.86, 0.06);
+    const palmWorld = this.model.localToWorld(palmModel.clone());
+    const holder = hand || lower;
+    return {
+      side: s,
+      upper,
+      lower,
+      hand,
+      palm: holder.worldToLocal(palmWorld.clone()),
+      // The palm faces the thigh at rest: inwards, towards the body's centre line.
+      normal: new THREE.Vector3(-s, 0, 0),
+      weight: 0,
+    };
+  }
+
+  // Soles to palm when hanging with the palms `ahead` metres in front of the shoulders: the
+  // arm nearly straight, leaning forward to the lip. The explorer hangs at that depth.
+  hangReach(ahead) {
+    const L = this.ik.left;
+    if (!L) return null;
+    const m = this.model;
+    const saved = [m.position.clone(), m.rotation.clone()];
+    m.position.set(0, 0, 0);
+    m.rotation.set(0, 0, 0);
+    m.updateMatrixWorld(true);
+    const S = L.upper.getWorldPosition(new THREE.Vector3());
+    const E = L.lower.getWorldPosition(new THREE.Vector3());
+    const P = (L.hand || L.lower).localToWorld(L.palm.clone());
+    m.position.copy(saved[0]);
+    m.rotation.copy(saved[1]);
+    m.updateMatrixWorld(true);
+    const len = S.distanceTo(E) + E.distanceTo(P) - 0.01;
+    return S.y + Math.sqrt(Math.max(0, len * len - ahead * ahead));
+  }
+
+  measureReach() {
+    const L = this.ik.left;
+    if (!L) return null;
+    const m = this.model;
+    const saved = [m.position.clone(), m.rotation.clone()];
+    m.position.set(0, 0, 0);
+    m.rotation.set(0, 0, 0);
+    L.upper.rotation.x = -2.9;
+    m.updateMatrixWorld(true);
+    const p = (L.hand || L.lower).localToWorld(L.palm.clone());
+    L.upper.rotation.x = 0;
+    m.position.copy(saved[0]);
+    m.rotation.copy(saved[1]);
+    m.updateMatrixWorld(true);
+    return p.y;
+  }
+
+  // `lift` raises the feet onto ground the colliders do not model, such as a sand drift.
+  update(dt, hero, reduced = false, lift = 0) {
     if (dt <= 0) return;
+    this.lift =
+      (this.lift || 0) + (lift - (this.lift || 0)) * Math.min(1, dt * 10);
     this.time += dt;
     const turnRate =
       this.lastYaw === null ? 0 : wrap(hero.yaw - this.lastYaw) / dt;
@@ -141,7 +214,7 @@ export class HeroAnimator {
     const m = this.model;
     m.position.set(
       hero.pos.x + hero.snap.x,
-      hero.feet + hero.stepLift,
+      hero.feet + hero.stepLift + this.lift,
       hero.pos.z + hero.snap.z,
     );
     // A roll turns the whole body once about its tucked middle, not about the feet.
@@ -157,6 +230,116 @@ export class HeroAnimator {
     }
     m.rotation.set(pitch + tumble, yaw.v, roll, "YXZ");
     this.updateScarf(dt, hero, turnRate);
+    this.reach(dt, hero, reduced);
+  }
+
+  // --- hands on things: two-bone IK after the pose ----------------------------------------------
+  // Hanging, the palms rest on the lip; climbing, they stay there while the body rises;
+  // against a block they press its face; at a mirror they hold the drum's rim. Each arm
+  // blends towards its solution by a weight that eases in and out with the state.
+  reach(dt, hero, reduced) {
+    const L = this.ik.left,
+      R = this.ik.right;
+    if (!L || !R) return;
+    const goal = this.reachGoals(hero);
+    const k = Math.min(1, dt * (reduced ? 30 : 9));
+    this.model.updateMatrixWorld(true);
+    for (const arm of [L, R]) {
+      const g = goal?.[arm.side > 0 ? "left" : "right"];
+      arm.weight += ((g ? goal.weight : 0) - arm.weight) * k;
+      if (g) arm.goal = g;
+      if (arm.weight < 0.01 || !arm.goal) continue;
+      solveArm(arm, arm.goal, arm.weight);
+    }
+  }
+
+  reachGoals(hero) {
+    const V = (x, y, z) => new THREE.Vector3(x, y, z);
+    const f = { x: Math.sin(hero.yaw), z: Math.cos(hero.yaw) };
+    // The explorer's left is +X when facing +Z.
+    const left = { x: f.z, z: -f.x };
+    const pair = (cx, cy, cz, spread, pole, normal) => ({
+      left: {
+        at: V(cx + left.x * spread, cy, cz + left.z * spread),
+        pole: V(
+          left.x * pole.side + pole.x,
+          pole.y,
+          left.z * pole.side + pole.z,
+        ),
+        normal,
+      },
+      right: {
+        at: V(cx - left.x * spread, cy, cz - left.z * spread),
+        pole: V(
+          -left.x * pole.side + pole.x,
+          pole.y,
+          -left.z * pole.side + pole.z,
+        ),
+        normal,
+      },
+    });
+    const st = hero.state;
+    if ((st === "hang" || st === "climb") && hero.ledge) {
+      const { n, top, hand } = hero.ledge;
+      // Planted where the climb began, so the hands stay put while the body rises.
+      if (st === "hang" || !this.climbHold)
+        this.climbHold = { x: hand.x, z: hand.z };
+      const h = st === "climb" ? this.climbHold : hand;
+      const g = pair(
+        h.x - n.x * 0.03,
+        top - 0.015,
+        h.z - n.z * 0.03,
+        0.2,
+        { side: 0.7, x: n.x * 0.6, y: -0.3, z: n.z * 0.6 },
+        V(0, -1, 0),
+      );
+      // Shimmying, the leading hand reaches ahead and the other follows.
+      if (st === "hang" && hero.shimmy) {
+        const lead = hero.shimmy > 0 ? g.left : g.right;
+        const along = { x: -n.z * hero.shimmy, z: n.x * hero.shimmy };
+        const swing = Math.max(0, Math.sin(this.time * 8.5));
+        lead.at.x += along.x * 0.08 * swing;
+        lead.at.z += along.z * 0.08 * swing;
+        lead.at.y += 0.05 * swing;
+      }
+      g.weight =
+        st === "climb" ? 1 - smooth(0.55, 0.85, Math.min(1, hero.t)) : 1;
+      return g;
+    }
+    this.climbHold = null;
+    if ((st === "grab" || st === "shove") && hero.grip?.n) {
+      const n = hero.grip.n;
+      // The face the explorer braces against (hero.js BRACE), at chest height.
+      const fx = hero.pos.x - n.x * 0.52,
+        fz = hero.pos.z - n.z * 0.52;
+      const g = pair(
+        fx + n.x * 0.02,
+        hero.feet + 1.12,
+        fz + n.z * 0.02,
+        0.24,
+        { side: 0.6, x: 0, y: -0.8, z: 0 },
+        V(-n.x, 0, -n.z),
+      );
+      g.weight = 1;
+      return g;
+    }
+    if (st === "turn" && hero.grip?.ref) {
+      const m = hero.grip.ref;
+      const dx = hero.pos.x - m.x,
+        dz = hero.pos.z - m.z;
+      const d = Math.hypot(dx, dz) || 1;
+      const g = pair(
+        m.x + (dx / d) * 0.5,
+        0.6,
+        m.z + (dz / d) * 0.5,
+        0.3,
+        { side: 0.7, x: dx / d, y: -0.5, z: dz / d },
+        V(0, -1, 0),
+      );
+      g.weight = 1;
+      return g;
+    }
+    return null;
   }
 
   // One-off impulses when a state begins: the swing of a catch, the squash of a landing.
@@ -194,6 +377,64 @@ export class HeroAnimator {
     s.z += s.vz * dt;
     j.rotation.x = this.scarfRest.x + s.x;
     j.rotation.z = this.scarfRest.z + s.z;
+  }
+}
+
+// Two-bone IK for one arm: swing the upper arm so the elbow lies in the plane of shoulder,
+// target and pole, at the angle the arm's lengths allow, then swing the forearm onto the
+// target, then turn the hand so its palm faces `normal`. `weight` blends from the pose.
+const _v = [0, 1, 2, 3, 4, 5, 6].map(() => new THREE.Vector3());
+const _q = [0, 1, 2].map(() => new THREE.Quaternion());
+function swing(joint, from, to, weight) {
+  const q = _q[0].setFromUnitVectors(from, to);
+  _q[1].identity().slerp(q, weight);
+  const parent = joint.parent.getWorldQuaternion(_q[2]);
+  const world = parent.clone().multiply(joint.quaternion);
+  joint.quaternion.copy(parent.invert().multiply(_q[1].multiply(world)));
+  joint.updateMatrixWorld(true);
+}
+
+function solveArm(arm, goal, weight) {
+  const S = arm.upper.getWorldPosition(_v[0]);
+  const E = arm.lower.getWorldPosition(_v[1]);
+  const holder = arm.hand || arm.lower;
+  const P = holder.localToWorld(_v[2].copy(arm.palm));
+  const a = S.distanceTo(E),
+    b = E.distanceTo(P);
+  const toT = _v[3].copy(goal.at).sub(S);
+  const d = THREE.MathUtils.clamp(
+    toT.length(),
+    Math.abs(a - b) + 1e-3,
+    a + b - 1e-3,
+  );
+  const dir = toT.normalize();
+  const pole = _v[4].copy(goal.pole).addScaledVector(dir, -goal.pole.dot(dir));
+  if (pole.lengthSq() < 1e-6) pole.set(0, -1, 0).addScaledVector(dir, -dir.y);
+  pole.normalize();
+  const cosA = THREE.MathUtils.clamp(
+    (a * a + d * d - b * b) / (2 * a * d),
+    -1,
+    1,
+  );
+  const sinA = Math.sqrt(1 - cosA * cosA);
+  const elbow = _v[5]
+    .copy(S)
+    .addScaledVector(dir, cosA * a)
+    .addScaledVector(pole, sinA * a);
+  swing(
+    arm.upper,
+    E.clone().sub(S).normalize(),
+    elbow.clone().sub(S).normalize(),
+    weight,
+  );
+  const E2 = arm.lower.getWorldPosition(_v[1]);
+  const P2 = holder.localToWorld(_v[2].copy(arm.palm));
+  const target = _v[6].copy(S).addScaledVector(dir, d);
+  swing(arm.lower, P2.sub(E2).normalize(), target.sub(E2).normalize(), weight);
+  if (arm.hand && goal.normal) {
+    const q = arm.hand.getWorldQuaternion(_q[0]);
+    const now = arm.normal.clone().applyQuaternion(q);
+    swing(arm.hand, now, goal.normal.clone().normalize(), weight);
   }
 }
 
@@ -456,9 +697,17 @@ const POSES = {
     set(pose, "head", -0.2 * tuck);
   },
 
-  // Braced against a block, ready to push or pull.
+  // Braced against a block, ready to push or pull; straining when it will not move.
   grab(pose, root, hero) {
     brace(pose, root, hero, 0, this.time);
+    const strain = hero.t - (hero.strainAt ?? -9);
+    if (strain < 0.6) {
+      const k = Math.sin((strain / 0.6) * Math.PI);
+      add(pose, "spine", 0.12 * k + Math.sin(this.time * 38) * 0.03 * k);
+      add(pose, "leftUpperLeg", -0.25 * k);
+      add(pose, "rightUpperLeg", 0.2 * k);
+      root.bob -= 0.05 * k;
+    }
   },
 
   // Driving the block: legs step in time with its slide, the body leans into the work.
@@ -494,7 +743,7 @@ function brace(pose, root, hero, progress, time) {
   set(pose, "rightUpperArm", pulling ? -1.25 : -1.45, 0, -0.05);
   set(pose, "leftLowerArm", pulling ? -0.1 : -0.5);
   set(pose, "rightLowerArm", pulling ? -0.1 : -0.5);
-  set(pose, "spine", pulling ? -0.25 : 0.45 + 0.05 * Math.sin(time * 3));
+  set(pose, "spine", pulling ? -0.25 : 0.3 + 0.05 * Math.sin(time * 3));
   set(pose, "head", pulling ? 0.1 : -0.3);
   const base = pulling ? [0.35, -0.3] : [-0.6, 0.45];
   set(pose, "leftUpperLeg", base[0] + 0.45 * s, 0, 0.05);

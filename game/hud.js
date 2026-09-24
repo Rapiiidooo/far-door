@@ -1,81 +1,222 @@
-// Title, prompts, the address glyphs and the end card. Prompts name the control on the
-// device in use, with the printed key label of the current keyboard layout.
+import * as THREE from "three";
+import { svg } from "./glyph-icons.js";
 
-const GLYPHS = {
-  left: '<svg viewBox="0 0 24 24"><circle cx="8" cy="12" r="4.5"/><circle cx="16" cy="12" r="4.5"/></svg>',
-  top: '<svg viewBox="0 0 24 24"><path d="M12.8 12.0 L12.9 12.2 L13.0 12.5 L13.0 12.7 L12.9 13.0 L12.7 13.3 L12.4 13.6 L12.1 13.8 L11.6 13.9 L11.2 13.9 L10.7 13.8 L10.3 13.5 L9.9 13.2 L9.5 12.7 L9.3 12.2 L9.2 11.6 L9.2 10.9 L9.4 10.2 L9.8 9.6 L10.3 9.1 L10.9 8.6 L11.7 8.4 L12.5 8.2 L13.3 8.3 L14.2 8.6 L15.0 9.0 L15.7 9.7 L16.2 10.5 L16.6 11.4 L16.7 12.4 L16.7 13.5 L16.3 14.6 L15.8 15.5 L15.0 16.4 L14.0 17.1 L12.9 17.5 L11.6 17.7 L10.4 17.6 L9.1 17.2 L8.0 16.6 L6.9 15.7 L6.1 14.5 L5.6 13.2 L5.3 11.8 L5.4 10.3 L5.8 8.9 L6.6 7.5 L7.6 6.3 L8.9 5.4 L10.4 4.7 L12.0 4.4 L13.7 4.4 L15.4 4.9 L16.9 5.7 L18.3 6.8 L19.4 8.2 L20.2 9.9 L20.6 11.7 L20.6 13.6 L20.1 15.5 L19.3 17.3"/></svg>',
-  right:
-    '<svg viewBox="0 0 24 24"><path d="M3 19L12 5l9 14z"/><circle cx="12" cy="14" r="1.4"/></svg>',
-};
+// Everything drawn over the game: the objective, the gate address, a marker on the next thing
+// to reach, one-time control cards, the context prompt, composure pips, and the cinematic
+// overlays. Controls are named for the device in use, with the printed key labels of the
+// current keyboard layout.
 
 export class Hud {
-  constructor(input) {
+  constructor(input, settings) {
     this.input = input;
+    this.settings = settings;
     this.el = (id) => document.getElementById(id);
-    for (const g of document.querySelectorAll(".glyph"))
-      g.innerHTML = GLYPHS[g.dataset.id];
     this.lastPrompt = null;
-    this.objectiveTimer = null;
+    this.markerEls = [];
+    this.targets = [];
+    this.v = new THREE.Vector3();
+    this.hintTimer = null;
+    this.address = [];
   }
 
-  ready(onStart) {
-    const b = this.el("start");
-    b.disabled = false;
-    b.textContent = "Enter the ruin";
-    b.addEventListener("click", onStart, { once: true });
-    b.focus();
-    const labels = {
-      move: this.input.moveLabel(),
-      interact: this.input.label("interact"),
-      drop: this.input.label("drop"),
-      roll: this.input.labels.get("KeyQ") || "Q",
-    };
-    for (const k of document.querySelectorAll("[data-key]"))
-      k.textContent = labels[k.dataset.key] || k.textContent;
+  // A control named for the device in use: <kbd>E</kbd>, <kbd>X</kbd> on a gamepad.
+  k(action) {
+    return `<kbd>${this.input.label(action)}</kbd>`;
   }
 
-  hideTitle() {
-    const t = this.el("title");
-    t.classList.add("leaving");
-    setTimeout(() => (t.hidden = true), 900);
+  keys(...codes) {
+    return codes.map((c) => `<kbd>${this.input.keyLabel(c)}</kbd>`).join("");
   }
 
   show() {
     this.el("hud").hidden = false;
   }
 
-  objective(text) {
-    const o = this.el("objective");
-    o.textContent = text;
-    o.style.opacity = text ? 1 : 0;
-    clearTimeout(this.objectiveTimer);
-    if (text)
-      this.objectiveTimer = setTimeout(() => (o.style.opacity = 0), 9000);
+  hide() {
+    this.el("hud").hidden = true;
+    this.clearHint();
+    this.setMarkers([]);
   }
 
-  light(id) {
-    document.querySelector(`.glyph[data-id="${id}"]`)?.classList.add("lit");
+  // --- objective ------------------------------------------------------------------------
+  objective(text, sub = "") {
+    const box = this.el("objective-box");
+    const changed = text !== this.lastObjective;
+    this.lastObjective = text;
+    this.el("objective").textContent = text || "";
+    this.el("objective-sub").textContent = sub || "";
+    box.classList.toggle("empty", !text);
+    if (changed && text) {
+      box.classList.remove("fresh");
+      void box.offsetWidth;
+      box.classList.add("fresh");
+    }
   }
 
+  sub(text) {
+    this.el("objective-sub").textContent = text || "";
+  }
+
+  // --- the gate address ---------------------------------------------------------------------
+  setAddress(kinds) {
+    this.address = kinds;
+    document.querySelectorAll("#address .glyph").forEach((g, i) => {
+      g.innerHTML = svg(kinds[i] ?? "unknown");
+      g.dataset.kind = kinds[i] ?? "unknown";
+      g.classList.remove("lit");
+    });
+  }
+
+  light(kind) {
+    document
+      .querySelector(`#address .glyph[data-kind="${kind}"]`)
+      ?.classList.add("lit");
+  }
+
+  // --- markers ------------------------------------------------------------------------------
+  // `targets` are world positions (Vector3 or functions returning one).
+  setMarkers(targets) {
+    this.targets = targets || [];
+    while (this.markerEls.length < this.targets.length) {
+      const m = document.createElement("div");
+      m.className = "marker";
+      m.innerHTML =
+        '<span class="arrow"></span><span class="diamond"></span><span class="dist"></span>';
+      this.el("markers").appendChild(m);
+      this.markerEls.push(m);
+    }
+    this.markerEls.forEach((m, i) => (m.hidden = i >= this.targets.length));
+  }
+
+  updateMarkers(camera, from) {
+    const w = innerWidth,
+      h = innerHeight;
+    const on = this.settings.markers;
+    this.targets.forEach((t, i) => {
+      const m = this.markerEls[i];
+      const p = typeof t === "function" ? t() : t;
+      if (!on || !p) {
+        m.style.opacity = 0;
+        return;
+      }
+      const dist = from ? Math.hypot(p.x - from.x, p.z - from.z) : 99;
+      const v = this.v.copy(p).project(camera);
+      let x = v.x,
+        y = v.y;
+      const behind = v.z > 1;
+      if (behind) {
+        x = -x;
+        y = -y;
+      }
+      const edge = behind || Math.abs(x) > 0.9 || Math.abs(y) > 0.82;
+      if (edge) {
+        const k = Math.max(Math.abs(x) / 0.9, Math.abs(y) / 0.82, 1e-3);
+        x /= k;
+        y /= k;
+        if (behind && Math.abs(y) < 0.82 && Math.abs(x) < 0.9) y = -0.82;
+      }
+      const sx = (x * 0.5 + 0.5) * w,
+        sy = (-y * 0.5 + 0.5) * h;
+      m.classList.toggle("edge", edge);
+      m.style.transform = `translate(${sx.toFixed(1)}px, ${sy.toFixed(1)}px) translate(-50%, -50%)`;
+      const arrow = m.firstChild;
+      if (edge)
+        arrow.style.transform = `rotate(${(-Math.atan2(y, x) * 180) / Math.PI + 90}deg) translateY(-18px)`;
+      m.lastChild.textContent = dist < 99 ? `${Math.round(dist)} m` : "";
+      m.style.opacity = dist < 2.2 && !edge ? 0 : 1;
+    });
+  }
+
+  // --- control cards --------------------------------------------------------------------------
+  hint(title, html, duration = 8) {
+    if (!this.settings.hints) return;
+    const el = this.el("hint");
+    el.querySelector(".hint-title").textContent = title;
+    el.querySelector(".hint-body").innerHTML = html;
+    el.classList.add("on");
+    this.liftSubtitle(true);
+    clearTimeout(this.hintTimer);
+    this.hintTimer = setTimeout(() => {
+      el.classList.remove("on");
+      this.liftSubtitle(false);
+    }, duration * 1000);
+  }
+
+  clearHint() {
+    clearTimeout(this.hintTimer);
+    this.el("hint").classList.remove("on");
+    this.liftSubtitle(false);
+  }
+
+  // A line of narration climbs above a control card instead of printing over it.
+  liftSubtitle(on) {
+    const hint = this.el("hint");
+    this.el("subtitle").style.bottom = on
+      ? `${parseFloat(getComputedStyle(hint).bottom) + hint.offsetHeight + 14}px`
+      : "";
+  }
+
+  // --- the context prompt ----------------------------------------------------------------------
   prompt(code) {
     if (code === this.lastPrompt) return;
     this.lastPrompt = code;
-    const k = (a) => `<kbd>${this.input.label(a)}</kbd>`;
+    const k = (a) => this.k(a);
+    const side = this.keys("KeyA", "KeyD");
     const text = {
       turn: `Hold ${k("interact")} to turn the mirror`,
       grab: `Hold ${k("interact")} to grab the block`,
-      block: `Push or pull while holding ${k("interact")}`,
-      turning: `Steer left and right to turn · release ${k("interact")}`,
-      hang: `Move sideways to shimmy · forward to climb · ${k("drop")} to let go`,
-      edge: `${k("drop")} to hang from the edge`,
-      take: `${k("interact")} Take back the sun disc`,
+      block: `Push ${this.keys("KeyW")} or pull ${this.keys("KeyS")} while holding ${k("interact")}`,
+      turning: `Steer ${side} to turn · release ${k("interact")} to let go`,
+      hang: `${side} shimmy · ${this.keys("KeyW")} climb · ${k("drop")} let go`,
+      edge: `${k("drop")} hang from the edge`,
+      take: `${k("interact")} Take Mira's sun disc`,
+      read: `${k("interact")} Read the expedition's notes`,
+      "read-mira": `${k("interact")} Read Mira's journal`,
+      talk: `${k("interact")} Talk to the clerk`,
+      charge: `${k("throw")} throw through the beam to charge the disc`,
     }[code];
     const p = this.el("prompt");
     if (text) p.innerHTML = text;
     p.classList.toggle("on", !!text);
   }
 
-  // Bronze pips for the explorer's composure; hidden until the first fight.
+  // --- the story's own voice ---------------------------------------------------------------------
+  // A line of narration under the picture, over cinematics as well as play.
+  subtitle(text, seconds = 4) {
+    const el = this.el("subtitle");
+    el.textContent = text;
+    el.classList.add("on");
+    clearTimeout(this.subtitleTimer);
+    this.subtitleTimer = setTimeout(
+      () => el.classList.remove("on"),
+      seconds * 1000,
+    );
+  }
+
+  clearSubtitle() {
+    clearTimeout(this.subtitleTimer);
+    this.el("subtitle").classList.remove("on");
+  }
+
+  // A sheet over the game: the first expedition's field notes, or Mira's journal.
+  showNotes(on, which = "first") {
+    const el = this.el("notes");
+    if (on) {
+      el.querySelectorAll("[data-note]").forEach(
+        (a) => (a.hidden = a.dataset.note !== which),
+      );
+      el.querySelectorAll("[data-glyph]").forEach(
+        (g) => (g.innerHTML = svg(g.dataset.glyph)),
+      );
+      el.querySelectorAll("[data-help]").forEach(
+        (h) =>
+          (h.innerHTML = `${this.k("interact")} or <kbd>Esc</kbd> to put ${which === "mira" ? "it" : "them"} back`),
+      );
+    }
+    el.hidden = !on;
+  }
+
+  // --- composure --------------------------------------------------------------------------------
   health(value, max) {
     const el = this.el("health");
     el.hidden = false;
@@ -92,20 +233,47 @@ export class Hud {
     el.classList.add("hit");
   }
 
-  // A one-off control hint in the middle of the screen.
-  hint(kind) {
-    const k = (a) => `<kbd>${this.input.label(a)}</kbd>`;
-    const text = {
-      throw: `${k("throw")} throw the disc · ${k("roll")} roll`,
-    }[kind];
-    const el = this.el("hint");
-    el.innerHTML = text;
-    el.classList.add("on");
-    clearTimeout(this.hintTimer);
-    this.hintTimer = setTimeout(() => el.classList.remove("on"), 6500);
+  hideHealth() {
+    this.el("health").hidden = true;
   }
 
-  // Knocked out by the Wardens: a rubber stamp and a verdict, then back down the path.
+  // --- cinematic overlays -------------------------------------------------------------------------
+  letterbox(on) {
+    this.el("letterbox").classList.toggle("on", on);
+    this.el("hud").style.opacity = on ? 0 : 1;
+  }
+
+  chapter(kicker, title, sub = "", seconds = 4.5) {
+    const c = this.el("chapter-card");
+    c.querySelector(".kicker").textContent = kicker;
+    c.querySelector("h2").textContent = title;
+    c.querySelector(".sub").textContent = sub;
+    c.classList.add("on");
+    clearTimeout(this.chapterTimer);
+    this.chapterTimer = setTimeout(
+      () => c.classList.remove("on"),
+      seconds * 1000,
+    );
+  }
+
+  // At once, without the fade: the card must not linger behind the title menu.
+  clearChapter() {
+    clearTimeout(this.chapterTimer);
+    const c = this.el("chapter-card");
+    c.style.transition = "none";
+    c.classList.remove("on");
+    void c.offsetWidth;
+    c.style.transition = "";
+  }
+
+  // The light of a crossing: a bloom of white and turquoise that covers the swap of worlds.
+  warp() {
+    const w = this.el("warp");
+    w.classList.remove("go");
+    void w.offsetWidth;
+    w.classList.add("go");
+  }
+
   processed(done) {
     const el = this.el("processed");
     el.hidden = false;
@@ -115,39 +283,32 @@ export class Hud {
     setTimeout(() => {
       el.hidden = true;
       done();
-    }, 2300);
-  }
-
-  pause(on) {
-    const p = this.el("pause");
-    if (p.hidden === !on) return;
-    p.hidden = !on;
+    }, 1900);
   }
 
   // A short dip to black with a line of text, so a respawn reads as a consequence.
-  blackout(kind) {
+  blackout(text, hold = 650) {
     const f = this.el("fade");
-    const line = this.el("fade-line");
-    line.textContent =
-      kind === "deep" ? "The dark swallows the fall." : "Too far to fall.";
+    this.el("fade-line").textContent = text;
     f.classList.add("dark");
     f.style.opacity = 1;
     setTimeout(() => {
       f.style.opacity = 0;
       setTimeout(() => f.classList.remove("dark"), 400);
-    }, 650);
+    }, hold);
   }
 
   flash(strength = 0.6) {
     const f = this.el("fade");
+    f.classList.remove("dark");
     f.style.opacity = strength;
     setTimeout(() => (f.style.opacity = 0), 120);
   }
 
-  end(onAgain) {
-    this.el("hud").hidden = true;
-    const e = this.el("end");
-    e.hidden = false;
-    this.el("again").addEventListener("click", onAgain, { once: true });
+  fadeTo(opacity, dark = true) {
+    const f = this.el("fade");
+    f.classList.toggle("dark", dark);
+    this.el("fade-line").textContent = "";
+    f.style.opacity = opacity;
   }
 }

@@ -17,7 +17,13 @@ const R = 0.32,
   CLIMB_TIME = 0.95,
   VAULT_TIME = 0.55,
   SHOVE_TIME = 1.05,
-  TURN_RATE = 0.75;
+  TURN_RATE = 0.75,
+  // Hanging, the body's centre sits this far out from the wall: the chest just clears the
+  // stone and the hands reach over the lip.
+  HANG_OFF = 0.27,
+  // Braced against a block, the body keeps this much air between itself and the stone, so
+  // the forward lean of a push does not put the head into it.
+  BRACE = 0.2;
 
 const wrapAngle = (a) => Math.atan2(Math.sin(a), Math.cos(a));
 
@@ -117,7 +123,8 @@ export class Hero {
     w.resolve(this.pos, R, this.feet, HEIGHT, STEP);
     const g = w.ground(this.pos.x, this.pos.z, R * 0.6, this.feet, STEP);
     if (g >= this.feet - 0.6) {
-      if (g !== this.feet) this.stepLift += this.feet - g;
+      // Steps are eased; the gentle slope of an isle's dome is simply followed.
+      if (Math.abs(g - this.feet) > 0.06) this.stepLift += this.feet - g;
       this.feet = g;
       this.coyote = COYOTE;
       this.remember();
@@ -209,7 +216,7 @@ export class Hero {
       this.fallStart = this.feet;
       return;
     }
-    if (g !== this.feet) this.stepLift += this.feet - g;
+    if (Math.abs(g - this.feet) > 0.06) this.stepLift += this.feet - g;
     this.feet = g;
     if (k >= 1) {
       this.state = "ground";
@@ -337,8 +344,8 @@ export class Hero {
   placeOnLedge(hx, hz) {
     const { n, top } = this.ledge;
     this.ledge.hand = { x: hx, z: hz };
-    this.pos.x = hx + n.x * (R + 0.04);
-    this.pos.z = hz + n.z * (R + 0.04);
+    this.pos.x = hx + n.x * HANG_OFF;
+    this.pos.z = hz + n.z * HANG_OFF;
     this.feet = top - this.hands;
   }
 
@@ -360,11 +367,17 @@ export class Hero {
         hz + tz * probe - n.z * 0.15,
         top,
       );
-      const bx = hx + n.x * (R + 0.04),
-        bz = hz + n.z * (R + 0.04);
+      const bx = hx + n.x * HANG_OFF,
+        bz = hz + n.z * HANG_OFF;
       if (
         support &&
-        this.world.free(bx, bz, R * 0.85, top - this.hands + 0.1, top - 0.15)
+        this.world.free(
+          bx,
+          bz,
+          HANG_OFF - 0.05,
+          top - this.hands + 0.1,
+          top - 0.15,
+        )
       ) {
         this.placeOnLedge(hx, hz);
         this.shimmy = Math.sign(along);
@@ -488,16 +501,21 @@ export class Hero {
         this.dir = dir;
         this.pulling = pulling;
         this.events.push(pulling ? "pull" : "push");
+      } else if (this.t - (this.strainAt ?? -9) > 0.8) {
+        // It will not go that way: the explorer strains against it and the stone grinds.
+        this.strainAt = this.t;
+        this.events.push("strain");
       }
     }
   }
 
-  shove(dt) {
-    this.t += dt / SHOVE_TIME;
-    const k = smooth(Math.min(1, this.t));
-    this.pos.x = this.from.x + this.dir.x * 2 * k;
-    this.pos.z = this.from.z + this.dir.z * 2 * k;
-    if (this.t >= 1) {
+  // The explorer keeps station on the face of the sliding block instead of running a clock
+  // of its own, so the two never overlap, and the push ends when the block comes to rest.
+  shove() {
+    const { box: b, n } = this.grip;
+    if (n.x) this.pos.x = (n.x > 0 ? b.maxX : b.minX) + n.x * (R + BRACE);
+    if (n.z) this.pos.z = (n.z > 0 ? b.maxZ : b.minZ) + n.z * (R + BRACE);
+    if (!this.level.isMoving(this.grip.ref)) {
       this.state = "grab";
       this.grip.box = this.level.blockBox(this.grip.ref);
     }
@@ -521,11 +539,22 @@ export class Hero {
       bestD = Infinity;
     for (const item of this.level.interactables()) {
       const b = item.box;
-      const cx = clamp(this.pos.x, b.minX, b.maxX),
-        cz = clamp(this.pos.z, b.minZ, b.maxZ);
-      const dx = cx - this.pos.x,
+      let dx, dz, d;
+      if (b.shape === "round") {
+        const ox = b.x - this.pos.x,
+          oz = b.z - this.pos.z;
+        const c = Math.hypot(ox, oz) || 1;
+        d = Math.max(0, c - b.r);
+        dx = (ox / c) * Math.max(d, 1e-3);
+        dz = (oz / c) * Math.max(d, 1e-3);
+        d = Math.max(d, 1e-3);
+      } else {
+        const cx = clamp(this.pos.x, b.minX, b.maxX),
+          cz = clamp(this.pos.z, b.minZ, b.maxZ);
+        dx = cx - this.pos.x;
         dz = cz - this.pos.z;
-      const d = Math.hypot(dx, dz);
+        d = Math.hypot(dx, dz);
+      }
       if (d > R + 0.55 || b.minY > this.feet + 0.6 || b.maxY < this.feet + 0.5)
         continue;
       // Facing it, or simply touching it: standing against a mirror is enough to take hold.
@@ -538,14 +567,29 @@ export class Hero {
     return best;
   }
 
-  // Turns to face the nearest side of a box and returns that side's outward normal.
+  // Turns to face the nearest side of a box, or the centre of a drum, and returns the outward
+  // normal of the side taken.
   faceBox(b) {
+    if (b.shape === "round") {
+      const dx = this.pos.x - b.x,
+        dz = this.pos.z - b.z;
+      const d = Math.hypot(dx, dz) || 1;
+      const n = { x: dx / d, z: dz / d };
+      const ox = this.pos.x,
+        oz = this.pos.z;
+      this.pos.x = b.x + n.x * (b.r + R + 0.12);
+      this.pos.z = b.z + n.z * (b.r + R + 0.12);
+      this.yaw = Math.atan2(-n.x, -n.z);
+      this.snap.x += ox - this.pos.x;
+      this.snap.z += oz - this.pos.z;
+      return n;
+    }
     const n = sideNormal(this.pos, b);
     this.yaw = Math.atan2(-n.x, -n.z);
     const ox = this.pos.x,
       oz = this.pos.z;
-    if (n.x) this.pos.x = (n.x > 0 ? b.maxX : b.minX) + n.x * (R + 0.1);
-    if (n.z) this.pos.z = (n.z > 0 ? b.maxZ : b.minZ) + n.z * (R + 0.1);
+    if (n.x) this.pos.x = (n.x > 0 ? b.maxX : b.minX) + n.x * (R + BRACE);
+    if (n.z) this.pos.z = (n.z > 0 ? b.maxZ : b.minZ) + n.z * (R + BRACE);
     if (n.x) this.pos.z = clamp(this.pos.z, b.minZ + 0.3, b.maxZ - 0.3);
     if (n.z) this.pos.x = clamp(this.pos.x, b.minX + 0.3, b.maxX - 0.3);
     this.snap.x += ox - this.pos.x;
@@ -558,13 +602,7 @@ export class Hero {
     const f = this.facing;
     let best = null;
     for (const b of this.world.boxes) {
-      if (
-        !b.solid ||
-        b.kind === "mirror" ||
-        b.kind === "stela" ||
-        b.kind === "fire"
-      )
-        continue;
+      if (!b.solid || !b.grab || b.shape !== "box") continue;
       const top = b.maxY;
       if (top < this.feet + low || top > this.feet + high) continue;
       if (b.maxX - b.minX < 0.6 && b.maxZ - b.minZ < 0.6) continue;
@@ -609,9 +647,9 @@ export class Hero {
     if (below > this.feet - 1.6) return null;
     if (
       !this.world.free(
-        hx + n.x * (R + 0.04),
-        hz + n.z * (R + 0.04),
-        R * 0.85,
+        hx + n.x * HANG_OFF,
+        hz + n.z * HANG_OFF,
+        HANG_OFF - 0.05,
         this.feet - this.hands,
         this.feet - 0.1,
       )
@@ -629,6 +667,8 @@ export class Hero {
     if (this.feet < -0.5 || this.t - (this.rememberedAt || 0) < 0.3) return;
     this.rememberedAt = this.t;
     const w = this.world;
+    // A bridge of light fades and a lone rock strands: neither is a place to come back to.
+    if (w.unsafeAt?.(this.pos.x, this.pos.z, this.feet)) return;
     // Only a spot with firm ground all round is a safe place to return to.
     for (const [dx, dz] of [
       [0.7, 0],

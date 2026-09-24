@@ -78,7 +78,9 @@ export class Level {
         x1 = (r.i1 + 1) * CELL,
         z0 = r.j0 * CELL,
         z1 = (r.j1 + 1) * CELL;
-      this.world.add(x0, base, z0, x1, r.h, z1, "rock");
+      this.world.add(x0, base, z0, x1, r.h, z1, "rock", null, {
+        grab: r.ch !== "#",
+      });
       // Platforms and stairs are the builders' dressed stone; the standing wall is rock.
       const built =
         r.ch !== "." && r.ch !== "_" && r.ch !== "~" && r.ch !== "o";
@@ -123,8 +125,11 @@ export class Level {
         x1 = (r.i1 + 1) * CELL,
         z0 = r.j0 * CELL,
         z1 = (r.j1 + 1) * CELL;
-      // Colliders only: the canyon wall is drawn by one continuous skin below.
-      this.world.add(x0, base, z0, x1, r.h, z1, "rock");
+      // Colliders only: the canyon wall is drawn by one continuous skin below, whose rim
+      // does not follow these steps, so the walls rise out of reach and are never ledges.
+      this.world.add(x0, base, z0, x1, Math.max(r.h, 40), z1, "rock", null, {
+        grab: false,
+      });
     }
     void rand;
     this.root.add(
@@ -172,49 +177,79 @@ export class Level {
       COURT.FACADE.z + 1.5,
     );
     if (!facade) this.root.add(fallbackFacade(COURT.FACADE));
-    this.world.add(
-      COURT.FACADE.x - 8,
-      -10,
-      2,
-      COURT.FACADE.x + 8,
-      13,
-      COURT.FACADE.z + 3,
-      "rock",
-    );
+    // The facade is solid except for its doorway, a 3.5 by 6 m tunnel 2 m deep behind a
+    // frame set 0.7 m back from the pillars (measured from the asset's doorway data).
+    {
+      const fx = COURT.FACADE.x,
+        front = COURT.FACADE.z + 3,
+        frame = COURT.FACADE.z + 2.3,
+        back = COURT.FACADE.z + 0.3;
+      const w = this.world;
+      w.add(fx - 8, -10, 2, fx - 1.75, 13, front, "rock", null, {
+        grab: false,
+      });
+      w.add(fx + 1.75, -10, 2, fx + 8, 13, front, "rock", null, {
+        grab: false,
+      });
+      w.add(fx - 1.75, 6, 2, fx + 1.75, 13, front, "rock", null, {
+        grab: false,
+      });
+      w.add(fx - 1.75, -10, 2, fx + 1.75, 13, back, "rock", null, {
+        grab: false,
+      });
+      w.add(fx - 1.75, -10, frame, fx + 1.75, 0.05, front, "rock");
+      w.add(fx - 1.75, -10, back, fx + 1.75, 0.05, frame, "rock");
+    }
     for (const c of COURT.COLOSSI) {
       const o = await put("guardian_colossus", c.x, c.z, c.yaw);
+      if (o) o.position.y = c.y;
       if (!o) this.root.add(fallbackColossus(c));
-      this.world.add(
-        c.x - 4.2,
-        -10,
-        c.z - 4.8,
-        c.x + 4.2,
-        14,
-        c.z + 4.8,
-        "rock",
-      );
+      for (const [x0, z0, x1, z1, top] of COURT.COLOSSUS_BOXES)
+        this.world.add(
+          c.x + x0,
+          -10,
+          c.z + z0,
+          c.x + x1,
+          c.y + top,
+          c.z + z1,
+          "rock",
+          null,
+          {
+            grab: top < 2,
+          },
+        );
     }
     for (const [x, z, yaw] of COURT.COLUMNS) {
       await put("broken_column", x, z, yaw);
-      this.world.add(x - 1.1, -10, z - 1.1, x + 1.1, 3.4, z + 1.1, "prop");
+      this.addShapes("broken_column", x, 0, z, yaw);
     }
-    for (const [name, x, y, z, yaw, box] of COURT.PROPS) {
+    for (const [name, x, y, z, yaw] of COURT.PROPS) {
       const o = await this.assets.make(name);
       if (!o) continue;
       o.position.set(x, y, z);
       o.rotation.y = yaw;
       this.root.add(o);
-      if (box) {
-        const [hw, hd, h] = box;
-        this.world.add(x - hw, -10, z - hd, x + hw, y + h, z + hd, "prop");
-      }
+      this.addShapes(name, x, y, z, yaw);
+    }
+    // Placed by the lip point the asset declares, turned with the face it hangs down.
+    for (const [x, y, z, yaw] of COURT.ROPES) {
+      const o = await this.assets.make("expedition_rope", {
+        keepHierarchy: true,
+      });
+      if (!o) break;
+      const [ax, ay, az] = o.userData.anchor || [0, 1.75, 0];
+      const c = Math.cos(yaw),
+        s = Math.sin(yaw);
+      o.position.set(x - (ax * c + az * s), y - ay, z - (-ax * s + az * c));
+      o.rotation.y = yaw;
+      this.root.add(o);
     }
     this.fires = [];
     const flame = flameMaterial();
     for (const [x, z] of COURT.BRAZIERS) {
       await put("brazier", x, z);
       const top = 0.98;
-      this.world.add(x - 0.45, -10, z - 0.45, x + 0.45, 1.1, z + 0.45, "fire");
+      this.world.addRound(x, z, 0.42, -10, 1.1, "fire", null, { cam: false });
       const light = new THREE.PointLight(0xff9a4a, 6, 9, 1.8);
       light.position.set(x, top + 0.45, z);
       this.root.add(light);
@@ -232,6 +267,23 @@ export class Level {
       });
       this.fires.push({ light, x, z, top, tongues, seed: Math.random() * 10 });
     }
+  }
+
+  // Round colliders fitted to a prop's mesh, turned with it (see COURT.PROP_SHAPES).
+  addShapes(name, x, y, z, yaw) {
+    const c = Math.cos(yaw),
+      s = Math.sin(yaw);
+    for (const [lx, lz, r, top] of COURT.PROP_SHAPES[name] || [])
+      this.world.addRound(
+        x + lx * c + lz * s,
+        z - lx * s + lz * c,
+        r,
+        -10,
+        y + top,
+        "prop",
+        null,
+        { cam: !COURT.SMALL_PROPS.has(name) },
+      );
   }
 
   // Mesas and buttes far beyond the rim, so the canyon sits in a landscape rather than
@@ -400,6 +452,48 @@ export class Level {
     this.root.add(mesh);
   }
 
+  // Height of the sand drift at a point on the court floor, the same shape buildDrifts lays
+  // against the foot of each wall, so the explorer's feet stand on the sand instead of in it.
+  driftAt(x, z, feet) {
+    const { MAP, CELL, heightOf } = COURT;
+    const i = Math.floor(x / CELL),
+      j = Math.floor(z / CELL);
+    const ch = MAP[j]?.[i];
+    if (ch !== "." && ch !== "_") return 0;
+    const h0 = heightOf(ch);
+    if (Math.abs(feet - h0) > 0.05) return 0;
+    const hAt = (a, b) =>
+      b < 0 || b >= MAP.length || a < 0 || a >= MAP[0].length
+        ? 30
+        : heightOf(MAP[b][a]);
+    const bump =
+      Math.sin(x * 2.3 + z * 1.7) * 0.5 + Math.sin(x * 0.9 - z * 1.3) * 0.5;
+    const cx = (i + 0.5) * CELL,
+      cz = (j + 0.5) * CELL;
+    let best = 0;
+    for (const [di, dj] of [
+      [1, 0],
+      [-1, 0],
+      [0, 1],
+      [0, -1],
+    ]) {
+      if (hAt(i + di, j + dj) < h0 + 0.9) continue;
+      // Distance in from the wall face, and position along it for the taper.
+      const d = di
+        ? (cx + (di * CELL) / 2 - x) * di
+        : (cz + (dj * CELL) / 2 - z) * dj;
+      const along = di ? (z - cz) / CELL : (x - cx) / CELL;
+      const r = (d + 0.12) / 1.5;
+      if (r < 0 || r > 1) continue;
+      const taper = 1 - Math.pow(Math.min(1, Math.abs(along) * 2), 6) * 0.35;
+      best = Math.max(
+        best,
+        (0.42 + 0.14 * bump) * Math.pow(1 - r, 1.6) * taper,
+      );
+    }
+    return best;
+  }
+
   // --- blocks ---------------------------------------------------------------
   async addBlock({ id, x, z }) {
     const mesh = (await this.assets.make("push_block")) || fallbackBlock();
@@ -424,14 +518,37 @@ export class Level {
     return block.box;
   }
 
+  isMoving(block) {
+    return this.moving.some((mv) => mv.block === block);
+  }
+
   // Slides a block one cell if the cell ahead is level floor and empty.
   moveBlock(block, dir, duration) {
     const tx = block.x + dir.x * COURT.CELL,
       tz = block.z + dir.z * COURT.CELL;
     const w = this.world;
-    if (!w.free(tx, tz, 0.9, 0.05, 1.85, block.box)) return false;
-    if (Math.abs(w.ground(tx, tz, 0.9, 0, 0.05) - 0) > 0.01) return false;
-    // The block must not slide under the explorer or over a mirror's drum.
+    // Its whole footprint must be clear, corners included, and on level floor throughout.
+    if (
+      !w.freeBox(
+        tx - 0.97,
+        tz - 0.97,
+        tx + 0.97,
+        tz + 0.97,
+        0.05,
+        1.85,
+        block.box,
+      )
+    )
+      return false;
+    for (const [dx, dz] of [
+      [0, 0],
+      [0.85, 0.85],
+      [-0.85, 0.85],
+      [0.85, -0.85],
+      [-0.85, -0.85],
+    ])
+      if (Math.abs(w.ground(tx + dx, tz + dz, 0.05, 0, 0.05)) > 0.01)
+        return false;
     this.moving.push({
       block,
       from: { x: block.x, z: block.z },
@@ -452,15 +569,9 @@ export class Level {
     mesh.position.set(x, 0, z);
     mesh.rotation.y = yaw;
     this.root.add(mesh);
-    const box = this.world.add(
-      x - 0.62,
-      -10,
-      z - 0.62,
-      x + 0.62,
-      1.95,
-      z + 0.62,
-      "mirror",
-    );
+    const box = this.world.addRound(x, z, 0.62, -10, 1.95, "mirror", null, {
+      cam: false,
+    });
     const mirror = { id, x, z, yaw, mesh, box, locked: null };
     mirror.ref = mirror;
     box.ref = mirror;
@@ -493,6 +604,15 @@ export class Level {
       panel.center[2] + 0.004,
     );
     mesh.add(mark);
+    // The lens gets its own material: it warms while light charges it, then stays lit.
+    const lensMats = [];
+    mesh.userData.parts?.lens?.traverse((o) => {
+      if (!o.isMesh) return;
+      o.material = o.material.clone();
+      o.material.emissive = new THREE.Color(0x39e3d0);
+      o.material.emissiveIntensity = 0;
+      lensMats.push(o.material);
+    });
     this.stelae.push({
       id,
       x,
@@ -505,7 +625,48 @@ export class Level {
       charge: 0,
       lit: false,
       glyphMat,
+      lensMats,
     });
+  }
+
+  lightStela(s) {
+    s.glyphMat.emissiveIntensity = 2.6;
+    for (const m of s.lensMats) m.emissiveIntensity = 3;
+  }
+
+  // Back to the state the court was found in: blocks home, mirrors at their first angles,
+  // every stela dark.
+  reset() {
+    this.moving = [];
+    COURT.BLOCKS.forEach((b, i) => {
+      const block = this.blocks[i];
+      block.x = b.x;
+      block.z = b.z;
+      block.mesh.position.set(b.x, 0, b.z);
+      Object.assign(block.box, {
+        minX: b.x - 0.98,
+        maxX: b.x + 0.98,
+        minZ: b.z - 0.98,
+        maxZ: b.z + 0.98,
+      });
+    });
+    COURT.MIRRORS.forEach((m, i) => {
+      const mirror = this.mirrors[i];
+      Object.assign(mirror, {
+        yaw: m.yaw,
+        locked: null,
+        pending: 0,
+        lastCatch: null,
+        lockedAt: -9,
+      });
+      mirror.mesh.rotation.y = m.yaw;
+    });
+    for (const s of this.stelae) {
+      s.lit = false;
+      s.charge = 0;
+      s.glyphMat.emissiveIntensity = 0;
+      for (const m of s.lensMats) m.emissiveIntensity = 0;
+    }
   }
 
   async addCatcher({ x, z }) {
@@ -515,11 +676,23 @@ export class Level {
     mesh.rotation.y = Math.PI / 2;
     mesh.scale.setScalar(1.15);
     this.root.add(mesh);
-    this.world.add(x - 0.7, -10, z - 0.7, x + 0.7, 2.1, z + 0.7, "mirror");
+    this.world.addRound(x, z, 0.72, -10, 2.1, "mirror", null, { cam: false });
+  }
+
+  // Items with an action (the expedition's notes) are used, not held.
+  use(ref) {
+    return ref.use?.() ?? false;
   }
 
   interactables() {
     const list = [];
+    if (this.notes)
+      list.push({
+        kind: "use",
+        box: this.notes.box,
+        ref: this.notes,
+        prompt: "read",
+      });
     for (const m of this.mirrors)
       list.push({ kind: "mirror", box: m.box, ref: m });
     for (const b of this.blocks)
@@ -545,6 +718,12 @@ export class Level {
     this.moving = this.moving.filter((mv) => mv.t < 1);
     for (const m of this.mirrors) m.mesh.rotation.y = m.yaw;
     this.time = (this.time || 0) + dt;
+    for (const s of this.stelae) {
+      if (s.lit) continue;
+      const k = Math.min(1, s.charge / 0.45);
+      const idle = 0.12 + 0.08 * Math.sin(this.time * 2.2 + s.x);
+      for (const m of s.lensMats) m.emissiveIntensity = idle + k * 2.4;
+    }
     for (const f of this.fires || []) {
       const t = this.time + f.seed;
       const flick =

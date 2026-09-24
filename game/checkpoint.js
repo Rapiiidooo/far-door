@@ -1,40 +1,70 @@
 import * as THREE from "three";
 import { Warden, fallbackWarden } from "./wardens.js";
+import { glyphMaterial, makeGlyph } from "./glyphs.js";
+import { FaceBuilder, terrainMaterial } from "./terrain.js";
+import { Stamps, Telegraphs } from "./fx.js";
+import { draw } from "./glyph-icons.js";
 
-// The checkpoint beyond the first gate: a customs booth with a barrier across the only
-// path, a clerk behind the window, an empty queue, and a bin of confiscated property with
-// the explorer's future weapon in it. Taking the disc back sets off the alarm; beating the
-// guards leaves the barrier locked until its lamp is lit, which only a disc charged in the
-// crystal's beam can do.
+// The checkpoint beyond the first door. A wall closes the plateau; the only way on is a
+// barrier beside a customs booth, and the clerk inside will not lift it without the
+// destination address stamped on three plates set in the plaza. Stamps are applied by the
+// Wardens, three of them, each stamp carved with one glyph of that address, and a Warden only
+// stamps offenders, on the spot they stood. So the explorer offends (the confiscated sun disc
+// is right there), stands on a plate, and steps out from under the stamp; the matching Warden
+// on the matching plate approves it. With the address complete, the barrier's lamp still has
+// to be lit, and only a disc charged in the crystal's beam can do that.
 
 export const LAYOUT = {
-  booth: { x: -3.7, z: -27, yaw: 0 },
-  bin: { x: -6.4, z: -23.2, yaw: 0.5 },
-  emitter: { x: 8, z: -19.5, yaw: -Math.PI / 2 },
-  barrierZ: -27,
-  barrierFrom: -2.5,
-  barrierTo: 1.7,
-  // Queue posts stand 1.4 m apart so each rope hooks onto the next post.
-  posts: [
-    [-6.6, -18.2],
-    [-5.2, -18.2],
-    [-3.8, -18.2],
-    [-2.4, -18.2],
-    [-1.0, -18.2],
-    [-5.9, -20.6],
-    [-4.5, -20.6],
-    [-3.1, -20.6],
-    [-1.7, -20.6],
+  booth: { x: -4, z: -31.4 },
+  wall: { z: -31.4, half: 0.7, top: 3.2, from: -14, to: 14 },
+  barrierFrom: -2.75,
+  barrierTo: 1.6,
+  bin: { x: -7.9, z: -29.0, yaw: 0.35 },
+  emitter: { x: 12.6, z: -27.2 },
+  beamEnd: -13.8,
+  // The address, left to right: the exit door's medallions show it in the same order.
+  plates: [
+    { glyph: "crescent", x: -8, z: -19.5 },
+    { glyph: "waves", x: 0, z: -22.8 },
+    { glyph: "disc", x: 8, z: -19.5 },
   ],
+  // Each Warden patrols away from its own plate, so it has to be led across the plaza.
   guards: [
-    [-3.7, -23.2],
-    [-1.6, -22.4],
-    [-5.6, -22.0],
+    {
+      glyph: "crescent",
+      route: [
+        [8.6, -24.6],
+        [5.6, -17.2],
+        [10.6, -15.6],
+      ],
+    },
+    {
+      glyph: "waves",
+      route: [
+        [-9.6, -24.4],
+        [-5.8, -16.6],
+        [-10.6, -15.4],
+      ],
+    },
+    {
+      glyph: "disc",
+      route: [
+        [-0.6, -27.6],
+        [4.6, -26.8],
+        [2.4, -25],
+      ],
+    },
   ],
-  respawn: { x: 0, z: -11, yaw: Math.PI },
+  // The queue's posts run along z towards the window, three a side.
+  queue: [-2.65, -5.35].flatMap((x) =>
+    [-25.4, -26.8, -28.2].map((z) => [x, z]),
+  ),
+  respawn: { x: 0, z: -12, yaw: Math.PI },
 };
 
 const pick = (list) => list[Math.floor(Math.random() * list.length)];
+const V = (x, y, z) => new THREE.Vector3(x, y, z);
+const MAX_HEALTH = 4;
 
 export class Checkpoint {
   constructor(scene, world, assets, { bubbles, sound, hud }) {
@@ -44,12 +74,12 @@ export class Checkpoint {
     this.bubbles = bubbles;
     this.sound = sound;
     this.hud = hud;
-    this.phase = "arrive";
     this.guards = [];
-    this.said = new Set();
-    this.lampLit = false;
+    this.plates = [];
     this.time = 0;
-    this.barrierOpen = 0;
+    this.lines = [];
+    this.health = MAX_HEALTH;
+    this.reset(false);
   }
 
   async build() {
@@ -65,14 +95,12 @@ export class Checkpoint {
     // The booth's origin is the middle of booth and arm together; its body sits 2.15 m
     // towards -X of it, so the placement shifts to put the body at LAYOUT.booth.
     this.booth =
-      (await put("customs_booth", L.booth.x + 2.15, L.booth.z, L.booth.yaw, {
+      (await put("customs_booth", L.booth.x + 2.15, L.booth.z, 0, {
         keepHierarchy: true,
       })) || fallbackBooth(this.scene, L.booth);
-    const local = (p, fallback) =>
-      p
-        ? new THREE.Vector3(...p).applyMatrix4(this.booth.matrixWorld)
-        : new THREE.Vector3(...fallback);
     this.booth.updateMatrixWorld(true);
+    const local = (p, fallback) =>
+      p ? V(...p).applyMatrix4(this.booth.matrixWorld) : V(...fallback);
     this.windowPos = local(this.booth.userData.window?.center, [
       L.booth.x,
       1.4,
@@ -93,100 +121,79 @@ export class Checkpoint {
       o.material.emissiveIntensity = 0.05;
       this.lampMaterials.push(o.material);
     });
-    this.booth.updateMatrixWorld(true);
-    this.lampPos = new THREE.Vector3();
+    this.lampPos = V(0, 0, 0);
     if (this.lamp)
       new THREE.Box3().setFromObject(this.lamp).getCenter(this.lampPos);
     else this.lampPos.set(L.booth.x, 3.05, L.booth.z);
     this.lampLight = new THREE.PointLight(0x39e3d0, 0, 14, 1.6);
-    this.lampLight.position
-      .copy(this.lampPos)
-      .add(new THREE.Vector3(0, 0.3, 0.4));
+    this.lampLight.position.copy(this.lampPos).add(V(0, 0.3, 0.4));
     this.scene.add(this.lampLight);
 
-    // Colliders: the booth, rock shoulders that close the path at the barrier line, and
-    // an invisible wall under the barrier arm until it lifts.
     const w = this.world;
+    // The booth, and the barrier's invisible wall until the arm lifts.
     w.add(
-      L.booth.x - 1.25,
-      -10,
-      L.booth.z - 1.05,
-      L.booth.x + 1.25,
-      2.4,
-      L.booth.z + 1.05,
-      "rock",
-    );
-    w.add(
-      -15,
-      -10,
-      L.barrierZ - 1.6,
       L.booth.x - 1.2,
-      6,
-      L.barrierZ + 1.4,
-      "rock",
-    );
-    w.add(
-      L.barrierTo - 0.1,
       -10,
-      L.barrierZ - 1.4,
-      15,
-      6,
-      L.barrierZ + 1.4,
+      L.booth.z - 1.06,
+      L.booth.x + 1.2,
+      2.3,
+      L.booth.z + 1.06,
       "rock",
+      null,
+      {
+        grab: false,
+      },
     );
     this.gateWall = w.add(
       L.barrierFrom,
       -10,
-      L.barrierZ - 0.25,
+      L.wall.z - 0.25,
       L.barrierTo,
-      5,
-      L.barrierZ + 0.25,
+      3,
+      L.wall.z + 0.25,
       "prop",
+      null,
+      { cam: false },
     );
-    await this.dressShoulders();
+    this.buildWall();
 
-    this.bin = await put("confiscation_bin", L.bin.x, L.bin.z, L.bin.yaw, {
-      keepHierarchy: true,
+    this.bin =
+      (await put("confiscation_bin", L.bin.x, L.bin.z, L.bin.yaw, {
+        keepHierarchy: true,
+      })) || fallbackBin(this.scene, L.bin);
+    this.binBox = w.addRound(L.bin.x, L.bin.z, 0.62, -10, 0.85, "prop", null, {
+      cam: false,
     });
-    if (!this.bin) this.bin = fallbackBin(this.scene, L.bin);
-    this.binBox = w.add(
-      L.bin.x - 0.7,
-      -10,
-      L.bin.z - 0.55,
-      L.bin.x + 0.7,
-      0.8,
-      L.bin.z + 0.55,
-      "prop",
-    );
-    for (const [x, z] of L.posts) {
-      // The post's own base sits 0.587 m towards -X of the asset's origin.
-      await put("queue_post", x + 0.587, z, 0);
-      w.add(x - 0.18, -10, z - 0.18, x + 0.18, 1.0, z + 0.18, "prop");
+
+    // The queue: posts along z with their ropes hooked to the next post towards the window.
+    for (const [x, z] of L.queue) {
+      // The post's own base sits 0.587 m towards -X of the asset's origin; turned so the rope
+      // runs towards -Z, that is +Z of the origin.
+      await put("queue_post", x, z - 0.587, Math.PI / 2);
+      w.addRound(x, z, 0.18, -10, 1.0, "prop", null, {
+        cam: false,
+        thin: true,
+      });
+      if (z > -28)
+        w.add(x - 0.05, -10, z - 1.4, x + 0.05, 0.95, z, "prop", null, {
+          cam: false,
+          thin: true,
+        });
     }
 
-    // The crystal's beam crosses the path at head height towards the west.
-    const emitter = await put(
-      "crystal_emitter",
-      L.emitter.x,
-      L.emitter.z,
-      L.emitter.yaw,
-      { keepHierarchy: true },
-    );
-    w.add(
-      L.emitter.x - 0.7,
-      -10,
-      L.emitter.z - 0.7,
-      L.emitter.x + 0.7,
-      2.1,
-      L.emitter.z + 0.7,
-      "prop",
-    );
+    // The crystal's beam crosses the back of the plaza at head height and dies on the rock.
+    const E = L.emitter;
+    const emitter = await put("crystal_emitter", E.x, E.z, -Math.PI / 2, {
+      keepHierarchy: true,
+    });
+    w.addRound(E.x, E.z, 0.62, -10, 2.1, "prop");
     const beamY = emitter?.userData.beam ? emitter.userData.beam[1] : 1.6;
     this.beam = {
-      from: new THREE.Vector3(L.emitter.x - 0.4, beamY, L.emitter.z),
-      to: new THREE.Vector3(L.booth.x - 5.5, beamY, L.emitter.z),
+      from: V(E.x - 0.4, beamY, E.z),
+      to: V(L.beamEnd, beamY, E.z),
       active: () => true,
     };
+    this.emitterPos = V(E.x, beamY, E.z);
     emitter?.userData.parts?.crystal?.traverse((o) => {
       if (!o.isMesh) return;
       o.material = o.material.clone();
@@ -194,69 +201,137 @@ export class Checkpoint {
       o.material.emissiveIntensity = 2.2;
     });
     const glow = new THREE.PointLight(0x39e3d0, 10, 9, 1.6);
-    glow.position.set(L.emitter.x, beamY, L.emitter.z);
+    glow.position.set(E.x, beamY, E.z);
     this.scene.add(glow);
     this.buildBeam();
 
-    // The clerk stands on a step behind the counter so the mask shows in the window.
+    await this.buildPlates();
+
+    // Three Wardens on patrol, and the clerk on a step behind the counter.
+    for (const [i, g] of L.guards.entries()) {
+      const model =
+        (await this.assets.make("warden", { keepHierarchy: true })) ||
+        fallbackWarden();
+      const [x, z] = g.route[0];
+      const warden = new Warden(this.scene, this.world, model, {
+        x,
+        z,
+        yaw: Math.PI,
+        bubbles: this.bubbles,
+        sound: this.sound,
+        glyph: g.glyph,
+        route: g.route,
+      });
+      warden.index = i;
+      warden.onTelegraph = (wd, at) => this.telegraph(wd, at);
+      warden.onProvoked = () => this.sound?.play("provoke");
+      this.guards.push(warden);
+    }
     const clerkModel =
       (await this.assets.make("warden", { keepHierarchy: true })) ||
       fallbackWarden();
     this.clerk = new Warden(this.scene, this.world, clerkModel, {
-      x: L.booth.x,
+      x: this.insidePos.x,
       z: this.insidePos.z,
       yaw: 0,
       bubbles: this.bubbles,
       sound: this.sound,
       role: "clerk",
     });
-    this.clerk.pos.x = this.insidePos.x;
     this.clerk.feet = this.insidePos.y;
     this.clerk.place();
+
+    this.stamps = new Stamps(this.scene, ["crescent", "waves", "disc"], draw);
+    this.telegraphs = new Telegraphs(this.scene, 3);
   }
 
-  // Rock and spires shoulder the barrier line so the booth is the only way through.
-  async dressShoulders() {
+  // The checkpoint wall: basalt coursed like the court's masonry, a chalk coping and a stamp
+  // ochre band, drawn from the same boxes the explorer collides with.
+  buildWall() {
     const L = LAYOUT;
-    const spots = [
-      [-8.5, L.barrierZ - 0.2, 0.9, 0.3],
-      [-12.5, L.barrierZ + 0.6, 1.1, 2.1],
-      [4.6, L.barrierZ - 0.3, 0.8, 1.2],
-      [9.5, L.barrierZ + 0.4, 1.05, 4.2],
-      [13, L.barrierZ - 0.6, 0.85, 5.5],
-    ];
-    for (const [x, z, s, yaw] of spots) {
-      const o = await this.assets.make("basalt_spire");
-      if (!o) continue;
-      o.position.set(x, 0, z);
-      o.scale.multiplyScalar(s);
-      o.rotation.y = yaw;
-      this.scene.add(o);
-    }
-    const rock = new THREE.MeshStandardMaterial({
-      color: 0x2a2830,
-      roughness: 0.92,
-      flatShading: true,
+    const basalt = terrainMaterial("masonry", 0x4a4552, 0.9);
+    const chalk = new THREE.MeshStandardMaterial({
+      color: 0xc9c2d8,
+      roughness: 0.85,
     });
-    for (const [x0, x1] of [
-      [-15, L.booth.x - 1.2],
-      [L.barrierTo - 0.1, 15],
-    ]) {
-      const geo = new THREE.DodecahedronGeometry(1, 1);
-      const p = geo.attributes.position;
-      for (let i = 0; i < p.count; i++) {
-        const v = new THREE.Vector3().fromBufferAttribute(p, i);
-        v.multiplyScalar(
-          1 + (Math.sin(v.x * 7 + v.z * 5) * 0.12 + Math.sin(v.y * 9) * 0.08),
-        );
-        p.setXYZ(i, v.x, v.y, v.z);
+    chalk.name = "plaster";
+    const ochre = new THREE.MeshStandardMaterial({
+      color: 0xd9a441,
+      roughness: 0.75,
+    });
+    ochre.name = "plaster";
+    const faces = new FaceBuilder({ minX: -30, maxX: 30, minZ: -80, maxZ: 30 });
+    const z0 = L.wall.z - L.wall.half,
+      z1 = L.wall.z + L.wall.half;
+    const spans = [
+      [L.wall.from - 2, L.booth.x - 1.25],
+      [L.barrierTo, L.wall.to + 2],
+    ];
+    for (const [x0, x1] of spans) {
+      this.world.add(x0, -10, z0, x1, L.wall.top, z1, "rock", null, {
+        grab: false,
+      });
+      faces.box(x0, -0.2, z0, x1, L.wall.top, z1, basalt, basalt);
+      const cope = new THREE.Mesh(
+        new THREE.BoxGeometry(x1 - x0, 0.18, z1 - z0 + 0.16),
+        chalk,
+      );
+      cope.position.set((x0 + x1) / 2, L.wall.top + 0.09, L.wall.z);
+      const band = new THREE.Mesh(
+        new THREE.BoxGeometry(x1 - x0, 0.22, 0.04),
+        ochre,
+      );
+      band.position.set((x0 + x1) / 2, 2.35, z1 + 0.02);
+      for (const m of [cope, band]) {
+        m.castShadow = m.receiveShadow = true;
+        this.scene.add(m);
       }
-      geo.computeVertexNormals();
-      const m = new THREE.Mesh(geo, rock);
-      m.scale.set((x1 - x0) / 2 + 0.4, 3.2, 1.9);
-      m.position.set((x0 + x1) / 2, 1.2, L.barrierZ);
-      m.castShadow = m.receiveShadow = true;
-      this.scene.add(m);
+    }
+    faces.build(this.scene);
+  }
+
+  async buildPlates() {
+    for (const p of LAYOUT.plates) {
+      const mesh =
+        (await this.assets.make("stamp_plate", { keepHierarchy: true })) ||
+        fallbackPlate();
+      mesh.position.set(p.x, 0, p.z);
+      this.scene.add(mesh);
+      mesh.updateMatrixWorld(true);
+      const field = mesh.userData.field || { center: [0, 0.12, 0], size: 1.3 };
+      const inlayMats = [];
+      mesh.userData.parts?.inlay?.traverse((o) => {
+        if (!o.isMesh) return;
+        o.material = o.material.clone();
+        o.material.emissive = new THREE.Color(0x39e3d0);
+        o.material.emissiveIntensity = 0.15;
+        inlayMats.push(o.material);
+      });
+      const glyphMat = glyphMaterial();
+      glyphMat.emissiveIntensity = 0.25;
+      const mark = makeGlyph(p.glyph, field.size * 0.62, glyphMat);
+      mark.rotation.x = -Math.PI / 2;
+      mark.position.set(
+        field.center[0],
+        field.center[1] + 0.005,
+        field.center[2],
+      );
+      mesh.add(mark);
+      // A low step the explorer and the Wardens walk onto, never a wall.
+      this.world.addRound(p.x, p.z, 0.9, -10, 0.1, "prop", null, {
+        stand: true,
+        cam: false,
+        thin: true,
+      });
+      this.plates.push({
+        ...p,
+        mesh,
+        inlayMats,
+        glyphMat,
+        radius: 0.9,
+        top: field.center[1],
+        stamped: false,
+      });
     }
   }
 
@@ -264,10 +339,7 @@ export class Checkpoint {
     const { from, to } = this.beam;
     const len = from.distanceTo(to);
     const dir = to.clone().sub(from).normalize();
-    const q = new THREE.Quaternion().setFromUnitVectors(
-      new THREE.Vector3(0, 1, 0),
-      dir,
-    );
+    const q = new THREE.Quaternion().setFromUnitVectors(V(0, 1, 0), dir);
     const mk = (radius, color, opacity) => {
       const m = new THREE.Mesh(
         new THREE.CylinderGeometry(radius, radius, len, 10, 1, true).translate(
@@ -287,6 +359,7 @@ export class Checkpoint {
       );
       m.position.copy(from);
       m.quaternion.copy(q);
+      m.frustumCulled = false;
       this.scene.add(m);
       return m;
     };
@@ -294,143 +367,232 @@ export class Checkpoint {
     this.beamGlow = mk(0.09, new THREE.Color(0.15, 0.7, 0.65), 0.28);
   }
 
-  // What the explorer can use here: only the bin, and only while it still holds the disc.
+  // --- what the explorer can use here -------------------------------------------------------
   interactables() {
-    if (this.phase !== "arrive") return [];
-    return [{ kind: "use", box: this.binBox, ref: this, prompt: "take" }];
+    const list = [];
+    if (this.disc?.state === "display")
+      list.push({
+        kind: "use",
+        box: this.binBox,
+        ref: { use: () => this.takeDisc() },
+        prompt: "take",
+      });
+    if (this.phase !== "arrive")
+      list.push({
+        kind: "use",
+        box: this.windowBox || (this.windowBox = this.makeWindowBox()),
+        ref: { use: () => this.talk() },
+        prompt: "talk",
+      });
+    return list;
   }
 
-  use() {
-    if (this.phase !== "arrive") return false;
-    this.phase = "alarm";
+  makeWindowBox() {
+    const p = this.windowPos;
+    return {
+      shape: "box",
+      minX: p.x - 0.8,
+      maxX: p.x + 0.8,
+      minZ: p.z - 0.2,
+      maxZ: p.z + 0.3,
+      minY: 0,
+      maxY: 2.4,
+    };
+  }
+
+  takeDisc() {
+    if (this.disc?.state !== "display") return false;
     this.lidKick = 1;
     this.onTakeDisc?.();
     this.clerk.talking = 1.5;
-    this.clerk.say("HEY! That's evidence!", "shout", 2.2);
+    this.say("HEY! That's confiscated property!", "shout", 2.4, true);
     this.sound?.play("alarm");
-    this.alarmAt = this.time;
+    // An offence in full view of every Warden on duty.
+    if (
+      this.phase === "stamps" ||
+      this.phase === "arrive" ||
+      this.phase === "briefing"
+    )
+      setTimeout(() => {
+        for (const g of this.guards) if (g.state === "patrol") g.provoke();
+      }, 700);
+    this.tookDisc = true;
     return true;
   }
 
-  spawnGuards() {
-    const L = LAYOUT;
-    const window = {
-      x: this.windowPos.x,
-      y: this.windowPos.y,
-      z: this.windowPos.z + 0.3,
-    };
-    L.guards.forEach(([x, z], i) => {
-      setTimeout(async () => {
-        const model =
-          (await this.assets.make("warden", { keepHierarchy: true })) ||
-          fallbackWarden();
-        const g = new Warden(this.scene, this.world, model, {
-          x,
-          z,
-          yaw: 0,
-          bubbles: this.bubbles,
-          sound: this.sound,
-        });
-        g.enter(window, { x, z });
-        g.onDefeat = () => this.onGuardDown?.(g);
-        this.guards.push(g);
-        this.onGuard?.(g);
-      }, i * 450);
-    });
+  talk() {
+    const lines = {
+      briefing: ["One moment, please."],
+      stamps: [
+        "Three plates, three Wardens. Each stamp has its own glyph.",
+        "Offend a Warden and it stamps you. Where you stand.",
+        "The glyph over a Warden's head is the glyph on its stamp.",
+      ],
+      lamp: [
+        "The barrier opens when its lamp is lit.",
+        "Light. Lamp. Not my department.",
+      ],
+      open: ["Have a nice eternity.", "Next!"],
+    }[this.phase] || ["Next!"];
+    this.talkIndex = ((this.talkIndex ?? -1) + 1) % lines.length;
+    this.say(lines[this.talkIndex], "clerk", 3, true);
+    return true;
   }
 
-  // Charged disc on the lamp: the barrier lifts. An uncharged one earns a complaint.
+  // --- the clerk's lines: queued, one at a time, dropped if the situation moves on --------------
+  say(text, kind = "clerk", duration = 2.8, now = false) {
+    if (now) this.lines = [];
+    this.lines.push({ text, kind, duration, phase: this.phase });
+    if (now) this.lineT = 0;
+  }
+
+  speak(dt) {
+    this.lineT -= dt;
+    if (this.lineT > 0 || !this.lines.length) return;
+    const l = this.lines.shift();
+    this.clerk.talking = Math.min(2, l.duration * 0.6);
+    this.clerk.say(l.text, l.kind, l.duration);
+    this.sound?.play("clerk");
+    this.lineT = l.duration + 0.25;
+  }
+
+  // --- the stamps -------------------------------------------------------------------------------
+  plateAt(x, z) {
+    return (
+      this.plates.find((p) => Math.hypot(p.x - x, p.z - z) < p.radius) || null
+    );
+  }
+
+  telegraph(warden, at) {
+    if (!at) return this.telegraphs.hide(warden);
+    const plate = this.plateAt(at.x, at.z);
+    const tone =
+      !plate || plate.stamped
+        ? "ground"
+        : plate.glyph === warden.glyph
+          ? "plate"
+          : "void";
+    this.telegraphs.show(warden, at.x, plate ? plate.top : 0, at.z, tone);
+  }
+
+  // A stamp has come down: on the explorer, on a plate, or on the ground.
+  slam(warden, x, z, hit) {
+    const plate = this.plateAt(x, z);
+    this.onStrike?.(warden, x, z, hit);
+    if (plate && !plate.stamped) {
+      if (plate.glyph === warden.glyph) {
+        this.approve(plate);
+        this.stamps.mark(x, plate.top, z, warden.glyph, "plate");
+        return "plate";
+      }
+      this.stamps.mark(x, plate.top, z, warden.glyph, "void");
+      this.sound?.play("void");
+      this.voids = (this.voids || 0) + 1;
+      if (this.voids === 1) {
+        this.say("Wrong stamp for that plate. Void.", "clerk", 2.6, true);
+        this.onVoid?.();
+      } else if (Math.random() < 0.4) this.say("Void.", "clerk", 1.4, true);
+      return "void";
+    }
+    this.stamps.mark(x, plate ? plate.top : 0, z, warden.glyph, "ground");
+    return hit ? "hit" : "ground";
+  }
+
+  approve(plate) {
+    plate.stamped = true;
+    for (const m of plate.inlayMats) m.emissiveIntensity = 2.6;
+    plate.glyphMat.emissiveIntensity = 3.2;
+    this.sound?.play("plate");
+    this.hud?.light(plate.glyph);
+    this.onApproved?.(plate);
+    const n = this.plates.filter((p) => p.stamped).length;
+    const said = [
+      "One stamp. Two to go.",
+      "Two stamps. One more.",
+      "Three stamps. …Approved.",
+    ][n - 1];
+    this.say(said, "clerk", 2.6, true);
+    if (n === 3) this.toLamp();
+  }
+
+  toLamp() {
+    this.phase = "lamp";
+    this.phaseT = 0;
+    // Paperwork complete: everyone goes back to their rounds.
+    for (const g of this.guards) g.calm(null);
+    this.say("The barrier opens when its lamp is lit.", "clerk", 3);
+    this.say("…The lamp's out. Not my department.", "clerk", 3.2);
+    this.sound?.setMusic?.("world2");
+  }
+
+  // The disc on the lamp: charged, the barrier lifts; otherwise a complaint.
   lampTarget() {
     return {
-      radius: 0.45,
+      radius: 0.5,
       center: () => this.lampPos,
-      alive: () => this.phase === "locked" && !this.lampLit,
+      alive: () => this.phase === "lamp" && !this.lampLit,
       onHit: (disc) => {
         if (disc.charged) {
           this.lampLit = true;
           this.sound?.play("lamp");
           this.clerk.talking = 2;
-          setTimeout(
-            () =>
-              this.clerk.say("…Approved. Have a nice eternity.", "clerk", 3.2),
-            900,
-          );
+          this.say("…Approved. Have a nice eternity.", "clerk", 3.4, true);
           setTimeout(() => this.sound?.play("barrier"), 1500);
           this.phase = "open";
           this.onOpen?.();
         } else {
           this.sound?.play("clink");
-          this.clerk.talking = 1.2;
-          this.clerk.say(
-            "Please do not throw things at the lamp.",
+          this.say(
+            "Please do not throw things at the lamp. It needs light.",
             "clerk",
-            2.6,
+            3,
+            true,
           );
+          this.onLampMiss?.();
         }
       },
     };
   }
 
-  update(dt, hero) {
+  // --- the frame ---------------------------------------------------------------------------------
+  update(dt, hero, camera) {
     this.time += dt;
-    const once = (key, fn) => {
-      if (this.said.has(key)) return;
-      this.said.add(key);
-      fn();
-    };
-    // Lines queued for a phase are dropped as soon as the phase moves on.
-    const clerk = (text, delay = 0, duration = 2.8) => {
-      const phase = this.phase;
-      setTimeout(() => {
-        if (this.phase !== phase) return;
-        this.clerk.talking = 1.4;
-        this.clerk.say(text, "clerk", duration);
-        this.sound?.play("clerk");
-      }, delay * 1000);
-    };
-    const z = hero.pos.z;
-    if (this.phase === "arrive") {
-      if (z < -8)
-        once("next", () => (clerk("Next!"), clerk("Destination?", 1.9)));
-      if (z < -15)
-        once(
-          "denied",
-          () => (
-            clerk("No address stamp? Denied."),
-            clerk("Please take a number and wait.", 2.6, 3.2)
-          ),
-        );
-      const nearBin =
-        Math.hypot(hero.pos.x - LAYOUT.bin.x, z - LAYOUT.bin.z) < 3.2;
-      if (nearBin)
-        once("bin", () => clerk("Don't touch that. Confiscated.", 0.2));
+    this.phaseT += dt;
+    const win = this.windowPos;
+    const toWindow = Math.hypot(hero.pos.x - win.x, hero.pos.z - win.z);
+    if (this.phase === "arrive" && (toWindow < 7.5 || this.phaseT > 45)) {
+      this.phase = "briefing";
+      this.phaseT = 0;
+      this.say("Next!", "clerk", 1.6);
+      this.say("Destination? …No address stamp? Denied.", "clerk", 3);
+      this.say(
+        "The address goes on those three plates. Stamped.",
+        "clerk",
+        3.2,
+      );
+      this.say("Stamps are applied by Wardens. To offenders.", "clerk", 3.2);
+      this.say(
+        "And don't touch the confiscated property. That's an offence.",
+        "clerk",
+        3.4,
+      );
     }
+    if (this.phase === "briefing" && !this.lines.length && this.lineT <= 0) {
+      this.phase = "stamps";
+      this.phaseT = 0;
+      this.onBriefed?.();
+    }
+    this.speak(dt);
+    // The first expedition's belongings, recognised in the bin.
     if (
-      this.phase === "alarm" &&
-      this.time - this.alarmAt > 0.9 &&
-      !this.spawned
+      !this.sawBin &&
+      this.disc?.state === "display" &&
+      Math.hypot(hero.pos.x - LAYOUT.bin.x, hero.pos.z - LAYOUT.bin.z) < 3.6
     ) {
-      this.spawned = true;
-      this.spawnGuards();
+      this.sawBin = true;
+      this.onNearBin?.();
     }
-    if (
-      this.phase === "alarm" &&
-      this.spawned &&
-      this.guards.length === LAYOUT.guards.length &&
-      this.guards.every((g) => !g.alive())
-    ) {
-      this.phase = "locked";
-      this.onCleared?.();
-      clerk("…Fine. The barrier is still locked.", 1.2, 3);
-      clerk("The lamp's out. Not my department.", 4.4, 3.4);
-    }
-    if (
-      this.phase !== "open" &&
-      hero.state === "air" &&
-      Math.abs(z - LAYOUT.barrierZ) < 2.2 &&
-      hero.pos.x > LAYOUT.barrierFrom - 0.5
-    )
-      once("jump", () => clerk("No jumping the queue.", 0));
+
     // The lamp lights, then the arm swings up and the way is clear.
     const lit = this.lampLit ? 1 : 0;
     for (const m of this.lampMaterials)
@@ -440,8 +602,7 @@ export class Checkpoint {
       (lit * 14 - this.lampLight.intensity) * Math.min(1, dt * 3);
     if (this.phase === "open") {
       this.barrierOpen = Math.min(1, this.barrierOpen + dt / 1.6);
-      if (this.barrierOpen > 0.5 && this.gateWall.solid)
-        this.gateWall.solid = false;
+      if (this.barrierOpen > 0.5) this.gateWall.solid = false;
     }
     const k = this.barrierOpen * this.barrierOpen * (3 - 2 * this.barrierOpen);
     if (this.barrier) this.barrier.rotation.z = k * 1.35;
@@ -455,26 +616,118 @@ export class Checkpoint {
     }
     this.beamGlow.scale.x = this.beamGlow.scale.z =
       0.85 + Math.sin(this.time * 9) * 0.15;
-    this.clerk.update(dt, hero, [], null);
-    for (const g of this.guards) g.update(dt, hero, this.guards, this.onStrike);
+    // Unstamped plates breathe; the one under a winding-up stamp brightens.
+    for (const p of this.plates)
+      if (!p.stamped) {
+        const b = 0.15 + 0.1 * Math.sin(this.time * 2 + p.x);
+        for (const m of p.inlayMats) m.emissiveIntensity = b;
+        p.glyphMat.emissiveIntensity = 0.25 + b;
+      }
+    this.clerk.update(dt, hero, [], {});
+    const onSlam = (w, x, z, hit) => this.slam(w, x, z, hit);
+    for (const g of this.guards) {
+      // Nobody is hunted during the briefing, and nobody after the address is approved.
+      if (this.phase === "lamp" || this.phase === "open")
+        if (g.hostile) g.calm(null);
+      g.update(dt, hero, this.guards, { onSlam, camera });
+    }
+    this.telegraphs.update(dt);
+    this.stamps.update(dt);
   }
 
-  // After a knockout: surviving guards return to their posts, the fight picks up again.
-  resetFight() {
-    for (const g of this.guards) {
-      if (g.state === "gone" || g.hp <= 0) continue;
-      g.pos.x = g.home.x;
-      g.pos.z = g.home.z;
-      g.state = "idle";
-      g.vel.x = g.vel.z = 0;
-      setTimeout(
-        () => g.alert(pick(["You again!", "Back of the queue!", "Papers!"])),
-        1400,
+  // The HUD's part: the objective, its markers and the one-time cards, from the phase.
+  guide(hud, hero, disc) {
+    const plateMarks = this.plates
+      .filter((p) => !p.stamped)
+      .map((p) => V(p.x, 1.2, p.z));
+    const n = this.plates.filter((p) => p.stamped).length;
+    let key = this.phase;
+    if (this.phase === "stamps") {
+      hud.objective(
+        "Get the destination address stamped",
+        disc.state === "display"
+          ? `Plates stamped: ${n} of 3 · Wardens only stamp offenders`
+          : `Plates stamped: ${n} of 3 · lure the matching Warden onto each plate`,
       );
+      key += disc.state === "display" ? ":bin" : ":lure";
+      if (this.guideKey !== key)
+        hud.setMarkers(
+          disc.state === "display"
+            ? [V(LAYOUT.bin.x, 1.8, LAYOUT.bin.z), ...plateMarks]
+            : plateMarks,
+        );
+    } else if (this.phase === "arrive" || this.phase === "briefing") {
+      hud.objective("Get through the checkpoint", "Report to the booth");
+      if (this.guideKey !== key)
+        hud.setMarkers(
+          this.phase === "arrive"
+            ? [V(this.windowPos.x, 2, this.windowPos.z + 0.6)]
+            : [],
+        );
+    } else if (this.phase === "lamp") {
+      const charged = disc.charged;
+      hud.objective(
+        "Light the barrier lamp",
+        disc.state === "display"
+          ? "Take the sun disc from the confiscation bin"
+          : charged
+            ? "The disc is charged: throw it at the lamp"
+            : "Throw the disc through the crystal's beam to charge it",
+      );
+      key += disc.state === "display" ? ":bin" : charged ? ":lamp" : ":beam";
+      if (this.guideKey !== key)
+        hud.setMarkers([
+          disc.state === "display"
+            ? V(LAYOUT.bin.x, 1.8, LAYOUT.bin.z)
+            : charged
+              ? this.lampPos.clone().add(V(0, 0.6, 0))
+              : this.emitterPos.clone().add(V(0, 0.8, 0)),
+        ]);
+    } else if (this.phase === "open") {
+      hud.objective("Go through the far door", "The barrier is up");
+      key += ":exit";
+      if (this.guideKey !== key) hud.setMarkers([this.exitMarker]);
     }
+    this.guideKey = key;
+    void hero;
+  }
+
+  // After a knockout: the case is closed, every Warden goes back to its rounds.
+  calmAll() {
+    for (const g of this.guards) g.calm(null);
+    this.telegraphs.clear();
+  }
+
+  reset(built = true) {
+    this.phase = "arrive";
+    this.phaseT = 0;
+    this.lines = [];
+    this.lineT = 0;
+    this.lampLit = false;
+    this.barrierOpen = 0;
+    this.voids = 0;
+    this.sawBin = false;
+    this.tookDisc = false;
+    this.talkIndex = -1;
+    this.guideKey = null;
+    this.health = MAX_HEALTH;
+    if (!built) return;
+    this.gateWall.solid = true;
+    if (this.barrier) this.barrier.rotation.z = 0;
+    for (const g of this.guards) g.reset();
+    for (const p of this.plates) {
+      p.stamped = false;
+      for (const m of p.inlayMats) m.emissiveIntensity = 0.15;
+      p.glyphMat.emissiveIntensity = 0.25;
+    }
+    this.stamps.clear();
+    this.telegraphs.clear();
+    for (const m of this.lampMaterials) m.emissiveIntensity = 0.05;
+    this.lampLight.intensity = 0;
   }
 }
 
+// --- stand-ins until the generated assets load ----------------------------------------------
 function fallbackBooth(scene, { x, z }) {
   const g = new THREE.Group();
   const basalt = new THREE.MeshStandardMaterial({
@@ -521,5 +774,33 @@ function fallbackBin(scene, { x, z, yaw }) {
   g.position.set(x, 0, z);
   g.rotation.y = yaw;
   scene.add(g);
+  return g;
+}
+
+function fallbackPlate() {
+  const g = new THREE.Group();
+  const slab = new THREE.Mesh(
+    new THREE.CylinderGeometry(0.9, 0.9, 0.12, 40),
+    new THREE.MeshStandardMaterial({ color: 0x2a2830, roughness: 0.85 }),
+  );
+  slab.position.y = 0.06;
+  const rim = new THREE.Mesh(
+    new THREE.TorusGeometry(0.8, 0.05, 6, 40),
+    new THREE.MeshStandardMaterial({ color: 0xc9c2d8, roughness: 0.8 }),
+  );
+  rim.rotation.x = Math.PI / 2;
+  rim.position.y = 0.12;
+  const inlay = new THREE.Mesh(
+    new THREE.TorusGeometry(0.7, 0.02, 4, 40),
+    new THREE.MeshStandardMaterial({ color: 0x1d5f63, roughness: 0.3 }),
+  );
+  inlay.rotation.x = Math.PI / 2;
+  inlay.position.y = 0.121;
+  for (const o of [slab, rim, inlay]) {
+    o.castShadow = o.receiveShadow = true;
+    g.add(o);
+  }
+  g.userData.parts = { inlay };
+  g.userData.field = { center: [0, 0.12, 0], size: 1.3 };
   return g;
 }

@@ -15,11 +15,22 @@ const ACTIONS = {
   walk: ["ShiftLeft", "ShiftRight"],
   throw: ["KeyR", "Mouse0"],
   roll: ["KeyQ", "Mouse2"],
+  pause: ["Escape", "KeyP"],
+  skip: ["Escape", "Enter", "Space"],
 };
-const PAD = { jump: 0, drop: 1, interact: 2, roll: 5, walk: 6, throw: 7 };
+const PAD = {
+  jump: 0,
+  drop: 1,
+  interact: 2,
+  roll: 5,
+  walk: 6,
+  throw: 7,
+  pause: 9,
+  skip: 0,
+};
 
 export class Input {
-  constructor(canvas) {
+  constructor(canvas, settings) {
     this.canvas = canvas;
     this.down = new Set();
     this.edges = new Set();
@@ -31,16 +42,8 @@ export class Input {
     this.usingPad = false;
     this.labels = new Map();
     this.dragging = false;
-    // Look sensitivity and inversion persist for this browser; storage may be unavailable.
-    this.settings = { sensitivity: 1, invertY: false };
-    try {
-      Object.assign(
-        this.settings,
-        JSON.parse(localStorage.getItem("far-door-settings") || "{}"),
-      );
-    } catch {
-      /* private window or blocked storage: defaults */
-    }
+    // Look sensitivity and inversion live in the shared settings (store.js).
+    this.settings = settings;
     addEventListener("keydown", (e) => {
       if (e.repeat) return;
       if (isGameKey(e.code)) e.preventDefault();
@@ -64,6 +67,13 @@ export class Input {
       this.down.delete("Mouse" + e.button);
     });
     canvas.addEventListener("contextmenu", (e) => e.preventDefault());
+    // Escape releases the pointer before the page sees the key: the release is the pause.
+    this.wasLocked = false;
+    document.addEventListener("pointerlockchange", () => {
+      const locked = this.locked;
+      if (this.wasLocked && !locked) this.onUnlock?.();
+      this.wasLocked = locked;
+    });
     addEventListener("mousemove", (e) => {
       if (document.pointerLockElement === canvas || this.dragging) {
         this.lookX += e.movementX;
@@ -82,18 +92,11 @@ export class Input {
           "KeyC",
           "KeyR",
           "KeyQ",
+          "KeyP",
         ])
           if (map.get(code)) this.labels.set(code, map.get(code).toUpperCase());
       })
       .catch(() => {});
-  }
-
-  saveSettings() {
-    try {
-      localStorage.setItem("far-door-settings", JSON.stringify(this.settings));
-    } catch {
-      /* not persisted */
-    }
   }
 
   lockPointer() {
@@ -156,6 +159,13 @@ export class Input {
     return this.edges.size > 0;
   }
 
+  // Forget everything held, after a menu or a cinematic took the controls.
+  clear() {
+    this.down.clear();
+    this.edges.clear();
+    this.lookX = this.lookY = 0;
+  }
+
   // Camera look in radians for this frame.
   takeLook(dt) {
     const k = this.settings.sensitivity,
@@ -181,11 +191,13 @@ export class Input {
           walk: "LT",
           throw: "RT",
           roll: "RB",
+          pause: "Start",
         }[action] || action
       );
     if (action === "throw") return `Click / ${this.labels.get("KeyR") || "R"}`;
     if (action === "roll")
       return `Right click / ${this.labels.get("KeyQ") || "Q"}`;
+    if (action === "pause") return "Esc";
     const code = {
       jump: "Space",
       interact: "KeyE",
@@ -194,6 +206,13 @@ export class Input {
     }[action];
     if (code === "Space") return "Space";
     if (code === "ShiftLeft") return "Shift";
+    return this.labels.get(code) || code.replace("Key", "");
+  }
+
+  // The printed label of a key on the current layout: KeyW reads Z on AZERTY.
+  keyLabel(code) {
+    if (this.usingPad)
+      return { KeyW: "↑", KeyS: "↓", KeyA: "←", KeyD: "→" }[code] || code;
     return this.labels.get(code) || code.replace("Key", "");
   }
 

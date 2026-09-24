@@ -88,7 +88,13 @@ const NO_AO = new THREE.DataTexture(new Uint8Array([255, 255, 255, 255]), 1, 1);
 NO_AO.needsUpdate = true;
 export const aoField = { texture: NO_AO, box: new THREE.Vector4(0, 0, 1, 1) };
 
-export function terrainMaterial(kind, color, roughness = 0.94) {
+// `ao: false` for ground outside the first court, which the court's occlusion map does not cover.
+export function terrainMaterial(
+  kind,
+  color,
+  roughness = 0.94,
+  { ao = true } = {},
+) {
   const recipe = kind === "sand" ? "ground" : "stone";
   if (kind === "masonry") roughness = Math.min(roughness, 0.88);
   const s = surface(THREE, recipe, 512);
@@ -106,7 +112,7 @@ export function terrainMaterial(kind, color, roughness = 0.94) {
   m.onBeforeCompile = (shader) => {
     shader.uniforms.uAO = {
       get value() {
-        return aoField.texture;
+        return ao ? aoField.texture : NO_AO;
       },
     };
     shader.uniforms.uAOBox = {

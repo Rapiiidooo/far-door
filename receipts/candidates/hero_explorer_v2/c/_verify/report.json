@@ -1,0 +1,40 @@
+[
+ {
+  "ok": true,
+  "mounts": null,
+  "meshes": 34,
+  "tris": 5734,
+  "materials": 8,
+  "size": [
+   0.643,
+   1.75,
+   0.433
+  ],
+  "groundOffset": 0,
+  "centreOffset": [
+   0,
+   0
+  ],
+  "sides": {
+   "front": {
+    "coverage": 0.1674,
+    "edgeDensity": 0.1208
+   },
+   "right": {
+    "coverage": 0.1143,
+    "edgeDensity": 0.1463
+   },
+   "back": {
+    "coverage": 0.161,
+    "edgeDensity": 0.1341
+   },
+   "left": {
+    "coverage": 0.1166,
+    "edgeDensity": 0.1512
+   }
+  },
+  "error": null,
+  "name": "hero_explorer_c",
+  "problems": []
+ }
+]

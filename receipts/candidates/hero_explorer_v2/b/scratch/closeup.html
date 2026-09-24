@@ -1,0 +1,48 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><title>closeup</title>
+<script type="importmap">{ "imports": { "three": "/game/vendor/three.module.js" } }</script>
+<style>body{margin:0;background:#22262b}canvas{display:block}</style></head>
+<body><script type="module">
+// Throwaway: load one module, pose it, render a grid of views. Job comes in window.__JOB__.
+import * as THREE from 'three';
+const job = JSON.parse(decodeURIComponent(location.hash.slice(1)));
+const tile = job.tile || 420, cols = job.cols || job.views.length, rows = Math.ceil(job.views.length / cols);
+const renderer = new THREE.WebGLRenderer({ antialias: true, preserveDrawingBuffer: true });
+renderer.setSize(tile * cols, tile * rows, false);
+renderer.outputColorSpace = THREE.SRGBColorSpace;
+renderer.shadowMap.enabled = !!job.shadows;
+document.body.appendChild(renderer.domElement);
+const scene = new THREE.Scene();
+scene.background = new THREE.Color(job.bg ?? 0x22262b);
+scene.add(new THREE.HemisphereLight(0xffffff, 0x556677, 2.0));
+const sun = new THREE.DirectionalLight(0xffffff, 1.9);
+sun.position.set(5, 9, 7);
+scene.add(sun);
+const mod = await import(job.src + '?t=' + Date.now());
+const g = mod.default(THREE);
+const J = g.userData.joints;
+for (const [k, r] of Object.entries(job.pose || {})) if (J[k]) J[k].rotation.set(r[0] || 0, r[1] || 0, r[2] || 0);
+// re-ground after posing
+{
+  const b = new THREE.Box3(), w = new THREE.Vector3();
+  g.updateMatrixWorld(true);
+  g.traverse((n) => { const p = n.isMesh && n.geometry.attributes.position; if (!p) return;
+    for (let i = 0; i < p.count; i++) b.expandByPoint(w.fromBufferAttribute(p, i).applyMatrix4(n.matrixWorld)); });
+  if (job.reground !== false) g.position.y -= b.min.y;
+}
+if (job.wire) g.traverse((n) => { if (n.isMesh) { n.material = n.material.clone(); n.material.wireframe = true; } });
+scene.add(g);
+g.updateMatrixWorld(true);
+job.views.forEach((v, i) => {
+  const cam = new THREE.PerspectiveCamera(v.fov || 30, 1, 0.01, 100);
+  cam.position.set(...v.pos);
+  cam.lookAt(...v.target);
+  const x = (i % cols) * tile, y = (rows - 1 - Math.floor(i / cols)) * tile;
+  renderer.setViewport(x, y, tile, tile);
+  renderer.setScissor(x, y, tile, tile);
+  renderer.setScissorTest(true);
+  renderer.render(scene, cam);
+});
+window.__INFO__ = { grip: g.userData.grip, palms: g.userData.palms };
+window.__DONE__ = true;
+</script></body></html>

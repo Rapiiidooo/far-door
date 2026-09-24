@@ -1,0 +1,39 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><title>closeup</title>
+<script type="importmap">{ "imports": { "three": "/game/vendor/three.module.js" } }</script>
+<style>body{margin:0;background:#22262b}canvas{display:block}</style></head>
+<body><script type="module">
+// Throwaway: render modules in a grid of views under the verifier's lights.
+// ?spec=<json>: { files: [url...], views: [{ az, el, dist, at: [x,y,z], fov }], size }
+import * as THREE from 'three';
+const spec = JSON.parse(decodeURIComponent(new URLSearchParams(location.search).get('spec')));
+const size = spec.size || 400, cols = spec.views.length, rows = spec.files.length;
+const renderer = new THREE.WebGLRenderer({ antialias: true, preserveDrawingBuffer: true });
+renderer.setSize(size * cols, size * rows, false);
+renderer.outputColorSpace = THREE.SRGBColorSpace;
+document.body.appendChild(renderer.domElement);
+const scene = new THREE.Scene();
+scene.background = new THREE.Color(0x22262b);
+scene.add(new THREE.HemisphereLight(0xffffff, 0x556677, 2.0));
+const sun = new THREE.DirectionalLight(0xffffff, 1.9);
+sun.position.set(5, 9, 7);
+scene.add(sun);
+renderer.setScissorTest(true);
+for (let r = 0; r < rows; r++) {
+  const g = (await import(spec.files[r] + '?t=' + Date.now())).default(THREE);
+  scene.add(g);
+  spec.views.forEach((vw, c) => {
+    const cam = new THREE.PerspectiveCamera(vw.fov || 30, 1, 0.01, 100);
+    g.updateMatrixWorld(true);
+    const at = typeof vw.at === 'string' ? g.userData.joints[vw.at].getWorldPosition(new THREE.Vector3()).add(new THREE.Vector3(...(vw.off || [0, 0, 0]))) : new THREE.Vector3(...vw.at), az = (vw.az * Math.PI) / 180, el = ((vw.el || 0) * Math.PI) / 180;
+    cam.position.set(at.x + Math.sin(az) * Math.cos(el) * vw.dist, at.y + Math.sin(el) * vw.dist, at.z + Math.cos(az) * Math.cos(el) * vw.dist);
+    cam.lookAt(at);
+    const y = (rows - 1 - r) * size;
+    renderer.setViewport(c * size, y, size, size);
+    renderer.setScissor(c * size, y, size, size);
+    renderer.render(scene, cam);
+  });
+  scene.remove(g);
+}
+window.__DONE__ = true;
+</script></body></html>

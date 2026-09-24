@@ -38,9 +38,9 @@ export class FollowCamera {
     this.ready = false;
   }
 
-  snap(hero) {
+  snap(hero, turn = true) {
     this.target.set(hero.pos.x, hero.feet + 1.55, hero.pos.z);
-    this.yaw = hero.yaw;
+    if (turn) this.yaw = hero.yaw;
     this.ready = true;
   }
 
@@ -134,11 +134,7 @@ export class FollowCamera {
         dir.y,
         dir.z,
         this.frame.dist + 0.5,
-        (b) =>
-          b.kind !== "mirror" &&
-          b.kind !== "stela" &&
-          b.kind !== "prop" &&
-          b.kind !== "fire",
+        (b) => b.cam,
       );
       if (hit) allowed = Math.min(allowed, Math.max(1.1, hit.t - 0.45));
     }
@@ -152,7 +148,7 @@ export class FollowCamera {
     cam.position.copy(this.target).addScaledVector(dir, this.current);
     if (this.shake > 0) {
       this.shake = Math.max(0, this.shake - dt * 2.5);
-      const s = this.shake * this.shake * 0.12;
+      const s = this.shake * this.shake * 0.12 * (this.shakeScale ?? 1);
       cam.position.x += (Math.random() - 0.5) * s;
       cam.position.y += (Math.random() - 0.5) * s;
     }

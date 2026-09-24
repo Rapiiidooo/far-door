@@ -1,0 +1,361 @@
+{
+  "log": [
+    "start 21.0,37.2 feet 8",
+    "jumped the gap: 4.86,37.20 feet 8",
+    "hanging from the edge, feet 6.05",
+    "caught the crack at 4.86,32.62",
+    "climbed up at 8.66,31.75",
+    "reached the court floor",
+    "pulled the block off the beam",
+    "lit: left",
+    "lit: left,right",
+    "on the island 17.19,30.08",
+    "lit: left,top,right",
+    "crossed into the second world at 0.13,-2.02",
+    "briefed by the clerk",
+    "took the disc; the Wardens are coming",
+    "plates stamped with 1 throws and 4 dodges, health 4",
+    "lamp lit, barrier up",
+    "on the isles at -0.95,-2.51",
+    "jumped across to the isle of the first pylon",
+    "woke the first pylon",
+    "crossed the first bridge",
+    "woke the pylon across the gap",
+    "crossed the second bridge",
+    "woke both pylons of the pair",
+    "crossed to Mira's camp",
+    "read Mira's journal; the finale plays",
+    "shader programs at the first start 126, at the end 126",
+    "reached the credits and returned to the title",
+    "errors: none"
+  ],
+  "last": {
+    "mode": "title",
+    "where": "court",
+    "chapter": "isles",
+    "paused": false,
+    "menu": "main",
+    "pos": [
+      21,
+      37.2
+    ],
+    "feet": 8,
+    "state": "ground",
+    "fps": 60,
+    "speed": 0,
+    "score": 0,
+    "over": false,
+    "draws": 600,
+    "tris": 494175,
+    "programs": 126,
+    "programsAtLoad": 124,
+    "programsAtStart": 126,
+    "camYaw": -1.6793518357193278,
+    "cinematic": false,
+    "crossing": false,
+    "step": "enter",
+    "objective": "",
+    "mirrors": [
+      {
+        "id": "m1",
+        "yaw": -0.7853981633974483,
+        "locked": null
+      },
+      {
+        "id": "m2",
+        "yaw": 1.5707963267948966,
+        "locked": null
+      },
+      {
+        "id": "m3",
+        "yaw": 2.356194490192345,
+        "locked": null
+      }
+    ],
+    "lit": [],
+    "gateOpen": false,
+    "health": 4,
+    "checkpoint": "arrive",
+    "plates": [
+      {
+        "glyph": "crescent",
+        "stamped": false
+      },
+      {
+        "glyph": "waves",
+        "stamped": false
+      },
+      {
+        "glyph": "disc",
+        "stamped": false
+      }
+    ],
+    "disc": {
+      "state": "display",
+      "charged": false
+    },
+    "guards": [
+      {
+        "state": "patrol",
+        "glyph": "crescent",
+        "hp": 3,
+        "hostile": false,
+        "pos": [
+          8.6,
+          -24.6
+        ],
+        "target": null
+      },
+      {
+        "state": "patrol",
+        "glyph": "waves",
+        "hp": 3,
+        "hostile": false,
+        "pos": [
+          -9.6,
+          -24.4
+        ],
+        "target": null
+      },
+      {
+        "state": "patrol",
+        "glyph": "disc",
+        "hp": 3,
+        "hostile": false,
+        "pos": [
+          -0.6,
+          -27.6
+        ],
+        "target": null
+      }
+    ],
+    "exitOpen": false,
+    "isles": {
+      "step": null,
+      "reached": 0,
+      "on": "arrival",
+      "read": false,
+      "disc": {
+        "state": "stowed",
+        "charged": false
+      },
+      "isles": [
+        {
+          "id": "arrival",
+          "at": [
+            -0.28,
+            -1.55,
+            0.01
+          ]
+        },
+        {
+          "id": "step1",
+          "at": [
+            1.42,
+            -14.46,
+            0.4
+          ]
+        },
+        {
+          "id": "step2",
+          "at": [
+            3.64,
+            -20.97,
+            1
+          ]
+        },
+        {
+          "id": "well",
+          "at": [
+            3.98,
+            -30.63,
+            1.61
+          ]
+        },
+        {
+          "id": "gap",
+          "at": [
+            6.35,
+            -51.8,
+            2.61
+          ]
+        },
+        {
+          "id": "pair",
+          "at": [
+            10.27,
+            -71.18,
+            3.81
+          ]
+        },
+        {
+          "id": "rock",
+          "at": [
+            11.9,
+            -86.37,
+            5
+          ]
+        },
+        {
+          "id": "camp",
+          "at": [
+            11.36,
+            -106.38,
+            6.21
+          ]
+        }
+      ],
+      "wells": [
+        [
+          1.58,
+          -31.83,
+          3.14
+        ],
+        [
+          3.75,
+          -54,
+          4.07
+        ],
+        [
+          7.47,
+          -71.98,
+          5.32
+        ]
+      ],
+      "pylons": [
+        {
+          "id": "first",
+          "lens": [
+            5,
+            -33.83,
+            3.68
+          ],
+          "emit": [
+            5,
+            -34.88,
+            1.37
+          ],
+          "to": -46.947138363802594,
+          "on": false,
+          "left": 0
+        },
+        {
+          "id": "across",
+          "lens": [
+            8.6,
+            -68.08,
+            5.91
+          ],
+          "emit": [
+            8.6,
+            -67.03,
+            3.6
+          ],
+          "to": -56.547138363801906,
+          "on": false,
+          "left": 0
+        },
+        {
+          "id": "twinA",
+          "lens": [
+            12,
+            -73.87,
+            5.91
+          ],
+          "emit": [
+            12,
+            -74.93,
+            3.6
+          ],
+          "to": -85.17054138010359,
+          "on": false,
+          "left": 0
+        },
+        {
+          "id": "twinB",
+          "lens": [
+            12,
+            -87.12,
+            7.27
+          ],
+          "emit": [
+            12,
+            -88.17,
+            4.96
+          ],
+          "to": -97.78366123631834,
+          "on": false,
+          "left": 0
+        }
+      ],
+      "note": [
+        15.18,
+        -103.75,
+        7
+      ],
+      "edges": [
+        [
+          0.79,
+          -9.64
+        ],
+        [
+          2.15,
+          -16.6
+        ],
+        [
+          3.72,
+          -23.21
+        ],
+        [
+          4.56,
+          -35.76
+        ],
+        [
+          7.63,
+          -58.12
+        ],
+        [
+          10.79,
+          -76.04
+        ],
+        [
+          11.83,
+          -89
+        ]
+      ]
+    },
+    "credits": false,
+    "assets": {
+      "hero_explorer": true,
+      "push_block": true,
+      "sun_mirror": true,
+      "glyph_stela": true,
+      "far_gate": true,
+      "guardian_colossus": true,
+      "temple_facade": true,
+      "broken_column": true,
+      "brazier": true,
+      "basalt_spire": true,
+      "warden": true,
+      "sun_disc": true,
+      "customs_booth": true,
+      "queue_post": true,
+      "confiscation_bin": true,
+      "crystal_emitter": true,
+      "lumen_plant": true,
+      "expedition_tent": true,
+      "supply_crates": true,
+      "clay_urns": true,
+      "fallen_head": true,
+      "boulder_cluster": true,
+      "desert_agave": true,
+      "stamp_plate": true,
+      "glyph_banner": true,
+      "path_lantern": true,
+      "expedition_rope": true,
+      "light_pylon": true,
+      "floating_isle": true
+    }
+  },
+  "errors": []
+}

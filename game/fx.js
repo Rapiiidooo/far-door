@@ -40,6 +40,14 @@ export class Dust {
     this.next = 0;
   }
 
+  // Moves every puff into another scene, tinted for its ground.
+  moveTo(scene, color) {
+    for (const p of this.items) {
+      scene.add(p.sprite);
+      p.sprite.material.color.setHex(color);
+    }
+  }
+
   // A ring of puffs at a point; strength scales count, spread and size.
   burst(x, y, z, strength = 1, count = 10) {
     for (let i = 0; i < count; i++) {
@@ -86,63 +94,177 @@ export class Dust {
   }
 }
 
-// Ink marks left where a Warden's stamp came down: an ochre ring and a verdict, fading out.
+// Ink left where a Warden's stamp came down: its glyph in a ring, ochre on the ground, red and
+// struck through on the wrong plate, turquoise on the right one. Marks are pooled, one
+// material each, so stamping never creates anything new during play.
+const INKS = {
+  ground: "rgba(196,138,40,0.92)",
+  void: "rgba(178,44,34,0.95)",
+  plate: "rgba(90,240,222,0.95)",
+};
+
 export class Stamps {
-  constructor(scene) {
+  constructor(scene, glyphs, draw) {
     this.scene = scene;
+    this.textures = new Map();
+    for (const glyph of glyphs)
+      for (const [kind, ink] of Object.entries(INKS)) {
+        const c = document.createElement("canvas");
+        c.width = c.height = 256;
+        const ctx = c.getContext("2d");
+        ctx.strokeStyle = ink;
+        ctx.lineCap = "round";
+        ctx.lineJoin = "round";
+        ctx.lineWidth = 16;
+        ctx.beginPath();
+        ctx.arc(128, 128, 106, 0, Math.PI * 2);
+        ctx.stroke();
+        ctx.lineWidth = 6;
+        ctx.beginPath();
+        ctx.arc(128, 128, 84, 0, Math.PI * 2);
+        ctx.stroke();
+        ctx.lineWidth = 2.6;
+        draw(ctx, glyph, 128, 128, 130);
+        if (kind === "void") {
+          ctx.lineWidth = 18;
+          ctx.beginPath();
+          ctx.moveTo(52, 52);
+          ctx.lineTo(204, 204);
+          ctx.moveTo(204, 52);
+          ctx.lineTo(52, 204);
+          ctx.stroke();
+        }
+        const t = new THREE.CanvasTexture(c);
+        t.colorSpace = THREE.SRGBColorSpace;
+        this.textures.set(`${glyph}:${kind}`, t);
+      }
+    const geo = new THREE.PlaneGeometry(1.2, 1.2).rotateX(-Math.PI / 2);
     this.items = [];
-    this.textures = ["DENIED", "VOID", "REJECTED"].map((word) => {
-      const c = document.createElement("canvas");
-      c.width = c.height = 256;
-      const ctx = c.getContext("2d");
-      ctx.strokeStyle = "rgba(170,40,30,0.9)";
-      ctx.lineWidth = 14;
-      ctx.beginPath();
-      ctx.arc(128, 128, 110, 0, Math.PI * 2);
-      ctx.stroke();
-      ctx.lineWidth = 5;
-      ctx.beginPath();
-      ctx.arc(128, 128, 88, 0, Math.PI * 2);
-      ctx.stroke();
-      ctx.fillStyle = "rgba(170,40,30,0.95)";
-      ctx.font = "900 44px 'Barlow Condensed', sans-serif";
-      ctx.textAlign = "center";
-      ctx.textBaseline = "middle";
-      ctx.fillText(word, 128, 130);
-      const t = new THREE.CanvasTexture(c);
-      t.colorSpace = THREE.SRGBColorSpace;
-      return t;
-    });
-    this.geo = new THREE.PlaneGeometry(1.1, 1.1).rotateX(-Math.PI / 2);
+    for (let i = 0; i < 14; i++) {
+      const m = new THREE.Mesh(
+        geo,
+        new THREE.MeshBasicMaterial({
+          map: this.textures.values().next().value,
+          transparent: true,
+          depthWrite: false,
+          polygonOffset: true,
+          polygonOffsetFactor: -2,
+          opacity: 0,
+        }),
+      );
+      m.visible = false;
+      m.renderOrder = 2;
+      scene.add(m);
+      this.items.push({ m, life: 0 });
+    }
+    this.next = 0;
   }
 
-  mark(x, y, z) {
-    const m = new THREE.Mesh(
-      this.geo,
-      new THREE.MeshBasicMaterial({
-        map: this.textures[Math.floor(Math.random() * this.textures.length)],
-        transparent: true,
-        depthWrite: false,
-        polygonOffset: true,
-        polygonOffsetFactor: -2,
-      }),
-    );
-    m.position.set(x, y + 0.03, z);
-    m.rotation.y = Math.random() * Math.PI * 2;
-    this.scene.add(m);
-    this.items.push({ m, life: 3 });
+  mark(x, y, z, glyph, kind = "ground") {
+    const s = this.items[this.next];
+    this.next = (this.next + 1) % this.items.length;
+    s.m.material.map =
+      this.textures.get(`${glyph}:${kind}`) || s.m.material.map;
+    s.m.position.set(x, y + 0.03 + this.next * 0.001, z);
+    s.m.rotation.y = Math.random() * Math.PI * 2;
+    s.m.visible = true;
+    s.life = kind === "plate" ? 6 : 3.5;
   }
 
   update(dt) {
     for (const s of this.items) {
+      if (!s.m.visible) continue;
       s.life -= dt;
       s.m.material.opacity = Math.min(1, s.life);
+      if (s.life <= 0) s.m.visible = false;
     }
-    this.items = this.items.filter((s) => {
-      if (s.life > 0) return true;
-      s.m.removeFromParent();
-      s.m.material.dispose();
-      return false;
-    });
+  }
+
+  clear() {
+    for (const s of this.items) s.m.visible = false;
+  }
+}
+
+// The ring a winding-up Warden paints on the ground where its stamp will land. It fills as
+// the stamp rises: ochre on the ground, turquoise over the matching plate, red over the wrong one.
+export class Telegraphs {
+  constructor(scene, count = 3) {
+    this.items = [];
+    // The stamp's reach (wardens.js STAMP_RADIUS): inside the ring is hit, outside is not.
+    const geo = new THREE.CircleGeometry(0.9, 48).rotateX(-Math.PI / 2);
+    for (let i = 0; i < count; i++) {
+      const uniforms = {
+        uFill: { value: 0 },
+        uTime: { value: 0 },
+        uColor: { value: new THREE.Color(1.6, 1.0, 0.25) },
+      };
+      const m = new THREE.Mesh(
+        geo,
+        new THREE.ShaderMaterial({
+          uniforms,
+          transparent: true,
+          depthWrite: false,
+          toneMapped: false,
+          vertexShader: /* glsl */ `varying vec2 vP; void main() { vP = position.xz / 0.9; gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0); }`,
+          fragmentShader: /* glsl */ `
+            uniform float uFill; uniform float uTime; uniform vec3 uColor; varying vec2 vP;
+            void main() {
+              float r = length(vP);
+              float rim = smoothstep(0.84, 0.9, r) * (1.0 - smoothstep(0.96, 1.0, r));
+              float fill = (1.0 - smoothstep(uFill - 0.03, uFill, r)) * 0.32;
+              float pulse = 0.75 + 0.25 * sin(uTime * 18.0);
+              float a = max(rim * pulse, fill);
+              gl_FragColor = vec4(uColor * (0.6 + a), a);
+            }`,
+        }),
+      );
+      m.visible = false;
+      m.renderOrder = 3;
+      m.frustumCulled = false;
+      scene.add(m);
+      this.items.push({ m, uniforms, owner: null, t: 0, duration: 0.85 });
+    }
+  }
+
+  show(owner, x, y, z, tone = "ground", duration = 0.85) {
+    let slot =
+      this.items.find((s) => s.owner === owner) ||
+      this.items.find((s) => !s.owner);
+    if (!slot) slot = this.items[0];
+    slot.owner = owner;
+    slot.t = 0;
+    slot.duration = duration;
+    slot.m.position.set(x, y + 0.04, z);
+    slot.m.visible = true;
+    const c = {
+      ground: [1.6, 1.0, 0.25],
+      plate: [0.3, 2.2, 2.0],
+      void: [2.2, 0.35, 0.25],
+    }[tone];
+    slot.uniforms.uColor.value.setRGB(...c);
+  }
+
+  hide(owner) {
+    for (const s of this.items)
+      if (s.owner === owner) {
+        s.owner = null;
+        s.m.visible = false;
+      }
+  }
+
+  update(dt) {
+    for (const s of this.items) {
+      if (!s.owner) continue;
+      s.t += dt;
+      s.uniforms.uFill.value = Math.min(1, s.t / s.duration);
+      s.uniforms.uTime.value += dt;
+    }
+  }
+
+  clear() {
+    for (const s of this.items) {
+      s.owner = null;
+      s.m.visible = false;
+    }
   }
 }

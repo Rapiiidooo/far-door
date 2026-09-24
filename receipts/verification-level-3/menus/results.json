@@ -1,0 +1,95 @@
+{
+  "results": [
+    {
+      "name": "title menu open",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "continue offered",
+      "ok": true,
+      "detail": "Continue · The Checkpoint"
+    },
+    {
+      "name": "levels screen lists every start",
+      "ok": true,
+      "detail": "From the terrace:open, From the court floor:open, Beyond the first door:open, Beyond the far door:open"
+    },
+    {
+      "name": "back returns to the title menu",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "settings change and persist",
+      "ok": true,
+      "detail": "1 -> 1.2"
+    },
+    {
+      "name": "controls screen",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "continue starts the checkpoint",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "the first door leads back to the court",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "escape pauses",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "levels from pause starts the court floor",
+      "ok": true,
+      "detail": "floor feet 0"
+    },
+    {
+      "name": "restart keeps the level",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "quit returns to a single title menu",
+      "ok": true,
+      "detail": "1 panel(s) showing"
+    },
+    {
+      "name": "credits roll and skip",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "a new game opens on the expedition's story",
+      "ok": true,
+      "detail": "camp"
+    },
+    {
+      "name": "the expedition's notes open, close and move the story on",
+      "ok": true,
+      "detail": "true true gap"
+    },
+    {
+      "name": "a knockout sends the explorer back to the queue",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "the isles lead back to the checkpoint, left open",
+      "ok": true,
+      "detail": "open true"
+    },
+    {
+      "name": "no page errors",
+      "ok": true,
+      "detail": ""
+    }
+  ],
+  "errors": []
+}

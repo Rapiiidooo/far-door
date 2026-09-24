@@ -1,0 +1,13 @@
+# floating_isle candidates
+
+All three share one design, so the comparison is about construction: a dawn limestone cap about 14 m across, gently domed (0.46 m) over a chamfered rim that overhangs the rock, four chamfered isle-rock tiers stepping in to a tip 9 m below the top, three fragments floating free with the lowest tip at y = 0, six patches of sage tufts and two isle-rock boulders, the centre left clear. `userData.top` is cast down onto the cap at x = z = 0 after the placement shift. Parts are merged per material with identity transforms, so the loader's re-origin is zero.
+
+- A, primitives: a squashed sphere segment and three frusta for the cap; each tier a frustum side and a chamfer frustum whose bottom cap is the step, each with its own number of sides, turn and stretch; cone tip, frustum-stack fragments, three-sided cone tufts, dodecahedron boulders. `ok  floating_isle_a  1239 tris  3 meshes  14.119x12.813x13.344m`
+- B, profiles: one stepped profile turned in two lathes (cap and body) on 16 sides, then warped by a lobed plan that turns tier by tier, every ring clamped no wider than the one above so no step turns inside out; lathed fragments, extruded fans of blades crossed in pairs for tufts, bevelled extrusions for boulders. `ok  floating_isle_b  2420 tris  3 meshes  14.556x12.873x13.8m`
+- C, second reading, hand-built lofts: the underside as torn-out bedrock, each stratum its own slab lofted through its own plan, shifted off the axis and tipped a few degrees; lofted cap, slab-chunk fragments, blade clusters. `ok  floating_isle_c  1312 tris  3 meshes  13.658x12.655x13.712m`
+
+Picked B. In a dawn stand-in (the game's rig with the sun forced to 9°, its haze and a cloud-gold floor, `scratch/dawn_*.png`) all three keep a strong stepped silhouette and a pale cap from 60 to 160 m. B has the craggiest steps, the most natural lobed cap and the only tufts that still read as grass from 35 m above (`scratch/dawn_above_0.png`, `scratch/dawn_bc_fair_0.png`). A reads as a carved ziggurat; C's shifted strata came out subtler than intended and its thin blades vanish.
+
+`scratch/gaps.mjs` checks the brief's "not touching": the fragments clear everything by 1.03 m (under the tip), 1.02 m and 1.24 m.
+
+Known weaknesses: the dawn check is a stand-in, since the third world is not built yet; the tufts are 1,200 of the 2,420 triangles and vanish beyond about 60 m, so a far copy could drop them; the 16 flat-shaded sides show their facets from close; with the fragments hanging below the 9 m cone the asset is 12.9 m tall and the walkable top sits 12.28 m above its base, so place it by `top`.

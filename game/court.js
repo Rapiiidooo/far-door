@@ -58,6 +58,8 @@ export const EXTRA = [
 ];
 
 export const START = { x: 21, z: 37.2, yaw: Math.PI };
+// The foot of the broken stair, for the Levels menu's second start.
+export const FLOOR = { x: 19.6, z: 27.2, yaw: -2.4 };
 
 export const LIGHT = {
   // The sun catcher sits against the west cliff and throws the beam east at 1.3 m.
@@ -80,11 +82,25 @@ export const STELAE = [
 
 export const BLOCKS = [{ id: "b1", x: 5, z: 21 }];
 
+// The previous expedition's field notes: the map rolled up in their open crate on the
+// terrace (the supply_crates asset turned 0.35 rad at its PROPS spot).
+export const NOTES = { x: 22.08, y: 8.9, z: 40.5 };
+
+// The previous expedition's ropes, left where it climbed: each marks a lip the explorer can
+// hang from. [x, lip height, z of the face, yaw]; yaw 0 hangs down a face turned to +Z.
+export const ROPES = [
+  [4.1, 8, 36, Math.PI],
+  [5.2, 7, 32, 0],
+  [9.1, 7, 32, 0],
+];
+
 export const GATE = { x: 15, z: 11, yaw: 0 };
 export const FACADE = { x: 15, z: 4, yaw: 0 };
+// Each guardian sits a centimetre low: its bottom step reaches 17 cm onto the gate's dais at
+// the dais's own 0.5 m, and two tops at one height fight for depth.
 export const COLOSSI = [
-  { x: 5, z: 10.5, yaw: 0 },
-  { x: 25, z: 10.5, yaw: 0 },
+  { x: 5, y: -0.01, z: 10.5, yaw: 0 },
+  { x: 25, y: -0.01, z: 10.5, yaw: 0 },
 ];
 
 export const COLUMNS = [
@@ -98,21 +114,73 @@ export const BRAZIERS = [
   [18.8, 14.6],
 ];
 
-// Set dressing: [asset, x, y, z, yaw, collider as [half width, half depth, height] or null].
-// The camp on the terrace belongs to the expedition that came before.
+// Set dressing: [asset, x, y, z, yaw]. The camp on the terrace belongs to the expedition
+// that came before.
 export const PROPS = [
-  ["fallen_head", 24.3, 0, 34.9, -0.45, [2.3, 1.5, 2.6]],
-  ["boulder_cluster", 26.3, 0, 26.2, 0.8, [1.5, 1.3, 2.2]],
-  ["boulder_cluster", 3.6, 0, 16.9, 2.2, [1.4, 1.2, 2.2]],
-  ["desert_agave", 27.0, 0, 22.6, 0.3, null],
-  ["desert_agave", 12.4, 0, 35.3, 1.1, null],
-  ["desert_agave", 19.3, 0, 35.5, 2.4, null],
-  ["desert_agave", 2.9, 0, 24.8, 0.7, null],
-  ["desert_agave", 27.1, 8, 38.6, 1.9, null],
-  ["glyph_banner", 9.4, 8, 41.1, 0.4, [0.22, 0.22, 3.6]],
-  ["glyph_banner", 27.3, 8, 41.1, -0.3, [0.22, 0.22, 3.6]],
-  ["expedition_tent", 24.6, 8, 40.3, 2.95, [0.85, 1.1, 1.6]],
-  ["supply_crates", 21.6, 8, 40.9, 0.35, [0.95, 0.65, 1.3]],
-  ["clay_urns", 26.6, 0, 17.6, 0.2, [0.6, 0.6, 1.0]],
-  ["clay_urns", 12.9, 8, 41.0, 2.6, [0.6, 0.6, 1.0]],
+  ["fallen_head", 24.3, 0, 34.9, -0.45],
+  ["boulder_cluster", 26.3, 0, 26.2, 0.8],
+  ["boulder_cluster", 3.6, 0, 16.9, 2.2],
+  ["desert_agave", 27.0, 0, 22.6, 0.3],
+  ["desert_agave", 12.4, 0, 35.3, 1.1],
+  ["desert_agave", 19.3, 0, 35.5, 2.4],
+  ["desert_agave", 2.9, 0, 24.8, 0.7],
+  ["desert_agave", 27.1, 8, 38.6, 1.9],
+  ["glyph_banner", 9.4, 8, 41.1, 0.4],
+  ["glyph_banner", 27.3, 8, 41.1, -0.3],
+  ["expedition_tent", 24.6, 8, 40.3, 2.95],
+  ["supply_crates", 21.6, 8, 40.9, 0.35],
+  ["clay_urns", 26.6, 0, 17.6, 0.2],
+  ["clay_urns", 12.9, 8, 41.0, 2.6],
+];
+
+// Colliders fitted to each prop's mesh: circles [x, z, radius, top] in the asset's own frame,
+// read off a 5 cm top-down height map of its triangles, and turned with the prop. Round
+// colliders cannot be stood on or hung from, so a jump onto a rock slides off it.
+// `small` props (plants, urns) do not push the camera.
+export const PROP_SHAPES = {
+  fallen_head: [
+    [0.03, 0.08, 1.44, 2.5],
+    [-1.13, 0.23, 1.2, 2.58],
+    [1.48, 0.08, 0.75, 2.0],
+  ],
+  boulder_cluster: [
+    [-0.53, -0.48, 0.89, 2.26],
+    [0.98, -0.03, 0.62, 1.63],
+    [0.08, 0.63, 0.45, 2.05],
+  ],
+  clay_urns: [
+    [-0.28, -0.28, 0.3, 1.01],
+    [0.33, -0.28, 0.25, 0.76],
+    [0.02, 0.22, 0.2, 0.5],
+  ],
+  broken_column: [
+    [-0.43, -0.03, 0.65, 3.4],
+    [0.63, 0.08, 0.35, 0.59],
+    [0.38, -0.28, 0.25, 0.62],
+  ],
+  expedition_tent: [
+    [0.03, 0.38, 0.68, 1.56],
+    [0.03, -0.43, 0.65, 1.56],
+    [-0.48, -0.93, 0.25, 0.6],
+  ],
+  supply_crates: [
+    [0.38, -0.13, 0.4, 1.26],
+    [-0.33, -0.28, 0.32, 1.3],
+    [-0.53, 0.43, 0.25, 0.56],
+    [-0.63, -0.23, 0.3, 1.3],
+  ],
+  desert_agave: [[0, 0, 0.32, 0.9]],
+  glyph_banner: [[0.03, -0.03, 0.34, 3.6]],
+};
+export const SMALL_PROPS = new Set(["desert_agave", "clay_urns"]);
+
+// The seated colossus measured the same way, as stacked boxes in its own frame
+// [minX, minZ, maxX, maxZ, top]: a 0.5 m step, a 1 m plinth the explorer can climb, the
+// throne and body, the shins, and feet low enough to step onto.
+export const COLOSSUS_BOXES = [
+  [-4.2, -4.83, 4.2, 4.83, 0.5],
+  [-3.95, -4.43, 3.95, 4.07, 1.0],
+  [-3.45, -4.43, 3.45, 1.07, 14],
+  [-1.75, 1.07, 1.75, 3.07, 6.2],
+  [-1.75, 3.07, 1.75, 3.57, 1.45],
 ];

@@ -1,0 +1,116 @@
+[
+ {
+  "ok": true,
+  "mounts": null,
+  "meshes": 3,
+  "tris": 1239,
+  "materials": 3,
+  "size": [
+   14.119,
+   12.813,
+   13.344
+  ],
+  "groundOffset": 0,
+  "centreOffset": [
+   0,
+   0
+  ],
+  "sides": {
+   "front": {
+    "coverage": 0.1613,
+    "edgeDensity": 0.1131
+   },
+   "right": {
+    "coverage": 0.1634,
+    "edgeDensity": 0.1159
+   },
+   "back": {
+    "coverage": 0.1662,
+    "edgeDensity": 0.1194
+   },
+   "left": {
+    "coverage": 0.1537,
+    "edgeDensity": 0.1231
+   }
+  },
+  "error": null,
+  "name": "floating_isle_a",
+  "problems": []
+ },
+ {
+  "ok": true,
+  "mounts": null,
+  "meshes": 3,
+  "tris": 2420,
+  "materials": 3,
+  "size": [
+   14.556,
+   12.873,
+   13.8
+  ],
+  "groundOffset": 0,
+  "centreOffset": [
+   0,
+   0
+  ],
+  "sides": {
+   "front": {
+    "coverage": 0.1618,
+    "edgeDensity": 0.1303
+   },
+   "right": {
+    "coverage": 0.1548,
+    "edgeDensity": 0.1327
+   },
+   "back": {
+    "coverage": 0.1562,
+    "edgeDensity": 0.14
+   },
+   "left": {
+    "coverage": 0.156,
+    "edgeDensity": 0.1319
+   }
+  },
+  "error": null,
+  "name": "floating_isle_b",
+  "problems": []
+ },
+ {
+  "ok": true,
+  "mounts": null,
+  "meshes": 3,
+  "tris": 1312,
+  "materials": 3,
+  "size": [
+   13.658,
+   12.655,
+   13.712
+  ],
+  "groundOffset": 0,
+  "centreOffset": [
+   0,
+   0
+  ],
+  "sides": {
+   "front": {
+    "coverage": 0.1601,
+    "edgeDensity": 0.1159
+   },
+   "right": {
+    "coverage": 0.1663,
+    "edgeDensity": 0.1136
+   },
+   "back": {
+    "coverage": 0.1693,
+    "edgeDensity": 0.1135
+   },
+   "left": {
+    "coverage": 0.1609,
+    "edgeDensity": 0.1142
+   }
+  },
+  "error": null,
+  "name": "floating_isle_c",
+  "problems": []
+ }
+]

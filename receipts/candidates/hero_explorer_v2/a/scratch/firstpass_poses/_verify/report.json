@@ -1,0 +1,116 @@
+[
+ {
+  "ok": true,
+  "mounts": null,
+  "meshes": 34,
+  "tris": 12512,
+  "materials": 8,
+  "size": [
+   0.649,
+   2.166,
+   0.411
+  ],
+  "groundOffset": 0,
+  "centreOffset": [
+   0,
+   0
+  ],
+  "sides": {
+   "front": {
+    "coverage": 0.1052,
+    "edgeDensity": 0.1474
+   },
+   "right": {
+    "coverage": 0.0748,
+    "edgeDensity": 0.1701
+   },
+   "back": {
+    "coverage": 0.1032,
+    "edgeDensity": 0.1884
+   },
+   "left": {
+    "coverage": 0.075,
+    "edgeDensity": 0.1844
+   }
+  },
+  "error": null,
+  "name": "posed_fp_hang",
+  "problems": []
+ },
+ {
+  "ok": true,
+  "mounts": null,
+  "meshes": 34,
+  "tris": 12512,
+  "materials": 8,
+  "size": [
+   1.57,
+   1.715,
+   0.624
+  ],
+  "groundOffset": 0,
+  "centreOffset": [
+   0,
+   0
+  ],
+  "sides": {
+   "front": {
+    "coverage": 0.0955,
+    "edgeDensity": 0.1627
+   },
+   "right": {
+    "coverage": 0.0726,
+    "edgeDensity": 0.1744
+   },
+   "back": {
+    "coverage": 0.1006,
+    "edgeDensity": 0.1827
+   },
+   "left": {
+    "coverage": 0.0698,
+    "edgeDensity": 0.1819
+   }
+  },
+  "error": null,
+  "name": "posed_fp_look",
+  "problems": []
+ },
+ {
+  "ok": true,
+  "mounts": null,
+  "meshes": 34,
+  "tris": 12512,
+  "materials": 8,
+  "size": [
+   0.649,
+   1.693,
+   1.31
+  ],
+  "groundOffset": 0,
+  "centreOffset": [
+   0,
+   0
+  ],
+  "sides": {
+   "front": {
+    "coverage": 0.0998,
+    "edgeDensity": 0.1605
+   },
+   "right": {
+    "coverage": 0.0967,
+    "edgeDensity": 0.1682
+   },
+   "back": {
+    "coverage": 0.1009,
+    "edgeDensity": 0.1774
+   },
+   "left": {
+    "coverage": 0.1009,
+    "edgeDensity": 0.1632
+   }
+  },
+  "error": null,
+  "name": "posed_fp_run",
+  "problems": []
+ }
+]

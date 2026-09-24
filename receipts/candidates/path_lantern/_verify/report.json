@@ -1,0 +1,116 @@
+[
+ {
+  "ok": true,
+  "mounts": null,
+  "meshes": 4,
+  "tris": 1268,
+  "materials": 4,
+  "size": [
+   0.6,
+   2.4,
+   0.6
+  ],
+  "groundOffset": 0,
+  "centreOffset": [
+   0,
+   0
+  ],
+  "sides": {
+   "front": {
+    "coverage": 0.0838,
+    "edgeDensity": 0.0751
+   },
+   "right": {
+    "coverage": 0.0836,
+    "edgeDensity": 0.1049
+   },
+   "back": {
+    "coverage": 0.0842,
+    "edgeDensity": 0.0945
+   },
+   "left": {
+    "coverage": 0.0846,
+    "edgeDensity": 0.097
+   }
+  },
+  "error": null,
+  "name": "path_lantern_a",
+  "problems": []
+ },
+ {
+  "ok": true,
+  "mounts": null,
+  "meshes": 4,
+  "tris": 1708,
+  "materials": 4,
+  "size": [
+   0.6,
+   2.4,
+   0.6
+  ],
+  "groundOffset": 0,
+  "centreOffset": [
+   0,
+   0
+  ],
+  "sides": {
+   "front": {
+    "coverage": 0.0844,
+    "edgeDensity": 0.0785
+   },
+   "right": {
+    "coverage": 0.0837,
+    "edgeDensity": 0.11
+   },
+   "back": {
+    "coverage": 0.0848,
+    "edgeDensity": 0.1032
+   },
+   "left": {
+    "coverage": 0.0847,
+    "edgeDensity": 0.1052
+   }
+  },
+  "error": null,
+  "name": "path_lantern_b",
+  "problems": []
+ },
+ {
+  "ok": true,
+  "mounts": null,
+  "meshes": 4,
+  "tris": 1416,
+  "materials": 4,
+  "size": [
+   0.6,
+   2.4,
+   0.6
+  ],
+  "groundOffset": 0,
+  "centreOffset": [
+   0,
+   0
+  ],
+  "sides": {
+   "front": {
+    "coverage": 0.0765,
+    "edgeDensity": 0.1242
+   },
+   "right": {
+    "coverage": 0.0784,
+    "edgeDensity": 0.1595
+   },
+   "back": {
+    "coverage": 0.0898,
+    "edgeDensity": 0.1324
+   },
+   "left": {
+    "coverage": 0.0857,
+    "edgeDensity": 0.1179
+   }
+  },
+  "error": null,
+  "name": "path_lantern_c",
+  "problems": []
+ }
+]

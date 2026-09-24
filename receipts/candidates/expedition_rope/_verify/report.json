@@ -1,0 +1,116 @@
+[
+ {
+  "ok": true,
+  "mounts": "back",
+  "meshes": 3,
+  "tris": 1832,
+  "materials": 3,
+  "size": [
+   0.354,
+   2.028,
+   0.423
+  ],
+  "groundOffset": 0,
+  "centreOffset": [
+   0,
+   0
+  ],
+  "sides": {
+   "front": {
+    "coverage": 0.0327,
+    "edgeDensity": 0.3391
+   },
+   "right": {
+    "coverage": 0.0302,
+    "edgeDensity": 0.2917
+   },
+   "back": {
+    "coverage": 0.03,
+    "edgeDensity": 0.2528
+   },
+   "left": {
+    "coverage": 0.031,
+    "edgeDensity": 0.2856
+   }
+  },
+  "error": null,
+  "name": "expedition_rope_a",
+  "problems": []
+ },
+ {
+  "ok": true,
+  "mounts": "back",
+  "meshes": 3,
+  "tris": 1912,
+  "materials": 3,
+  "size": [
+   0.361,
+   2.038,
+   0.455
+  ],
+  "groundOffset": 0,
+  "centreOffset": [
+   0,
+   0
+  ],
+  "sides": {
+   "front": {
+    "coverage": 0.033,
+    "edgeDensity": 0.332
+   },
+   "right": {
+    "coverage": 0.029,
+    "edgeDensity": 0.307
+   },
+   "back": {
+    "coverage": 0.0284,
+    "edgeDensity": 0.2486
+   },
+   "left": {
+    "coverage": 0.0298,
+    "edgeDensity": 0.2986
+   }
+  },
+  "error": null,
+  "name": "expedition_rope_b",
+  "problems": []
+ },
+ {
+  "ok": true,
+  "mounts": "back",
+  "meshes": 3,
+  "tris": 1984,
+  "materials": 3,
+  "size": [
+   0.336,
+   2.008,
+   0.439
+  ],
+  "groundOffset": 0,
+  "centreOffset": [
+   0,
+   0
+  ],
+  "sides": {
+   "front": {
+    "coverage": 0.0418,
+    "edgeDensity": 0.3791
+   },
+   "right": {
+    "coverage": 0.035,
+    "edgeDensity": 0.4129
+   },
+   "back": {
+    "coverage": 0.035,
+    "edgeDensity": 0.2648
+   },
+   "left": {
+    "coverage": 0.0369,
+    "edgeDensity": 0.3202
+   }
+  },
+  "error": null,
+  "name": "expedition_rope_c",
+  "problems": []
+ }
+]

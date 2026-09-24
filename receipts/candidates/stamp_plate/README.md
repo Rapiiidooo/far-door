@@ -1,0 +1,13 @@
+# stamp_plate candidates
+
+- `stamp_plate_a`, primitives: open cylinders and cones for the two chamfered night-basalt tiers, rings for the ledges and deck, a disc for the field 3 cm down, a chalk rim from the same kit; each tick is a stamp-ochre bar across the rim that clips over its outer wall, 12 mm proud; the inlay is a flattened six-sided torus half sunk in the deck. Verifier: `ok stamp_plate_a 2560 tris 4 meshes 1.8x0.14x1.8m`.
+- `stamp_plate_b`, profiles: one turned basalt profile for tiers, deck and recess; a chamfered chalk rim turned in sixteen arcs so the eight ticks are ochre sectors inlaid flush; a low domed turned inlay. Verifier: `ok stamp_plate_b 2176 tris 4 meshes 1.8x0.14x1.8m`.
+- `stamp_plate_c` (picked), a second reading as faceted masonry, hand-built and flat shaded: a forty-sided ring stone, a separate field stone of the builders' warmer basalt, a chalk rim laid as eight arcs, and the ticks read as the keys of a seal, stepped ochre clasps in the joints that step down over both tiers to the ground. Verifier: `ok stamp_plate_c 1408 tris 5 meshes 1.8x0.14x1.8m`.
+
+Picked C: its keys mark the seal's edge on the chalk and again against the black edge, from every side and at 6 and 10 m under the second world's light (`scratch/night_abc_dormant.png`), and the warmer field stone reads as the place where the glyph goes. A's clips come second; B's flush dashes are the plainest.
+
+Round 2, on C only (`scratch/round1_sheet.png` is round 1): lit, every flat inlay thinned to a hairline at game camera height and was nearly lost at 10 m, its near half hidden behind the rim (`scratch/night_abc_lit.png`). C's inlay now lines the rim's inner foot as a 45 degree crystal chamfer, 3 cm in and 3 cm up, so its far arc faces a third-person camera and the ring glows at 10 m (`scratch/c_round2_lit.png`). The keys went to 10 cm wide and the stone was pulled in so they finish at 0.9 m.
+
+Exposes `parts.inlay`, a mesh with its own dormant-crystal material (emissive `0x39e3d0` at intensity 0; raise it to light), and `field: { center: [0, 0.07, 0], size: 1.3 }`, the top of the field floor at its centre and its diameter; the floor faces +Y. Load with `keepHierarchy` to keep the part. The loader's re-origin is a no-op (`scratch/inspect.mjs`), so the numbers hold after loading.
+
+Weaknesses: the dormant chamfer still catches a small star glint at some angles; the forty facets show on the rim's walls at arm's length; with the loader's surfaces the stone's texture stretches up to 2:1 on the top, because those surfaces scale v by a height that clamps on a 0.14 m plate (the usual box UVs would stretch it 8:1).

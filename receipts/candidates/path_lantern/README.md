@@ -1,0 +1,13 @@
+# path_lantern candidates
+
+- `path_lantern_a`, primitives: boxes and four-sided cylinders (square frustums, flat shaded) for a three-tier chamfered base, a 0.2 m shaft with two night-basalt groove bands under a twice-stepped capital, a round bronze collar and cup, four torus arcs on the diagonals each drawn through three points, a lid of three stepped discs and a knob, and a crystal of a six-sided prism between two cones. Verifier: `ok path_lantern_a 1268 tris 4 meshes 0.6x2.4x0.6m`.
+- `path_lantern_b` (picked), profiles: the stone is one four-sided lathe whose profile carries the base tiers, the two grooves and the capital; turned bronze dish, bell sockets and stepped lid; four ribs swept as tapering tubes on the diagonals; a cut six-sided lathe crystal. Verifier: `ok path_lantern_b 1708 tris 4 meshes 0.6x2.4x0.6m`.
+- `path_lantern_c`, a second reading in square masonry: hand-built chamfered blocks, the two grooves read as channels running the height of the shaft (two per face, 3 cm deep, over a night-basalt core), a square bronze seat and a lid of square tiers, flat straps swept by hand, and an irregular hand-built quartz point. Verifier: `ok path_lantern_c 1416 tris 4 meshes 0.6x2.4x0.6m`.
+
+Picked B: its head reads most clearly as a lantern (four tapering ribs out of bell sockets round a visible cut crystal, under a stepped lid), and it is built like the crystal_emitter already in the game, so the builders' lights read as one family. C's channelled shaft carries furthest, but at night its flat bronze and quartz facets throw hard sparks that read as lit (`scratch/heads_abc.png`), and from above its square stepped cap looks like a small stepped pyramid. A is B in cruder parts.
+
+After the pick, B's lid and dish, first turned as single smooth lathes that shaded as a soft dome, were turned step by step so every step is crisp (`scratch/round1_sheet.png` is before). The grooves became bolder (5.5 cm tall, 2.5 cm deep, at 1.48 and 1.59 m) and the rib tops now end inside the lid.
+
+Exposes `parts.crystal`, a mesh centred on its own origin so it can turn, with its own dormant-crystal material (emissive `0x39e3d0` at intensity 0; raise it to light), and `light: [0, 2.13, 0]`, the crystal's centre. Load with `keepHierarchy` to keep the part. The loader's re-origin is a no-op (`scratch/inspect.mjs`). Lit with a point light at `light` under the second world's rig, it reads as a lantern at 16 m (`scratch/b_final_game_lit.png`).
+
+Weaknesses: the shaft is slim and plain below the grooves, so dormant at 15 m it is a thin dark post with a small head; the grooves only read within about 6 m; lit, the crystal's bloom washes over the ribs.

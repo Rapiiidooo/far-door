@@ -2,19 +2,27 @@
 // rising drone for the gate. The context starts on the first click, as browsers require.
 
 export class Sound {
-  constructor() {
+  constructor(settings = {}) {
     this.ctx = null;
     this.stepClock = 0;
+    this.settings = settings;
+    this.ducked = false;
   }
 
   start() {
-    if (this.ctx) return;
+    if (this.ctx) {
+      if (this.ctx.state === "suspended") this.ctx.resume();
+      return;
+    }
     const AC = window.AudioContext || window.webkitAudioContext;
     if (!AC) return;
     const ctx = (this.ctx = new AC());
     this.master = ctx.createGain();
-    this.master.gain.value = 0.7;
     this.master.connect(ctx.destination);
+    // Effects and music have their own levels under the master.
+    this.fx = ctx.createGain();
+    this.fx.connect(this.master);
+    this.applyVolumes();
     const len = ctx.sampleRate * 2;
     this.noise = ctx.createBuffer(1, len, ctx.sampleRate);
     const d = this.noise.getChannelData(0);
@@ -29,7 +37,7 @@ export class Sound {
     band.Q.value = 0.7;
     const gain = ctx.createGain();
     gain.gain.value = 0.09;
-    src.connect(band).connect(gain).connect(this.master);
+    src.connect(band).connect(gain).connect(this.fx);
     src.start();
     this.wind = { band, gain };
     // The beam's hum, louder near the light.
@@ -42,10 +50,26 @@ export class Sound {
     humGain.gain.value = 0;
     hum.connect(humGain);
     hum2.connect(humGain);
-    humGain.connect(this.master);
+    humGain.connect(this.fx);
     hum.start();
     hum2.start();
     this.hum = humGain;
+  }
+
+  applyVolumes() {
+    if (!this.ctx) return;
+    const s = this.settings;
+    const t = this.ctx.currentTime;
+    const duck = this.ducked ? 0.35 : 1;
+    this.master.gain.setTargetAtTime(0.75 * (s.volume ?? 0.8) * duck, t, 0.05);
+    this.fx.gain.setTargetAtTime(s.effects ?? 0.9, t, 0.05);
+    this.music?.bus.gain.setTargetAtTime(0.9 * (s.music ?? 0.7), t, 0.05);
+  }
+
+  // Quieter under the pause menu.
+  duck(on) {
+    this.ducked = on;
+    this.applyVolumes();
   }
 
   // --- music: slow generative pads per place, and a bouncy pulse while Wardens give chase.
@@ -53,7 +77,7 @@ export class Sound {
     if (!this.ctx || this.music) return;
     const ctx = this.ctx;
     const bus = ctx.createGain();
-    bus.gain.value = 0.9;
+    bus.gain.value = 0.9 * (this.settings.music ?? 0.7);
     const tone = ctx.createBiquadFilter();
     tone.type = "lowpass";
     tone.frequency.value = 1100;
@@ -103,6 +127,27 @@ export class Sound {
       ],
       fight: [
         [45, 52, 57, 60, 64],
+        [43, 50, 55, 59, 62],
+      ],
+      // The door open: the court's chords lifted into major.
+      "court-open": [
+        [50, 57, 62, 66, 69],
+        [47, 54, 59, 62, 66],
+        [43, 50, 55, 59, 62],
+        [45, 52, 57, 61, 64],
+      ],
+      // Open and airy over the isles: E lydian.
+      isles: [
+        [52, 59, 64, 68, 70],
+        [49, 56, 61, 64, 68],
+        [45, 52, 57, 61, 64],
+        [47, 54, 59, 63, 66],
+      ],
+      // Dawn over the clouds, for the ending and the credits.
+      finale: [
+        [48, 55, 60, 64, 67],
+        [45, 52, 57, 60, 64],
+        [41, 48, 53, 57, 60],
         [43, 50, 55, 59, 62],
       ],
     };
@@ -234,10 +279,12 @@ export class Sound {
         return this.bell(base);
       }
       case "medallion":
-        return this.bell(196, 2.5);
+        this.burst(0.5, 1800, 0.12, 0.8);
+        return this.bell([196, 261.63, 329.63][arg] || 196, 3);
       case "gate":
         return this.drone();
       case "cross":
+        this.sweep(200, 1600, 0.9, 0.08, "sine");
         this.burst(1.6, 1200, 0.3, 0.4);
         return this.bell(261.6, 3);
       case "respawn":
@@ -283,12 +330,50 @@ export class Sound {
       case "lamp":
         this.bell(659.25, 2.4);
         return this.bell(987.8, 2.4);
+      // A pylon wakes: two bells a fifth apart, and its bridge hums out across the gap.
+      case "pylon":
+        this.bell(523.25, 2.2);
+        return this.bell(783.99, 2.6);
+      case "bridge":
+        return this.sweep(196, 587.3, 0.9, 0.06, "sine");
       case "barrier":
         return this.sweep(180, 90, 1.2, 0.08, "sawtooth");
       case "clerk":
         return this.sweep(500, 620, 0.09, 0.03, "square");
       case "use":
         return this.burst(0.2, 1200, 0.08, 1.5);
+      case "paper":
+        this.burst(0.18, 3200, 0.05, 1.5);
+        return setTimeout(() => this.burst(0.22, 2400, 0.04, 1.2), 90);
+      case "strain":
+        this.tone(52, 0.3, 0.2, "sine");
+        return this.burst(0.4, 190, 0.18, 0.7);
+      case "ui":
+        return this.tone(880, 0.05, 0.03, "triangle");
+      case "rumble":
+        return this.rumble(3.4);
+      case "ignite":
+        this.tone(48, 1.6, 0.4, "sine");
+        this.sweep(160, 40, 1.2, 0.2, "sawtooth");
+        this.burst(1.8, 300, 0.45, 0.5);
+        this.burst(2.4, 2400, 0.12, 0.3);
+        for (const [f, d] of [
+          [392, 0],
+          [523.25, 90],
+          [659.25, 180],
+          [783.99, 300],
+        ])
+          setTimeout(() => this.bell(f, 4.5), d);
+        return;
+      case "plate":
+        this.tone(70, 0.3, 0.3, "sine");
+        this.bell(523.25, 2.2);
+        return setTimeout(() => this.bell(783.99, 2.2), 140);
+      case "void":
+        this.sweep(300, 120, 0.4, 0.1, "square");
+        return this.burst(0.25, 500, 0.15, 0.8);
+      case "provoke":
+        return this.sweep(500, 900, 0.18, 0.06, "square");
       default:
     }
   }
@@ -305,7 +390,7 @@ export class Sound {
     const g = ctx.createGain();
     g.gain.setValueAtTime(level, t);
     g.gain.exponentialRampToValueAtTime(0.0001, t + duration);
-    src.connect(f).connect(g).connect(this.master);
+    src.connect(f).connect(g).connect(this.fx);
     src.start(t, Math.random() * 1.5, duration + 0.05);
   }
 
@@ -318,7 +403,7 @@ export class Sound {
     const g = ctx.createGain();
     g.gain.setValueAtTime(level, t);
     g.gain.exponentialRampToValueAtTime(0.0001, t + duration);
-    o.connect(g).connect(this.master);
+    o.connect(g).connect(this.fx);
     o.start(t);
     o.stop(t + duration + 0.05);
   }
@@ -337,7 +422,7 @@ export class Sound {
     const g = ctx.createGain();
     g.gain.setValueAtTime(level, t);
     g.gain.exponentialRampToValueAtTime(0.0001, t + duration);
-    o.connect(f).connect(g).connect(this.master);
+    o.connect(f).connect(g).connect(this.fx);
     o.start(t);
     o.stop(t + duration + 0.05);
   }
@@ -353,6 +438,42 @@ export class Sound {
       this.tone(base * ratio, length * decay, level, "sine");
   }
 
+  // The ground working itself up under a charging gate: a sub-bass swell and grinding stone.
+  rumble(length) {
+    const ctx = this.ctx,
+      t = ctx.currentTime;
+    const g = ctx.createGain();
+    g.gain.setValueAtTime(0.0001, t);
+    g.gain.exponentialRampToValueAtTime(0.5, t + length);
+    g.gain.exponentialRampToValueAtTime(0.0001, t + length + 0.4);
+    g.connect(this.fx);
+    const o = ctx.createOscillator();
+    o.type = "sine";
+    o.frequency.setValueAtTime(32, t);
+    o.frequency.exponentialRampToValueAtTime(58, t + length);
+    o.connect(g);
+    o.start(t);
+    o.stop(t + length + 0.5);
+    const src = ctx.createBufferSource();
+    src.buffer = this.noise;
+    src.loop = true;
+    const lp = ctx.createBiquadFilter();
+    lp.type = "lowpass";
+    lp.frequency.setValueAtTime(120, t);
+    lp.frequency.exponentialRampToValueAtTime(700, t + length);
+    const ng = ctx.createGain();
+    ng.gain.value = 0.35;
+    src.connect(lp).connect(ng).connect(g);
+    src.start(t);
+    src.stop(t + length + 0.5);
+    for (let i = 0; i < 6; i++)
+      setTimeout(
+        () =>
+          this.burst(0.12, 600 + Math.random() * 900, 0.05 + i * 0.015, 1.5),
+        i * 520 + Math.random() * 200,
+      );
+  }
+
   drone() {
     const ctx = this.ctx,
       t = ctx.currentTime;
@@ -360,7 +481,7 @@ export class Sound {
     g.gain.setValueAtTime(0.0001, t);
     g.gain.exponentialRampToValueAtTime(0.22, t + 3);
     g.gain.exponentialRampToValueAtTime(0.06, t + 9);
-    g.connect(this.master);
+    g.connect(this.fx);
     for (const f of [55, 82.4, 110.2, 164.8]) {
       const o = ctx.createOscillator();
       o.type = "sawtooth";

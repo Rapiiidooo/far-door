@@ -1,0 +1,116 @@
+[
+ {
+  "ok": true,
+  "mounts": null,
+  "meshes": 7,
+  "tris": 3548,
+  "materials": 7,
+  "size": [
+   1.16,
+   2.8,
+   1.65
+  ],
+  "groundOffset": 0,
+  "centreOffset": [
+   0,
+   0
+  ],
+  "sides": {
+   "front": {
+    "coverage": 0.1718,
+    "edgeDensity": 0.1197
+   },
+   "right": {
+    "coverage": 0.1321,
+    "edgeDensity": 0.1224
+   },
+   "back": {
+    "coverage": 0.1716,
+    "edgeDensity": 0.1266
+   },
+   "left": {
+    "coverage": 0.132,
+    "edgeDensity": 0.1573
+   }
+  },
+  "error": null,
+  "name": "light_pylon_a",
+  "problems": []
+ },
+ {
+  "ok": true,
+  "mounts": null,
+  "meshes": 6,
+  "tris": 4284,
+  "materials": 6,
+  "size": [
+   1.118,
+   2.8,
+   1.65
+  ],
+  "groundOffset": 0,
+  "centreOffset": [
+   0,
+   0
+  ],
+  "sides": {
+   "front": {
+    "coverage": 0.1739,
+    "edgeDensity": 0.1292
+   },
+   "right": {
+    "coverage": 0.1338,
+    "edgeDensity": 0.1245
+   },
+   "back": {
+    "coverage": 0.1742,
+    "edgeDensity": 0.1161
+   },
+   "left": {
+    "coverage": 0.1338,
+    "edgeDensity": 0.132
+   }
+  },
+  "error": null,
+  "name": "light_pylon_b",
+  "problems": []
+ },
+ {
+  "ok": true,
+  "mounts": null,
+  "meshes": 7,
+  "tris": 2948,
+  "materials": 7,
+  "size": [
+   1.1,
+   2.8,
+   1.65
+  ],
+  "groundOffset": 0,
+  "centreOffset": [
+   0,
+   0
+  ],
+  "sides": {
+   "front": {
+    "coverage": 0.1706,
+    "edgeDensity": 0.1665
+   },
+   "right": {
+    "coverage": 0.1313,
+    "edgeDensity": 0.1779
+   },
+   "back": {
+    "coverage": 0.1688,
+    "edgeDensity": 0.153
+   },
+   "left": {
+    "coverage": 0.1313,
+    "edgeDensity": 0.1869
+   }
+  },
+  "error": null,
+  "name": "light_pylon_c",
+  "problems": []
+ }
+]

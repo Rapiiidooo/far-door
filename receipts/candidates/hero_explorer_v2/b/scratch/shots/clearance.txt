@@ -1,0 +1,50 @@
+rest 
+  left flap: 1/240 vertices escape belt or torso (worst 1.017)
+  left thigh: 0/61 vertices at or beyond the fixed skirt (worst 0.000)
+  right flap: 1/240 vertices escape belt or torso (worst 1.017)
+  right thigh: 0/61 vertices at or beyond the fixed skirt (worst 0.000)
+fwd60-back35 
+  left flap: 5/240 vertices escape belt or torso (worst 1.172)
+  left thigh: 0/69 vertices at or beyond the fixed skirt (worst 0.000)
+  right flap: 0/240 vertices escape belt or torso (worst 0.000)
+  right thigh: 0/78 vertices at or beyond the fixed skirt (worst 0.000)
+back35-fwd60 
+  left flap: 0/240 vertices escape belt or torso (worst 0.000)
+  left thigh: 0/76 vertices at or beyond the fixed skirt (worst 0.000)
+  right flap: 5/240 vertices escape belt or torso (worst 1.178)
+  right thigh: 0/70 vertices at or beyond the fixed skirt (worst 0.000)
+run 
+  left flap: 13/240 vertices escape belt or torso (worst 1.199)
+  left thigh: 0/71 vertices at or beyond the fixed skirt (worst 0.000)
+  right flap: 1/240 vertices escape belt or torso (worst 1.040)
+  right thigh: 0/77 vertices at or beyond the fixed skirt (worst 0.000)
+abducted 
+  left flap: 3/240 vertices escape belt or torso (worst 1.036)
+  left thigh: 0/59 vertices at or beyond the fixed skirt (worst 0.000)
+  right flap: 1/240 vertices escape belt or torso (worst 1.005)
+  right thigh: 0/63 vertices at or beyond the fixed skirt (worst 0.000)
+game roll 
+  left flap: 0/240 vertices escape belt or torso (worst 0.000)
+  left thigh: 0/70 vertices at or beyond the fixed skirt (worst 0.000)
+  right flap: 1/240 vertices escape belt or torso (worst 1.006)
+  right thigh: 0/71 vertices at or beyond the fixed skirt (worst 0.000)
+game climb 
+  left flap: 6/240 vertices escape belt or torso (worst 1.078)
+  left thigh: 0/70 vertices at or beyond the fixed skirt (worst 0.000)
+  right flap: 6/240 vertices escape belt or torso (worst 1.033)
+  right thigh: 0/63 vertices at or beyond the fixed skirt (worst 0.000)
+game vault 
+  left flap: 6/240 vertices escape belt or torso (worst 1.106)
+  left thigh: 0/69 vertices at or beyond the fixed skirt (worst 0.000)
+  right flap: 3/240 vertices escape belt or torso (worst 1.100)
+  right thigh: 0/70 vertices at or beyond the fixed skirt (worst 0.000)
+game landing 
+  left flap: 1/240 vertices escape belt or torso (worst 1.012)
+  left thigh: 0/73 vertices at or beyond the fixed skirt (worst 0.000)
+  right flap: 0/240 vertices escape belt or torso (worst 0.000)
+  right thigh: 0/61 vertices at or beyond the fixed skirt (worst 0.000)
+game brace 
+  left flap: 7/240 vertices escape belt or torso (worst 1.135)
+  left thigh: 0/69 vertices at or beyond the fixed skirt (worst 0.000)
+  right flap: 0/240 vertices escape belt or torso (worst 0.000)
+  right thigh: 1/78 vertices at or beyond the fixed skirt (worst 1.575)

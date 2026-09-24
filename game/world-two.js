@@ -5,15 +5,21 @@ import { UnrealBloomPass } from "three/addons/postprocessing/UnrealBloomPass.js"
 import { OutputPass } from "three/addons/postprocessing/OutputPass.js";
 import { World } from "./world.js";
 import { terrainMaterial } from "./terrain.js";
-import { gateColliders } from "./gate.js";
-import { Checkpoint } from "./checkpoint.js";
+import { buildRidge } from "./cliffs.js";
+import { Checkpoint, LAYOUT } from "./checkpoint.js";
+import { SunDisc, fallbackDisc } from "./disc.js";
+import { Stamps } from "./fx.js";
 
-// The second world: a black-sand plateau under a violet sky, a ringed giant on the
-// horizon, and a cliff edge above a plain of basalt spires. Lit by a cold star with warm
-// planetshine as the second colour temperature.
+// The second world: a black-sand valley under a violet sky, walled by basalt ridges, a ringed
+// giant low on the horizon. The first door's twin stands at the head of the valley; the
+// checkpoint closes it halfway; beyond the barrier a second far door waits on a terrace at the
+// cliff edge above a plain of spires. Lit by a cold star with warm planetshine as the second
+// colour temperature, and lanterns of the builders along the path.
 
-const STAR = new THREE.Vector3(0.78, 0.3, 0.55).normalize();
+const STAR = new THREE.Vector3(0.78, 0.36, 0.55).normalize();
 const PLANET = new THREE.Vector3(-0.18, 0.2, -1).normalize();
+const EXIT = { x: 0, z: -44 };
+const V = (x, y, z) => new THREE.Vector3(x, y, z);
 
 export class WorldTwo {
   constructor(renderer, assets, services = {}) {
@@ -24,56 +30,54 @@ export class WorldTwo {
     this.world = new World();
     this.time = 0;
     this.active = false;
-    this.finished = false;
     this.gateCenter = new THREE.Vector3();
     this.clipPlane = new THREE.Plane(new THREE.Vector3(0, 0, -1), 0);
+    this.health = 4;
   }
 
   async build() {
     const s = this.scene;
-    s.fog = new THREE.FogExp2(0x4a3452, 0.0026);
+    s.fog = new THREE.FogExp2(0x4a3452, 0.0024);
     s.background = new THREE.Color(0x1a1028);
     this.sky = this.buildSky();
     s.add(this.sky);
 
-    const star = new THREE.DirectionalLight(0xd4e2ff, 3.4);
+    const star = new THREE.DirectionalLight(0xd4e2ff, 4.2);
     star.position.copy(STAR).multiplyScalar(60);
     star.castShadow = true;
     star.shadow.mapSize.set(2048, 2048);
     const sc = star.shadow.camera;
-    sc.left = sc.bottom = -45;
-    sc.right = sc.top = 45;
+    sc.left = sc.bottom = -40;
+    sc.right = sc.top = 40;
     sc.near = 1;
     sc.far = 160;
     star.shadow.bias = -0.0004;
     star.shadow.normalBias = 0.03;
     s.add(star, star.target);
     this.star = star;
-    const shine = new THREE.DirectionalLight(0xff9f7a, 0.75);
+    const shine = new THREE.DirectionalLight(0xff9f7a, 1.0);
     shine.position.copy(PLANET).multiplyScalar(50);
     s.add(shine, shine.target);
-    s.add(new THREE.HemisphereLight(0x7a64b8, 0x2a1e30, 1.25));
+    s.add(new THREE.HemisphereLight(0x8c78c8, 0x3a2c40, 2.1));
 
     const pmrem = new THREE.PMREMGenerator(this.renderer);
     const envScene = new THREE.Scene();
-    envScene.add(this.buildSky(true));
+    envScene.add(this.buildSky());
     s.environment = pmrem.fromScene(envScene, 0.04).texture;
-    s.environmentIntensity = 0.45;
+    s.environmentIntensity = 0.55;
     pmrem.dispose();
 
     this.buildGround();
-    await this.buildGate();
+    this.buildRidges();
+    await this.buildGates();
     await this.buildSpires();
+    this.pools = new LightPools(s);
+    await this.buildLanterns();
     await this.buildFlora();
-    this.checkpoint = new Checkpoint(
-      this.scene,
-      this.world,
-      this.assets,
-      this.services,
-    );
+    this.checkpoint = new Checkpoint(s, this.world, this.assets, this.services);
     await this.checkpoint.build();
-
-    this.composer = null;
+    this.checkpoint.exitMarker = V(EXIT.x, 2.4, EXIT.z + 3);
+    this.pools.build();
     this.makeComposer();
   }
 
@@ -93,7 +97,7 @@ export class WorldTwo {
           void main() {
             vec3 d = normalize(vDir);
             float h = d.y;
-            vec3 horizon = vec3(0.36, 0.17, 0.27), mid = vec3(0.1, 0.05, 0.19), zenith = vec3(0.018, 0.01, 0.05);
+            vec3 horizon = vec3(0.42, 0.2, 0.3), mid = vec3(0.12, 0.06, 0.21), zenith = vec3(0.022, 0.012, 0.06);
             vec3 col = mix(horizon, mid, smoothstep(-0.02, 0.22, h));
             col = mix(col, zenith, smoothstep(0.22, 0.85, h));
             float p = max(dot(d, uPlanet), 0.0);
@@ -135,9 +139,11 @@ export class WorldTwo {
     planet.position.copy(PLANET).multiplyScalar(780);
     planet.rotation.z = 0.35;
     g.add(planet);
+    // Blended, but not flagged transparent: transparent surfaces draw after the whole valley,
+    // and a sky that ignores depth would then lie over the walls and ridges.
     const ringMat = new THREE.ShaderMaterial({
       fog: false,
-      transparent: true,
+      blending: THREE.CustomBlending,
       depthWrite: false,
       side: THREE.DoubleSide,
       vertexShader: /* glsl */ `varying vec3 vP; void main() { vP = position; gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0); }`,
@@ -160,8 +166,8 @@ export class WorldTwo {
     ring.rotation.set(-1.25, 0.2, 0.35);
     g.add(ring);
     for (const [dir, r, color] of [
-      [new THREE.Vector3(0.55, 0.42, -0.72), 16, 0xc9c3d6],
-      [new THREE.Vector3(-0.62, 0.3, -0.72), 9, 0xe3b9a0],
+      [V(0.55, 0.42, -0.72), 16, 0xc9c3d6],
+      [V(-0.62, 0.3, -0.72), 9, 0xe3b9a0],
     ]) {
       const moon = new THREE.Mesh(
         new THREE.SphereGeometry(r, 24, 16),
@@ -177,14 +183,18 @@ export class WorldTwo {
       o.material.depthWrite = false;
       o.renderOrder = -10;
     });
+    // Over the planet it frames, still ahead of everything on the ground.
+    ring.renderOrder = -9;
     void forEnv;
     return g;
   }
 
   buildGround() {
-    const sand = terrainMaterial("sand", 0x4a4058, 0.9),
-      rock = terrainMaterial("rock", 0x2a2830, 0.92);
-    // The plateau: flat along the path, rising into dunes and ridges at its sides.
+    const sand = terrainMaterial("sand", 0x5e5470, 0.9, { ao: false }),
+      rock = terrainMaterial("rock", 0x2a2830, 0.92, { ao: false }),
+      paving = terrainMaterial("floor", 0x6e6680, 0.86, { ao: false });
+    this.rock = rock;
+    // The valley floor: flat between the ridges, rising behind them.
     const geo = new THREE.PlaneGeometry(120, 90, 180, 135);
     geo.rotateX(-Math.PI / 2);
     const p = geo.attributes.position;
@@ -192,12 +202,12 @@ export class WorldTwo {
       const x = p.getX(i),
         z = p.getZ(i) - 20;
       p.setZ(i, z);
-      const side = Math.max(0, Math.abs(x) - 13.5);
+      const side = Math.max(0, Math.abs(x) - 14.5);
       const dune =
         Math.sin(x * 0.21 + z * 0.08) * 0.6 +
         Math.sin(x * 0.05 - z * 0.13) * 1.2;
       let y =
-        Math.min(side * 0.35, 12) +
+        Math.min(side * 0.9, 16) +
         (side > 0 ? dune * Math.min(1, side / 6) : 0);
       y += Math.sin(x * 1.3 + z * 0.9) * 0.03;
       if (z < -56) y = -140;
@@ -207,12 +217,27 @@ export class WorldTwo {
     const ground = new THREE.Mesh(geo, sand);
     ground.receiveShadow = true;
     this.scene.add(ground);
+    // The paved path: from the first door through the checkpoint to the far door.
+    const path = new THREE.Mesh(
+      new THREE.PlaneGeometry(4.2, 50).rotateX(-Math.PI / 2),
+      paving,
+    );
+    path.position.set(0, 0.012, -21);
+    path.receiveShadow = true;
+    this.scene.add(path);
+    const plaza = new THREE.Mesh(
+      new THREE.CircleGeometry(9, 48).rotateX(-Math.PI / 2),
+      paving,
+    );
+    plaza.position.set(0, 0.01, -21.5);
+    plaza.scale.set(1.35, 1, 0.95);
+    plaza.receiveShadow = true;
+    this.scene.add(plaza);
     // The cliff below the edge and the plain far beneath it.
     const cliff = new THREE.Mesh(new THREE.BoxGeometry(120, 140, 6), rock);
     cliff.position.set(0, -70.2, -59);
     cliff.receiveShadow = true;
     this.scene.add(cliff);
-    // The plain: flat below the cliff, rising into long mesas towards the horizon.
     const plainGeo = new THREE.PlaneGeometry(2400, 2400, 160, 160).rotateX(
       -Math.PI / 2,
     );
@@ -256,46 +281,118 @@ export class WorldTwo {
       beacon.scale.y = 2.4;
       this.scene.add(beacon);
     }
-
-    const w = this.world;
-    w.add(-15, -10, -56, 15, 0, 12, "rock");
-    w.add(-40, -10, -60, -15, 20, 12, "rock");
-    w.add(15, -10, -60, 40, 20, 12, "rock");
-    w.add(-40, -10, 12, 40, 20, 20, "rock");
+    // The valley floor ends at the cliff edge; the ridges' colliders stand where their faces are.
+    this.world.add(-16, -10, -56, 16, 0, 14, "rock");
   }
 
-  async buildGate() {
-    const model = (await this.assets.make("far_gate")) || null;
-    const g = model || new THREE.Group();
-    g.traverse((o) => {
-      if (!o.isMesh) return;
-      o.material = o.material.clone();
-      // Ash and basalt instead of sandstone: the same builders, another world.
-      const c = o.material.color;
-      const lum = c.r * 0.3 + c.g * 0.59 + c.b * 0.11;
-      if (c.r > c.b * 1.3)
-        o.material.color.setRGB(lum * 0.55, lum * 0.5, lum * 0.66);
-    });
-    const parts = g.userData.parts || {};
-    for (const node of Object.values(parts))
-      node.traverse((o) => {
+  // Basalt ridges wall the valley on three sides; their faces stand on the colliders, and they
+  // fall away towards the cliff edge so the far door stands against the open sky.
+  buildRidges() {
+    const w = this.world;
+    const noise = (x, z) =>
+      Math.sin(x * 0.31 + z * 0.17) * 1.2 +
+      Math.sin(x * 0.07 - z * 0.23 + 1.3) * 1.8 +
+      Math.sin((x + z) * 0.53) * 0.5;
+    const top = (x, z) => {
+      const fall = Math.min(1, Math.max(0, (-z - 36) / 16));
+      return 11 + noise(x, z) - fall * 9.5;
+    };
+    const opts = { top, base: -2, step: 0.7 };
+    this.scene.add(
+      buildRidge(this.rock, {
+        ...opts,
+        points: [
+          [-14, 13],
+          [-14, -56],
+        ],
+      }),
+    );
+    this.scene.add(
+      buildRidge(this.rock, {
+        ...opts,
+        points: [
+          [14, -56],
+          [14, 13],
+        ],
+      }),
+    );
+    this.scene.add(
+      buildRidge(this.rock, {
+        ...opts,
+        points: [
+          [14, 13],
+          [-14, 13],
+        ],
+      }),
+    );
+    w.add(-40, -10, -60, -14, 30, 14, "rock", null, { grab: false });
+    w.add(14, -10, -60, 40, 30, 14, "rock", null, { grab: false });
+    w.add(-40, -10, 13, 40, 30, 30, "rock", null, { grab: false });
+  }
+
+  // The first door's twin, which the explorer steps out of (and can step back through), and
+  // the far door at the end of the valley, which opens onto the sky beyond.
+  async buildGates() {
+    const { Gate } = this.services;
+    const recolour = (g, tint = 1) => {
+      g.traverse((o) => {
         if (!o.isMesh) return;
-        o.material.emissive = new THREE.Color(0x39e3d0);
-        o.material.emissiveIntensity = 1.1;
+        o.material = o.material.clone();
+        // Ash and basalt instead of sandstone: the same builders, another world.
+        const c = o.material.color;
+        const lum = c.r * 0.3 + c.g * 0.59 + c.b * 0.11;
+        if (c.r > c.b * 1.3)
+          o.material.color.setRGB(
+            lum * 0.55 * tint,
+            lum * 0.5 * tint,
+            lum * 0.66 * tint,
+          );
       });
-    this.scene.add(g);
-    const portal = g.userData.portal || { center: [0, 4.5, 0], radius: 3.5 };
-    this.gateCenter.set(portal.center[0], portal.center[1], portal.center[2]);
-    this.daisTop = this.gateCenter.y - portal.radius;
+      return g;
+    };
+    const arrivalModel = recolour(
+      (await this.assets.make("far_gate")) || new THREE.Group(),
+    );
+    this.arrival = new Gate({
+      scene: this.scene,
+      world: this.world,
+      renderer: this.renderer,
+      sound: this.services.sound,
+      assets: this.assets,
+    });
+    await this.arrival.build({
+      x: 0,
+      z: 0,
+      glyphs: ["twin", "spiral", "peak"],
+      model: arrivalModel,
+    });
+    // The way home is a membrane of light, lit from the moment the explorer arrives. It is
+    // seen only from the valley side: from behind, where the camera trails an explorer who
+    // has just stepped through, the ring stays open.
+    this.arrival.uniforms.uHasView.value = 0;
+    this.arrival.disc.material.side = THREE.BackSide;
+    this.arrival.lightScale = 0.25;
+    this.arrival.forceOpen();
+    this.gateCenter.copy(this.arrival.center);
+    this.daisTop = this.arrival.daisTop;
     this.clipPlane.set(new THREE.Vector3(0, 0, -1), this.gateCenter.z - 0.05);
-    gateColliders(this.world, 0, 0, this.daisTop);
-    // The door behind the explorer: its rings glow, then settle as the way closes.
-    this.gateLight = new THREE.PointLight(0x39e3d0, 0, 30, 1.5);
-    this.gateLight.position
-      .copy(this.gateCenter)
-      .add(new THREE.Vector3(0, 0, -2));
-    this.scene.add(this.gateLight);
-    this.gateParts = parts;
+
+    const exitModel = recolour(
+      (await this.assets.make("far_gate")) || new THREE.Group(),
+      1.15,
+    );
+    this.exitGate = new Gate({
+      scene: this.scene,
+      world: this.world,
+      renderer: this.renderer,
+      sound: this.services.sound,
+      assets: this.assets,
+    });
+    await this.exitGate.build({
+      ...EXIT,
+      glyphs: ["crescent", "waves", "disc"],
+      model: exitModel,
+    });
   }
 
   async buildSpires() {
@@ -306,27 +403,20 @@ export class WorldTwo {
       spire.rotation.y = yaw;
       this.scene.add(spire);
       if (solid)
-        this.world.add(
-          x - 2 * scale,
-          -10,
-          z - 2 * scale,
-          x + 2 * scale,
-          9 * scale,
-          z + 2 * scale,
-          "rock",
-        );
+        this.world.addRound(x, z, 1.55 * scale, -10, 9 * scale, "rock");
     };
     let seed = 11;
     const rand = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
-    const near = [
-      [-11, -12, 1.0],
-      [12, -20, 1.2],
-      [-12, -31, 0.9],
-      [11.5, -40, 1.1],
-      [-10.5, -47, 0.8],
-      [9, 6, 0.9],
-    ];
-    for (const [x, z, s] of near) await place(x, 0, z, s, rand() * 6, true);
+    // Against the ridges, where they break up the long walls without closing the valley.
+    for (const [x, z, s] of [
+      [-12.2, -9, 0.95],
+      [12.3, -14, 1.1],
+      [-12.4, -38, 0.9],
+      [12.2, -40, 1.0],
+      [-11.8, 6, 0.85],
+      [11.9, 4, 0.9],
+    ])
+      await place(x, 0, z, s, rand() * 6, true);
     for (let i = 0; i < 26; i++) {
       const a = (rand() - 0.5) * 1.9,
         d = 120 + rand() * 520;
@@ -340,7 +430,7 @@ export class WorldTwo {
       );
     }
     // Another door, far out on the plain.
-    const far = (await this.assets.make("far_gate")) || null;
+    const far = await this.assets.make("far_gate");
     if (far) {
       far.position.set(-70, -140, -330);
       far.rotation.y = 0.5;
@@ -355,6 +445,45 @@ export class WorldTwo {
     }
   }
 
+  // The builders' lanterns light the path from door to door.
+  async buildLanterns() {
+    const spots = [
+      [-3.2, -6],
+      [3.2, -6],
+      [-3.2, -12.5],
+      [3.2, -12.5],
+      [-12.6, -17],
+      [12.6, -20.5],
+      [-3.2, -35],
+      [3.2, -35],
+      [-6.8, -40.6],
+      [6.8, -40.6],
+    ];
+    this.lanternMats = [];
+    for (const [x, z] of spots) {
+      const o = await this.assets.make("path_lantern", { keepHierarchy: true });
+      const at = o?.userData.light ? o.userData.light[1] : 2.1;
+      if (o) {
+        o.position.set(x, 0, z);
+        o.rotation.y = x < 0 ? Math.PI / 2 : -Math.PI / 2;
+        o.userData.parts?.crystal?.traverse((m) => {
+          if (!m.isMesh) return;
+          m.material = m.material.clone();
+          m.material.emissive = new THREE.Color(0x39e3d0);
+          m.material.emissiveIntensity = 2.4;
+          this.lanternMats.push(m.material);
+        });
+        this.scene.add(o);
+      }
+      this.world.addRound(x, z, 0.32, -10, 2.4, "prop", null, {
+        cam: false,
+        thin: true,
+      });
+      this.pools.add(x, z, 3.4, 0x39e3d0, 0.5);
+      this.pools.addFlare(x, at, z);
+    }
+  }
+
   // Specks of light in the black sand that twinkle as the explorer walks by.
   buildSparkles() {
     const count = 700;
@@ -363,9 +492,9 @@ export class WorldTwo {
     let s = 3;
     const rand = () => (s = (s * 16807) % 2147483647) / 2147483647;
     for (let i = 0; i < count; i++) {
-      pos[i * 3] = (rand() - 0.5) * 30;
+      pos[i * 3] = (rand() - 0.5) * 27;
       pos[i * 3 + 1] = 0.03;
-      pos[i * 3 + 2] = 8 - rand() * 62;
+      pos[i * 3 + 2] = 10 - rand() * 64;
       seed[i] = rand();
     }
     const geo = new THREE.BufferGeometry();
@@ -402,24 +531,21 @@ export class WorldTwo {
     this.scene.add(points);
   }
 
-  // Glowing plants along the path: the only soft, warm light in this world.
+  // Glowing plants at the valley's edges: the only soft, warm light in this world.
   async buildFlora() {
     this.buildSparkles();
     let seed = 23;
     const rand = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
-    const spots = [
-      [-9, -6],
-      [9.5, -9],
-      [-10.5, -15],
-      [11, -16],
-      [-8.5, -34],
-      [8, -38],
-      [-11, -42],
-      [10.5, -47],
-      [6.5, 4],
-      [-7, 3],
-    ];
-    for (const [x, z] of spots) {
+    for (const [x, z] of [
+      [-11.6, -4],
+      [11.4, -8],
+      [-11.8, -24],
+      [11.6, -30],
+      [-11, -46],
+      [10.8, -48],
+      [10.6, 8],
+      [-10.4, 9],
+    ]) {
       const plant = await this.assets.make("lumen_plant", {
         keepHierarchy: true,
       });
@@ -431,13 +557,14 @@ export class WorldTwo {
         if (!o.isMesh) return;
         o.material = o.material.clone();
         o.material.emissive = new THREE.Color(0xd98cff);
-        o.material.emissiveIntensity = 1.6;
+        o.material.emissiveIntensity = 1.8;
       });
       this.scene.add(plant);
-      const light = new THREE.PointLight(0xd98cff, 3, 6, 1.8);
-      light.position.set(x, 1.1, z);
-      this.scene.add(light);
-      this.world.add(x - 0.5, -10, z - 0.5, x + 0.5, 1.2, z + 0.5, "prop");
+      this.pools.add(x, z, 3, 0xd98cff, 0.45);
+      this.world.addRound(x, z, 0.4, -10, 1.2, "prop", null, {
+        cam: false,
+        thin: true,
+      });
     }
   }
 
@@ -457,6 +584,270 @@ export class WorldTwo {
     this.composer.addPass(new OutputPass());
   }
 
+  // --- the explorer's side: the disc, the fight, knockouts -----------------------------------------
+  async wire({ hero, heroModel, follow, dust, state, onKnockout, palm }) {
+    this.palm = palm || null;
+    this.hero = hero;
+    this.heroModel = heroModel;
+    this.follow = follow;
+    this.dust = dust;
+    this.state = state;
+    const cp = this.checkpoint;
+    const mesh =
+      (await this.assets.make("sun_disc", { keepHierarchy: true })) ||
+      fallbackDisc();
+    this.disc = new SunDisc(mesh, this.world, this.services.sound);
+    this.disc.display(this.scene, V(LAYOUT.bin.x, 1.15, LAYOUT.bin.z));
+    this.disc.beams.push(cp.beam);
+    this.disc.targets.push(...cp.guards, cp.lampTarget());
+    cp.disc = this.disc;
+    const hud = this.services.hud;
+    cp.onTakeDisc = () => {
+      this.disc.attach(this.hand(), this.palm);
+      this.services.sound?.setMusic("fight");
+      hud.hint(
+        "The sun disc",
+        `${hud.k("throw")} throw it: it flies back to your hand. ${hud.k("roll")} roll out of trouble.`,
+        9,
+      );
+    };
+    cp.onNearBin = () =>
+      hud.subtitle("Their gear, confiscated. And that is Mira's disc.", 4);
+    cp.onBriefed = () => {
+      hud.health(cp.health, 4);
+      hud.hint(
+        "Stamps",
+        "Wardens only stamp offenders, on the spot where they stand: a ring shows it. Stand on a plate, then step out of the ring before the stamp lands.",
+        11,
+      );
+    };
+    cp.onVoid = () =>
+      hud.hint(
+        "Matching",
+        "Each Warden's stamp carries one glyph, shown over its head. Lead the matching Warden onto each plate.",
+        10,
+      );
+    cp.onApproved = () => {
+      if (cp.plates.every((p) => p.stamped))
+        this.services.sound?.setMusic("world2");
+    };
+    cp.onLampMiss = () =>
+      hud.hint(
+        "Light",
+        `The lamp needs light. Throw the disc ${hud.k("throw")} through the crystal's beam first, then at the lamp while it glows.`,
+        9,
+      );
+    cp.onOpen = () => this.services.sound?.setMusic("world2");
+    cp.onStrike = (warden, sx, sz, hit) => {
+      this.dust.burst(sx, warden.feet, sz, 1.2, 12);
+      this.follow.shake = Math.max(this.follow.shake, hit ? 0.9 : 0.35);
+      this.services.sound?.play("stamp");
+      if (hit && hero.takeHit(warden.pos.x, warden.pos.z, 6)) {
+        cp.health -= 1;
+        hud.health(cp.health, 4);
+        if (cp.health <= 0) this.knockout(onKnockout);
+      }
+    };
+  }
+
+  // The disc rides in the right hand; with hand joints it sits in the palm.
+  hand() {
+    const j = this.heroModel.userData.joints;
+    return j.rightHand || j.rightLowerArm;
+  }
+
+  knockout(onKnockout) {
+    const cp = this.checkpoint;
+    cp.calmAll();
+    onKnockout(() => {
+      const r = LAYOUT.respawn;
+      this.hero.spawn(r.x, r.z, 0, r.yaw);
+      cp.health = 4;
+      this.services.hud.health(cp.health, 4);
+      cp.say("Back of the queue.", "clerk", 2.4, true);
+      this.services.sound?.setMusic("world2");
+    });
+  }
+
+  // --- entering and leaving ------------------------------------------------------------------------
+  enter({ through = null, arrive = false, back = null } = {}) {
+    this.active = true;
+    const hero = this.hero;
+    if (back !== null) {
+      // Back out of the far door from the isles, still heading away from it.
+      const E = this.exitGate;
+      hero.spawn(E.center.x + back, E.center.z + 0.9, E.daisTop + 0.02, 0);
+    } else if (through) {
+      // Stepping through the first door: the same offset from its twin, still walking on.
+      hero.pos.x = this.gateCenter.x + through.x;
+      hero.pos.z = this.gateCenter.z + through.z;
+      hero.feet = this.daisTop + through.feet;
+    } else if (arrive) hero.spawn(0, -3.6, 0.52, Math.PI);
+    hero.world = this.world;
+    const cp = this.checkpoint;
+    hero.level = {
+      interactables: () => cp.interactables(),
+      use: (ref) => ref.use(),
+      moveBlock: () => false,
+    };
+    this.follow.world = this.world;
+    this.follow.snap(hero);
+    this.heroModel.removeFromParent();
+    this.scene.add(this.heroModel);
+    if (this.disc?.state === "stowed") this.disc.attach(this.hand(), this.palm);
+    this.hud?.setAddress?.(["crescent", "waves", "disc"]);
+    this.services.hud.setAddress(["crescent", "waves", "disc"]);
+    for (const p of cp.plates) if (p.stamped) this.services.hud.light(p.glyph);
+    if (cp.phase !== "arrive" && cp.phase !== "briefing")
+      this.services.hud.health(cp.health, 4);
+  }
+
+  leave() {
+    this.active = false;
+    this.disc?.stow();
+    this.services.hud.hideHealth();
+  }
+
+  // The checkpoint as the explorer left it for the isles: the address stamped, the lamp lit,
+  // the barrier up and the far door open, with the disc carried away. Set quietly, without
+  // the clerk's lines or the stamps' sounds.
+  solve() {
+    const cp = this.checkpoint;
+    for (const p of cp.plates) {
+      p.stamped = true;
+      for (const m of p.inlayMats) m.emissiveIntensity = 2.6;
+      p.glyphMat.emissiveIntensity = 3.2;
+    }
+    for (const g of cp.guards) g.calm(null);
+    cp.lampLit = true;
+    cp.phase = "open";
+    cp.lines = [];
+    cp.barrierOpen = 1;
+    this.exitGate.forceOpen();
+    if (this.disc.state === "display") this.disc.attach(this.hand(), this.palm);
+    this.disc.stow();
+  }
+
+  // Development shortcut: the address stamped, the disc in hand and the barrier up.
+  devOpenBarrier() {
+    const cp = this.checkpoint;
+    for (const p of cp.plates) cp.approve(p);
+    this.disc.attach(this.hand(), this.palm);
+    cp.lampLit = true;
+    cp.phase = "open";
+    cp.lines = [];
+  }
+
+  startStory() {
+    this.checkpoint.guideKey = null;
+    clearTimeout(this.arrivalLine);
+    this.arrivalLine = setTimeout(() => {
+      if (this.active && this.checkpoint.phase === "arrive")
+        this.services.hud.subtitle("So this is where they went.", 3.5);
+    }, 1800);
+  }
+
+  // Walking back through the door the explorer came in by: its membrane leads home.
+  returnCrossed(hero) {
+    const c = this.gateCenter;
+    const inside =
+      Math.abs(hero.pos.x - c.x) < this.arrival.radius - 0.9 &&
+      hero.feet > this.daisTop - 0.3 &&
+      hero.feet < this.daisTop + 2;
+    const was = this.lastZ ?? hero.pos.z;
+    this.lastZ = hero.pos.z;
+    return inside && was < c.z && hero.pos.z >= c.z;
+  }
+
+  update(dt, hero, state, { throw: throwPressed, camera }) {
+    const cp = this.checkpoint;
+    cp.update(dt, hero, camera);
+    cp.guide(this.services.hud, hero, this.disc);
+    this.sparkleUniforms.uTime.value += dt;
+    this.time += dt;
+    this.arrival.update(dt);
+    this.exitGate.update(dt);
+    this.pools.update(this.time);
+    // The disc: thrown along the camera's heading, curving onto the best target near it.
+    if (
+      throwPressed &&
+      this.disc.ready &&
+      !state.cinematic &&
+      !state.processing &&
+      ["ground", "air", "roll"].includes(hero.state) &&
+      this.disc.throw(this.scene, camera, hero.yaw)
+    )
+      hero.throwT = 0;
+    this.disc.update(dt, hero, () => (hero.catchT = 0));
+    hero.throwT = (hero.throwT ?? 9) + dt;
+    hero.catchT = (hero.catchT ?? 9) + dt;
+    hero.holding = this.disc.ready;
+    if (
+      this.disc.charged &&
+      this.disc.ready &&
+      !this.saidCharged &&
+      cp.phase === "lamp"
+    ) {
+      this.saidCharged = true;
+      this.services.hud.hint(
+        "Charged",
+        `The disc glows: throw ${this.services.hud.k("throw")} it at the lamp now.`,
+        6,
+      );
+    }
+    // The explorer and the Wardens push each other apart instead of overlapping.
+    for (const g of cp.guards) {
+      if (g.state === "enter" || g.state === "hidden") continue;
+      const dx = hero.pos.x - g.pos.x,
+        dz = hero.pos.z - g.pos.z;
+      const d = Math.hypot(dx, dz);
+      if (d > 0.01 && d < 0.85 && Math.abs(hero.feet - g.feet) < 1) {
+        const push = (0.85 - d) / d;
+        hero.pos.x += dx * push * 0.6;
+        hero.pos.z += dz * push * 0.6;
+        g.pos.x -= dx * push * 0.4;
+        g.pos.z -= dz * push * 0.4;
+      }
+    }
+    // The far door: once the barrier is up, stepping onto its dais opens it.
+    const E = this.exitGate;
+    if (cp.phase === "open" && E.phase === "closed") {
+      const onDais =
+        Math.abs(hero.pos.x - E.center.x) < 5.5 &&
+        hero.pos.z < E.center.z + 6 &&
+        hero.feet > E.daisTop - 0.6;
+      if (onDais) {
+        this.services.hud.objective("");
+        this.services.hud.setMarkers([]);
+        E.onOpen = () => {
+          this.services.hud.objective(
+            "The far door is open",
+            "Step through it",
+          );
+          this.services.hud.setMarkers([
+            E.center.clone().setY(E.daisTop + 1.2),
+          ]);
+          this.services.sound?.setMusic("finale");
+        };
+        // The terrace between the checkpoint wall and the dais is 9 m deep: the shots stay on it.
+        E.open(
+          state,
+          [
+            { at: 0, eye: [-6, -2.5, 10.4], look: [0, -0.6, 0] },
+            { at: 2.2, eye: [-4.6, -2.6, 10], look: [0, -0.4, 0] },
+            { at: 5.6, eye: [-3, -2.5, 8.8], look: [0, -0.4, 0] },
+            { at: 8.9, eye: [-1.2, -2.3, 6.8], look: [0, -0.8, -2] },
+            { at: 9.6, eye: [-1, -2.3, 6.6], look: [0, -0.8, -2] },
+          ],
+          { sequence: true },
+        );
+      }
+    }
+    if (E.isOpen && cp.phase === "open" && !this.exitHinted) {
+      this.exitHinted = true;
+    }
+  }
+
   // Seen through the first gate: drawn into the portal's render target by the caller.
   renderInto(renderer, camera) {
     this.sky.position.copy(camera.position);
@@ -465,103 +856,133 @@ export class WorldTwo {
   }
 
   followShadow(p) {
-    const t = new THREE.Vector3(Math.round(p.x), 0, Math.round(p.z));
+    const t = V(Math.round(p.x), 0, Math.round(p.z));
     this.star.target.position.copy(t);
     this.star.position.copy(t).addScaledVector(STAR, 60);
     this.star.target.updateMatrixWorld();
   }
 
-  enter(hero, follow, gate, heroModel, courtWorld) {
-    this.active = true;
-    const dx = this.gateCenter.x - gate.center.x,
-      dz = this.gateCenter.z - gate.center.z,
-      dy = this.daisTop - gate.daisTop;
-    hero.pos.x += dx;
-    hero.pos.z += dz;
-    hero.feet += dy;
-    hero.world = this.world;
-    const cp = this.checkpoint;
-    hero.level = {
-      interactables: () => cp.interactables(),
-      use: (ref) => ref.use(),
-      moveBlock: () => false,
-    };
-    follow.world = this.world;
-    follow.target.x += dx;
-    follow.target.z += dz;
-    follow.target.y += dy;
-    heroModel.removeFromParent();
-    this.scene.add(heroModel);
-    this.gateLight.intensity = 60;
-    this.hero = hero;
-    this.follow = follow;
-    void courtWorld;
-  }
-
-  update(dt, hero, state) {
-    this.checkpoint.update(dt, hero);
-    this.sparkleUniforms.uTime.value += dt;
-    this.time += dt;
-    this.gateLight.intensity = Math.max(4, this.gateLight.intensity - dt * 25);
-    if (!this.finale && hero.pos.z < -44) {
-      this.finale = new Finale(this, hero);
-      state.cinematic = this.finale;
-    }
-    if (this.finale?.done) this.finished = true;
-  }
-
   render(camera) {
     this.sky.position.copy(camera.position);
     this.followShadow(
-      this.hero
-        ? new THREE.Vector3(this.hero.pos.x, 0, this.hero.pos.z)
-        : camera.position,
+      this.hero ? V(this.hero.pos.x, 0, this.hero.pos.z) : camera.position,
     );
+    this.exitGate.renderPortal(camera);
     this.pass.camera = camera;
     this.composer.render();
   }
 
+  // Everything the checkpoint can show during play, shown once for the shader compiler.
+  prepareForCompile(on) {
+    if (on) {
+      this.disc.attach(this.hand(), this.palm);
+      this.exitGate.disc.visible = true;
+      this.exitGate.uniforms.uClear.value = 1;
+      this.checkpoint.stamps.mark(0, 0, -20, "disc", "plate");
+      this.checkpoint.telegraphs.show({}, 0, 0, -20, "plate");
+    } else {
+      this.disc.reset();
+      this.exitGate.reset();
+      this.checkpoint.stamps.clear();
+      this.checkpoint.telegraphs.clear();
+    }
+  }
+
+  reset() {
+    this.checkpoint.reset();
+    this.exitGate.reset();
+    this.disc?.reset();
+    this.saidCharged = false;
+    this.exitHinted = false;
+    this.lastZ = undefined;
+    this.arrival.forceOpen();
+  }
+
   resize(w, h) {
     this.composer?.setSize(w, h);
+    this.composer?.setPixelRatio(this.renderer.getPixelRatio());
+    this.exitGate?.resize();
   }
 }
 
-// The last shot: the camera rises past the explorer and over the edge, to the giant.
-class Finale {
-  constructor(two, hero) {
-    this.two = two;
-    this.hero = hero;
-    this.t = 0;
-    this.done = false;
-    this.from = null;
+// Soft pools of light on the ground under the lanterns and plants, drawn as additive decals
+// instead of point lights so the light count, and so every shader, stays fixed.
+class LightPools {
+  constructor(scene) {
+    this.scene = scene;
+    this.pools = [];
+    this.flares = [];
   }
 
-  update(dt, camera) {
-    this.t += dt;
-    if (!this.from)
-      this.from = {
-        pos: camera.position.clone(),
-        quat: camera.quaternion.clone(),
-      };
-    const h = this.hero;
-    const k = Math.min(1, this.t / 7);
-    const e = k * k * (3 - 2 * k);
-    const eye = new THREE.Vector3(
-      h.pos.x + 3,
-      h.feet + 3 + e * 10,
-      h.pos.z + 7 - e * 24,
-    );
-    const look = new THREE.Vector3(
-      h.pos.x - 20 * e,
-      h.feet + 1 + e * 40,
-      h.pos.z - 60 - e * 200,
-    );
-    const m = new THREE.Matrix4().lookAt(eye, look, new THREE.Vector3(0, 1, 0));
-    const q = new THREE.Quaternion().setFromRotationMatrix(m);
-    const blend = Math.min(1, this.t / 1.5);
-    camera.position.lerpVectors(this.from.pos, eye, blend);
-    camera.quaternion.slerpQuaternions(this.from.quat, q, blend);
-    if (this.t > 8.5) this.done = true;
+  add(x, z, radius, color, strength) {
+    this.pools.push({ x, z, radius, color: new THREE.Color(color), strength });
+  }
+
+  addFlare(x, y, z) {
+    this.flares.push(V(x, y, z));
+  }
+
+  build() {
+    const geo = new THREE.CircleGeometry(1, 32).rotateX(-Math.PI / 2);
+    for (const p of this.pools) {
+      const mat = new THREE.ShaderMaterial({
+        uniforms: {
+          uColor: { value: p.color.clone().multiplyScalar(p.strength) },
+          uFlicker: { value: 1 },
+        },
+        transparent: true,
+        depthWrite: false,
+        blending: THREE.AdditiveBlending,
+        toneMapped: false,
+        vertexShader: /* glsl */ `varying vec2 vP; void main() { vP = position.xz; gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0); }`,
+        fragmentShader: /* glsl */ `
+          uniform vec3 uColor; uniform float uFlicker; varying vec2 vP;
+          void main() {
+            float r = length(vP);
+            float a = pow(max(0.0, 1.0 - r), 2.2);
+            gl_FragColor = vec4(uColor * a * uFlicker, 1.0);
+          }`,
+      });
+      const m = new THREE.Mesh(geo, mat);
+      // Clear of the sand's ripples, which reach 3 cm: a decal on their crests flickers.
+      m.position.set(p.x, 0.05, p.z);
+      m.scale.setScalar(p.radius);
+      m.renderOrder = 1;
+      this.scene.add(m);
+      p.mat = mat;
+    }
+    const c = document.createElement("canvas");
+    c.width = c.height = 64;
+    const ctx = c.getContext("2d");
+    const g = ctx.createRadialGradient(32, 32, 0, 32, 32, 32);
+    g.addColorStop(0, "rgba(255,255,255,1)");
+    g.addColorStop(0.3, "rgba(160,255,240,0.45)");
+    g.addColorStop(1, "rgba(60,220,200,0)");
+    ctx.fillStyle = g;
+    ctx.fillRect(0, 0, 64, 64);
+    const tex = new THREE.CanvasTexture(c);
+    tex.colorSpace = THREE.SRGBColorSpace;
+    const flareMat = new THREE.SpriteMaterial({
+      map: tex,
+      color: new THREE.Color(0.5, 1.4, 1.3),
+      blending: THREE.AdditiveBlending,
+      depthWrite: false,
+      toneMapped: false,
+      transparent: true,
+    });
+    for (const f of this.flares) {
+      const s = new THREE.Sprite(flareMat);
+      s.position.copy(f);
+      s.scale.setScalar(0.7);
+      this.scene.add(s);
+    }
+  }
+
+  update(time) {
+    for (const [i, p] of this.pools.entries())
+      if (p.mat)
+        p.mat.uniforms.uFlicker.value =
+          0.9 + Math.sin(time * 2.1 + i * 1.7) * 0.1;
   }
 }
 
@@ -585,3 +1006,5 @@ function fallbackSpire() {
   }
   return g;
 }
+
+void Stamps;

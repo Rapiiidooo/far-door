@@ -1,6 +1,6 @@
 # Prototype tracker
 
-The owner loved the first prototype and gave carte blanche on 24 September 2026. The overhaul is done and verified; see `receipts/verification-overhaul/`.
+The rework the owner asked for on 24 September 2026 is done and verified, and so are the follow-ups from their hand tests (the block push, full mirror turns, the double menu on quitting, the mission context, the flicker beside the first gate); see `receipts/verification-rework/`. The third level and the planet fix are in `receipts/verification-level-3/`; hosting is tracked in `tasks/level-3.md`.
 
-- [ ] The owner plays by hand (keyboard and mouse, then a gamepad) and reports what still feels wrong.
-- [ ] Test by hand what the automated run does not cover: falls and respawns, the knockout screen, pulling blocks, the pause settings, the gamepad.
+- [ ] The owner plays the follow-ups and the isles by hand (the opening, the notes, pushing and pulling the block, turning the mirrors, the jumps, the pylons and bridges, Mira's journal) and reports what still feels wrong.
+- [ ] Check by hand what the automated runs cannot: a gamepad, sound levels, dodging stamps by hand, and a slower GPU.

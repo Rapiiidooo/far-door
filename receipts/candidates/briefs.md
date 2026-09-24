@@ -105,3 +105,46 @@ A desert plant 1.0 m tall: a rosette of eighteen thick, pointed, slightly curled
 ## glyph_banner
 
 An ancient banner 3.6 m tall: a weathered-timber pole with a crossbar near the top from which hangs a long tattered cloth of bone and burnt sienna in two vertical bands with a raised disc-and-crescent patch in the middle, its lower edge torn into three tails, stiffened as if caught in a breeze. The pole stands in a small pile of stones. Budget: at most 4,000 triangles.
+
+# Third wave
+
+Handed out on 24 September 2026, after the owner's review of the overhaul: the explorer's arms read as a toy figure's, and the second world needs a real puzzle, a lit path and a proper ending. Same contract, style lock and fallback as above.
+
+## hero_explorer (second pass)
+
+The same explorer, style lock, palette, height (1.75 m), contract, joint names and hierarchy as the first pass, at most 14,000 triangles. The owner found the arms "like a toy figure": uniform tubes hung from boxy shoulder pads, with flat block hands, hanging dead straight. Rebuild the arms and hands so they read as human arms from a third-person camera 4 to 8 m away, while keeping the chunky, readable style of the rest of the figure.
+
+- Shoulders: the jacket's shoulder line slopes down from the collar to the arm. The deltoid is a rounded cap that overlaps the top of the sleeve and blends into the torso, with no separate block or ball visible at rest, with the arm raised overhead, swung forward 80 degrees, back 45 degrees, or out 90 degrees.
+- Upper arm: a tapered sleeve, widest at the deltoid (about 0.12 m), narrowing to about 0.09 m at the elbow, slightly flattened front to back.
+- Elbow: sleeve fabric overlaps the forearm, so a bend of up to 130 degrees shows no gap, hole or visible sphere.
+- Forearm: the sleeve is rolled into a thick cuff just below the elbow; below it the canvas shirt sleeve tapers from about 0.085 m to about 0.065 m at the wrist; the leather glove has a short flared gauntlet cuff.
+- Hands: a real hand about 0.19 m from wrist to fingertips: a palm, a separate thumb angled forward and inward, and the four fingers as two or four chunky, slightly curled segments, relaxed in a loose half fist at rest with the palms facing the thighs.
+- New joints: `leftHand` and `rightHand`, each a `Group` at the wrist pivot, a child of its lower arm, with zero rotation at rest. The hand geometry belongs to them. Add them to `g.userData.joints`.
+- Rest pose: the upper arms hang about 8 degrees out from the body and about 5 degrees forward. The forearm and hand geometry may be modelled with a relaxed bend of about 12 degrees forward at the elbow while every joint rotation stays zero.
+- The jacket skirt must not be cut by a thigh swung forward to 60 degrees or back to 35 degrees: split it at the front and back, flare it or shorten it.
+- `g.userData.grip = { hands }`: metres from the soles to the top of the fingertips with both upper arms at rotation.x = -2.9 and every other joint at rest, measured by the module itself as before.
+- `g.userData.palms = { left: [x, y, z], right: [x, y, z] }`: the centre of each palm in model space at rest, after the placement shift.
+
+## stamp_plate
+
+An address plate set into the ground, 1.8 m across and 0.14 m tall: a round slab of night basalt with a stepped, chamfered edge and a raised warden-chalk rim 0.12 m wide; inside the rim a shallow recessed field 1.3 m across and 0.03 m deep where the game mounts a glyph; eight short stamp-ochre tick marks spaced around the rim like the edge of a seal; a thin ring of dormant crystal inlay just inside the rim, as its own mesh, that the game can light. It must read from 10 m as a place where something gets stamped. Expose `g.userData.parts = { inlay }` and plain data `g.userData.field = { center: [x, y, z], size }` for the top centre of the recessed field and its diameter. Budget: at most 3,000 triangles.
+
+## path_lantern
+
+A lantern post of the gate builders, 2.4 m tall: a squat stepped basalt base 0.6 m across, a slim four-sided basalt shaft with two incised grooves, and at the top an aged-bronze cage of four curved ribs holding a faceted crystal 0.28 m tall of dormant crystal (its own mesh, so the game can light it), capped by a small stepped bronze lid. Finished on every side. Expose `g.userData.parts = { crystal }` and plain data `g.userData.light = [x, y, z]` for the crystal's centre. Budget: at most 2,500 triangles.
+
+## expedition_rope
+
+A climbing anchor left by the earlier expedition: an aged-bronze ring piton driven into the top of a stone lip, with a frayed rope tied through the ring that runs over the edge and hangs 1.6 m down the face in a gentle S curve, ending in a thick knot. The lip itself is not part of the asset: the piton sits on the edge of a flat top whose face drops away towards +Z, and the rope bends over that edge and hangs down in front of it. As the contract requires, the lowest point (the knot) is at y = 0, so the piton sits about 1.75 m up; expose plain data `g.userData.anchor = [x, y, z]` for the point where the rope crosses the edge, so the game can hang the asset from any ledge. Rope colour, with a small weathered-timber wedge beside the piton. Declare `g.userData.mounts = 'back'`. Budget: at most 2,000 triangles.
+
+## floating_isle
+
+A floating island about 14 m across: a flat, gently domed top of dawn limestone with low tufts of desert sage grass and two small boulders, whose underside tapers into a long, inverted cone of stepped, chamfered isle-rock strata hanging about 9 m below the top, with three smaller rock fragments floating beneath it, not touching. The tip of the lowest fragment is at y = 0. Expose plain data `g.userData.top = y`, the height of the walkable top at its centre. Budget: at most 7,000 triangles.
+
+# Fourth wave
+
+Handed out on 24 September 2026, when the third world became the third level: the explorer crosses the floating isles on bridges of light that the builders' pylons project. Same contract, style lock and fallback as above.
+
+## light_pylon
+
+A standing stone of the gate builders 2.8 m tall. A stepped, chamfered sandstone plinth 1.1 m square in two tiers (0.3 m and 0.2 m tall, the upper tier 0.85 m square), with a burnt sienna lower course. On it a four-sided shaft 1.5 m tall that tapers from 0.5 m to 0.36 m, with two incised horizontal grooves and a bone limestone band near its top. The shaft ends in a yoke of two short aged-bronze arms that hold upright an aged-bronze ring 0.9 m across and 0.1 m thick, facing +Z, its centre about 2.3 m up; a round lens of dormant crystal 0.62 m across fills the ring and is finished on both faces (its own mesh). In front of the plinth (+Z) a flat aged-bronze threshold plate 1.1 m wide, 0.55 m deep and 0.04 m thick lies on the ground, with a straight slot of dormant crystal 0.8 m long and 0.06 m wide along its front edge (its own mesh). Four bronze rivets on the ring's face. Finished on every side. Expose `g.userData.parts = { lens, slot }` and plain data `g.userData.lens = { center: [x, y, z], radius }` for the lens and `g.userData.emit = [x, y, z]` for the middle of the slot's front edge at the plate's top. Budget: at most 5,000 triangles.

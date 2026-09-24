@@ -1,0 +1,157 @@
+{
+  "log": [
+    "start 21.0,37.2 feet 8",
+    "jumped the gap: 4.60,37.20 feet 8",
+    "hanging from the edge, feet 6.05",
+    "caught the crack at 5.05,32.62",
+    "climbed up at 8.63,31.75",
+    "reached the court floor",
+    "pulled the block off the beam",
+    "lit: left",
+    "lit: left,right",
+    "on the island 17.18,30.08",
+    "lit: left,top,right",
+    "crossed into the second world at 0.06,-1.94",
+    "briefed by the clerk",
+    "took the disc; the Wardens are coming",
+    "plates stamped with 1 throws and 4 dodges, health 4",
+    "lamp lit, barrier up",
+    "shader programs at the first start 103, after the far door 103",
+    "reached the credits and returned to the title",
+    "errors: none"
+  ],
+  "last": {
+    "mode": "title",
+    "where": "court",
+    "chapter": "checkpoint",
+    "paused": false,
+    "menu": "main",
+    "pos": [
+      21,
+      37.2
+    ],
+    "feet": 8,
+    "state": "ground",
+    "fps": 60,
+    "speed": 0,
+    "score": 0,
+    "over": false,
+    "draws": 604,
+    "tris": 489675,
+    "programs": 103,
+    "programsAtLoad": 101,
+    "programsAtStart": 103,
+    "camYaw": 3.294122185570887,
+    "cinematic": false,
+    "crossing": false,
+    "step": "enter",
+    "objective": "Go through the far door",
+    "mirrors": [
+      {
+        "id": "m1",
+        "yaw": -0.7853981633974483,
+        "locked": null
+      },
+      {
+        "id": "m2",
+        "yaw": 1.5707963267948966,
+        "locked": null
+      },
+      {
+        "id": "m3",
+        "yaw": 2.356194490192345,
+        "locked": null
+      }
+    ],
+    "lit": [],
+    "gateOpen": false,
+    "health": 4,
+    "checkpoint": "arrive",
+    "plates": [
+      {
+        "glyph": "crescent",
+        "stamped": false
+      },
+      {
+        "glyph": "waves",
+        "stamped": false
+      },
+      {
+        "glyph": "disc",
+        "stamped": false
+      }
+    ],
+    "disc": {
+      "state": "display",
+      "charged": false
+    },
+    "guards": [
+      {
+        "state": "patrol",
+        "glyph": "crescent",
+        "hp": 3,
+        "hostile": false,
+        "pos": [
+          8.6,
+          -24.6
+        ],
+        "target": null
+      },
+      {
+        "state": "patrol",
+        "glyph": "waves",
+        "hp": 3,
+        "hostile": false,
+        "pos": [
+          -9.6,
+          -24.4
+        ],
+        "target": null
+      },
+      {
+        "state": "patrol",
+        "glyph": "disc",
+        "hp": 3,
+        "hostile": false,
+        "pos": [
+          -0.6,
+          -27.6
+        ],
+        "target": null
+      }
+    ],
+    "exitOpen": false,
+    "credits": false,
+    "assets": {
+      "sun_mirror": true,
+      "push_block": true,
+      "hero_explorer": true,
+      "glyph_stela": true,
+      "far_gate": true,
+      "guardian_colossus": true,
+      "temple_facade": true,
+      "broken_column": true,
+      "brazier": true,
+      "basalt_spire": true,
+      "sun_disc": true,
+      "warden": true,
+      "customs_booth": true,
+      "queue_post": true,
+      "confiscation_bin": true,
+      "crystal_emitter": true,
+      "lumen_plant": true,
+      "expedition_tent": true,
+      "supply_crates": true,
+      "clay_urns": true,
+      "boulder_cluster": true,
+      "fallen_head": true,
+      "desert_agave": true,
+      "glyph_banner": true,
+      "stamp_plate": true,
+      "path_lantern": true,
+      "expedition_rope": true,
+      "floating_isle": true
+    }
+  },
+  "errors": []
+}

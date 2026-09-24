@@ -1,0 +1,132 @@
+<!doctype html>
+<html><head><meta charset="utf-8">
+<script type="importmap">{ "imports": { "three": "/game/vendor/three.module.js", "three/addons/": "/game/vendor/" } }</script>
+<style>body{margin:0;background:#000}canvas{display:block}</style></head>
+<body>
+<script type="module">
+// Throwaway, adapted from crystal_emitter/scratch/night.html: the second world's
+// lighting (star, planetshine, violet hemisphere, sky environment, ACES, bloom as in
+// world-two.js) around assets loaded through the game's own assetlib with surfaces
+// on, a 1.75 m capsule for scale.
+// views: [[distance, azimuth deg from +Z, camera height, look-at height], ...]
+// lit=<n> sets every declared part's emissiveIntensity; a point light goes at
+// userData.light when present.
+import * as THREE from 'three';
+import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js';
+import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
+import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js';
+import { OutputPass } from 'three/addons/postprocessing/OutputPass.js';
+import { ASSET } from '/game/assetlib.js';
+
+const q = new URLSearchParams(location.search);
+const W = +(q.get('w') || 640), H = +(q.get('h') || 480);
+const views = JSON.parse(q.get('views') || '[[4,20,2.66,0.1],[10,-30,2.66,0.2],[6,150,2.66,0.1],[0.01,0,5,0]]');
+const cols = Math.min(views.length, +(q.get('cols') || 2)), rows = Math.ceil(views.length / cols);
+const out = document.createElement('canvas');
+out.width = W * cols; out.height = H * rows;
+document.body.appendChild(out);
+const ctx = out.getContext('2d');
+
+const renderer = new THREE.WebGLRenderer({ antialias: true, preserveDrawingBuffer: true });
+renderer.setSize(W, H, false);
+renderer.outputColorSpace = THREE.SRGBColorSpace;
+renderer.toneMapping = THREE.ACESFilmicToneMapping;
+renderer.toneMappingExposure = +(q.get('exp') || 0.86);
+renderer.shadowMap.enabled = true;
+renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+
+const STAR = new THREE.Vector3(0.78, 0.3, 0.55).normalize();
+const PLANET = new THREE.Vector3(-0.18, 0.2, -1).normalize();
+const skyMat = () => new THREE.ShaderMaterial({
+  side: THREE.BackSide, depthWrite: false, fog: false,
+  uniforms: { uStar: { value: STAR }, uPlanet: { value: PLANET } },
+  vertexShader: `varying vec3 vDir; void main() { vDir = normalize(position); gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0); }`,
+  fragmentShader: `
+    varying vec3 vDir; uniform vec3 uStar; uniform vec3 uPlanet;
+    void main() {
+      vec3 d = normalize(vDir); float h = d.y;
+      vec3 horizon = vec3(0.36, 0.17, 0.27), mid = vec3(0.1, 0.05, 0.19), zenith = vec3(0.018, 0.01, 0.05);
+      vec3 col = mix(horizon, mid, smoothstep(-0.02, 0.22, h));
+      col = mix(col, zenith, smoothstep(0.22, 0.85, h));
+      float p = max(dot(d, uPlanet), 0.0);
+      col += vec3(0.5, 0.26, 0.2) * pow(p, 6.0) * 0.5 * (1.0 - smoothstep(0.0, 0.5, h));
+      float s = max(dot(d, uStar), 0.0);
+      col += vec3(0.55, 0.6, 0.85) * pow(s, 24.0) * 0.5;
+      col = mix(col, vec3(0.1, 0.06, 0.12), smoothstep(0.0, -0.08, h));
+      gl_FragColor = vec4(col, 1.0);
+    }`,
+});
+const scene = new THREE.Scene();
+scene.fog = new THREE.FogExp2(0x4a3452, 0.0026);
+scene.background = new THREE.Color(0x1a1028);
+const sky = new THREE.Mesh(new THREE.SphereGeometry(400, 32, 16), skyMat());
+scene.add(sky);
+const star = new THREE.DirectionalLight(0xd4e2ff, 3.4);
+star.position.copy(STAR).multiplyScalar(40);
+star.castShadow = true;
+star.shadow.mapSize.set(2048, 2048);
+Object.assign(star.shadow.camera, { left: -12, right: 12, top: 12, bottom: -12, near: 1, far: 100 });
+star.shadow.bias = -0.0004; star.shadow.normalBias = 0.03;
+scene.add(star, star.target);
+const shine = new THREE.DirectionalLight(0xff9f7a, 0.75);
+shine.position.copy(PLANET).multiplyScalar(40);
+scene.add(shine, shine.target);
+scene.add(new THREE.HemisphereLight(0x7a64b8, 0x2a1e30, 1.25));
+const pmrem = new THREE.PMREMGenerator(renderer);
+const envScene = new THREE.Scene();
+envScene.add(new THREE.Mesh(new THREE.SphereGeometry(400, 32, 16), skyMat()));
+scene.environment = pmrem.fromScene(envScene, 0.04).texture;
+scene.environmentIntensity = 0.45;
+const ground = new THREE.Mesh(new THREE.PlaneGeometry(300, 300), new THREE.MeshStandardMaterial({ color: 0x4a4058, roughness: 0.9 }));
+ground.rotation.x = -Math.PI / 2;
+ground.receiveShadow = true;
+scene.add(ground);
+const hero = new THREE.Mesh(new THREE.CapsuleGeometry(0.28, 1.19, 4, 12), new THREE.MeshStandardMaterial({ color: 0x2d3656, roughness: 0.8 }));
+hero.position.set(+(q.get('hx') || 1.6), 0.875, +(q.get('hz') || 1.0));
+hero.castShadow = true;
+if (q.get('hero') !== '0') scene.add(hero);
+
+let info = { ok: false };
+try {
+  const srcs = q.getAll('src');
+  const spread = +(q.get('spread') || 3);
+  const lit = q.get('lit');
+  for (let i = 0; i < srcs.length; i++) {
+    const obj = await ASSET(srcs[i], { surfaces: q.get('surf') !== '0', keepHierarchy: true });
+    obj.position.x = (i - (srcs.length - 1) / 2) * spread;
+    scene.add(obj);
+    if (lit !== null) for (const node of Object.values(obj.userData.parts || {})) node.traverse((o) => {
+      if (!o.isMesh) return;
+      o.material = o.material.clone();
+      o.material.emissive = new THREE.Color(0x39e3d0);
+      o.material.emissiveIntensity = +lit;
+    });
+    const L = obj.userData.light;
+    if (L && lit !== null && +lit > 0) {
+      const pl = new THREE.PointLight(0x39e3d0, +(q.get('pl') || 6), 9, 1.6);
+      pl.position.set(obj.position.x + L[0], L[1], L[2]);
+      scene.add(pl);
+    }
+  }
+  const size = new THREE.Vector2(W, H);
+  const composer = new EffectComposer(renderer, new THREE.WebGLRenderTarget(W, H, { type: THREE.HalfFloatType, samples: 4 }));
+  composer.setSize(W, H);
+  const pass = new RenderPass(scene, new THREE.PerspectiveCamera());
+  composer.addPass(pass);
+  composer.addPass(new UnrealBloomPass(size, 0.55, 0.4, 1.1));
+  composer.addPass(new OutputPass());
+  views.forEach(([d, azDeg, camH, lookY], i) => {
+    const a = azDeg * Math.PI / 180;
+    const cam = new THREE.PerspectiveCamera(+(q.get('fov') || 58), W / H, 0.05, 900);
+    cam.position.set(Math.sin(a) * d, camH, Math.cos(a) * d);
+    cam.lookAt(0, lookY, 0);
+    sky.position.copy(cam.position);
+    pass.camera = cam;
+    composer.render();
+    ctx.drawImage(renderer.domElement, (i % cols) * W, Math.floor(i / cols) * H);
+  });
+  info = { ok: true };
+} catch (e) { info = { ok: false, error: String(e && e.stack || e) }; }
+window.__INFO__ = info;
+window.__DONE__ = true;
+</script></body></html>

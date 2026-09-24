@@ -2,8 +2,9 @@ import * as THREE from "three";
 
 // Sunlight as a 2D ray at a fixed height, bounced by mirror faces and caught by stelae.
 // A mirror reflects only from its polished front; a stela accepts light within 30 degrees
-// of head-on and holds it after a short charge. Mirrors turn freely and snap onto a target
-// the reflected ray nearly meets, so aiming is forgiving without being automatic.
+// of head-on and holds it after a short charge. Mirrors turn freely all the way round and
+// snap onto a target the reflected ray nearly meets, so aiming is forgiving without being
+// automatic.
 
 const MIRROR_HALF = 0.6,
   LENS_HALF = 0.34,
@@ -365,7 +366,6 @@ export class Beams {
   // Right on the stick turns the mirror clockwise seen from above, left the other way:
   // the same on screen from wherever the camera looks down on it.
   turn(mirror, delta) {
-    const was = this.outgoing(mirror, mirror.yaw);
     // A catch holds for a moment even under steady input, long enough to light a stela.
     if (mirror.locked && this.time - mirror.lockedAt < HOLD) {
       mirror.pending = 0;
@@ -376,21 +376,12 @@ export class Beams {
       if (Math.abs(mirror.pending) < SNAP * 1.6) return false;
       mirror.locked = null;
     }
-    // A lit mirror stops at the edge of its polished face instead of turning its back on
-    // the light, so the beam never vanishes mid-turn; the player simply turns the other way.
-    const lit = this.hitMirrors.get(mirror);
-    if (lit && was) {
-      const next = mirror.yaw + mirror.pending;
-      const dn = lit.dx * Math.sin(next) + lit.dz * Math.cos(next);
-      const now = lit.dx * Math.sin(mirror.yaw) + lit.dz * Math.cos(mirror.yaw);
-      if (dn > -0.08 && dn > now) {
-        mirror.pending = 0;
-        mirror.atEdge = true;
-        return false;
-      }
-    }
-    mirror.atEdge = false;
-    mirror.yaw += mirror.pending;
+    // Mirrors turn all the way round. Turned away from the light, the beam simply stops on
+    // the unpolished back, and comes back as the face swings round again.
+    mirror.yaw = Math.atan2(
+      Math.sin(mirror.yaw + mirror.pending),
+      Math.cos(mirror.yaw + mirror.pending),
+    );
     mirror.pending = 0;
     const out = this.outgoing(mirror, mirror.yaw);
     if (!out) return false;

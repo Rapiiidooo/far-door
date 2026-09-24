@@ -1,0 +1,123 @@
+<!doctype html>
+<html><head><meta charset="utf-8">
+<script type="importmap">{ "imports": { "three": "/game/vendor/three.module.js", "three/addons/": "/game/vendor/" } }</script>
+<style>body{margin:0;background:#000}canvas{display:block}</style></head>
+<body>
+<script type="module">
+// Throwaway, adapted from path_lantern/scratch/night.html: the third world's dawn rig
+// (warm sun from world-three.js, hemisphere, sky environment, ACES, bloom) around the
+// asset loaded through the game's own assetlib with surfaces on and keepHierarchy, and
+// a 1.75 m capsule for scale.
+// views: [[distance, azimuth deg from +Z, camera height, look-at height, fov], ...]
+// lit=<n> sets both declared parts' emissiveIntensity.
+import * as THREE from 'three';
+import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js';
+import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
+import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js';
+import { OutputPass } from 'three/addons/postprocessing/OutputPass.js';
+import { ASSET } from '/game/assetlib.js';
+
+const q = new URLSearchParams(location.search);
+const W = +(q.get('w') || 640), H = +(q.get('h') || 640);
+const views = JSON.parse(q.get('views') || '[[4,20,2.2,1.6,50]]');
+const cols = Math.min(views.length, +(q.get('cols') || 3)), rows = Math.ceil(views.length / cols);
+const out = document.createElement('canvas');
+out.width = W * cols; out.height = H * rows;
+document.body.appendChild(out);
+const ctx = out.getContext('2d');
+
+const renderer = new THREE.WebGLRenderer({ antialias: true, preserveDrawingBuffer: true });
+renderer.setSize(W, H, false);
+renderer.outputColorSpace = THREE.SRGBColorSpace;
+renderer.toneMapping = THREE.ACESFilmicToneMapping;
+renderer.toneMappingExposure = +(q.get('exp') || 0.86);
+renderer.shadowMap.enabled = true;
+renderer.shadowMap.type = THREE.PCFShadowMap;
+
+const az = +(q.get('sunaz') || 0);
+const SUN = new THREE.Vector3(0.62, 0.2, -0.76).applyAxisAngle(new THREE.Vector3(0, 1, 0), az * Math.PI / 180).normalize();
+if (q.get('sunhi')) SUN.y = +q.get('sunhi'), SUN.normalize();
+const skyMat = () => new THREE.ShaderMaterial({
+  side: THREE.BackSide, depthWrite: false, fog: false,
+  uniforms: { uSun: { value: SUN } },
+  vertexShader: `varying vec3 vDir; void main() { vDir = normalize(position); gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0); }`,
+  fragmentShader: `
+    varying vec3 vDir; uniform vec3 uSun;
+    void main() {
+      vec3 d = normalize(vDir); float h = d.y;
+      vec3 horizon = vec3(1.0, 0.78, 0.55), mid = vec3(0.62, 0.66, 0.86), zenith = vec3(0.28, 0.36, 0.66);
+      vec3 col = mix(horizon, mid, smoothstep(0.0, 0.3, h));
+      col = mix(col, zenith, smoothstep(0.3, 0.95, h));
+      float s = max(dot(d, uSun), 0.0);
+      col += vec3(1.0, 0.66, 0.36) * pow(s, 8.0) * 0.45 + vec3(1.0, 0.9, 0.7) * pow(s, 90.0) * 0.9;
+      col = mix(col, vec3(0.95, 0.76, 0.58), smoothstep(0.0, -0.1, h));
+      gl_FragColor = vec4(col, 1.0);
+    }`,
+});
+const scene = new THREE.Scene();
+scene.fog = new THREE.FogExp2(0xdcb690, 0.0016);
+scene.background = new THREE.Color(0xdcb690);
+const sky = new THREE.Mesh(new THREE.SphereGeometry(400, 32, 16), skyMat());
+scene.add(sky);
+const sun = new THREE.DirectionalLight(0xffd6a0, 3.6);
+sun.position.copy(SUN).multiplyScalar(40);
+sun.castShadow = true;
+sun.shadow.mapSize.set(2048, 2048);
+Object.assign(sun.shadow.camera, { left: -8, right: 8, top: 8, bottom: -8, near: 1, far: 100 });
+sun.shadow.bias = -0.0004; sun.shadow.normalBias = 0.03;
+scene.add(sun, sun.target);
+scene.add(new THREE.HemisphereLight(0x9fb6e6, 0xe8b884, 1.25));
+const pmrem = new THREE.PMREMGenerator(renderer);
+const envScene = new THREE.Scene();
+envScene.add(new THREE.Mesh(new THREE.SphereGeometry(400, 32, 16), skyMat()));
+scene.environment = pmrem.fromScene(envScene, 0.04).texture;
+scene.environmentIntensity = 0.7;
+const ground = new THREE.Mesh(new THREE.PlaneGeometry(300, 300), new THREE.MeshStandardMaterial({ color: 0xeadcc0, roughness: 0.92 }));
+ground.rotation.x = -Math.PI / 2;
+ground.receiveShadow = true;
+scene.add(ground);
+const hero = new THREE.Mesh(new THREE.CapsuleGeometry(0.28, 1.19, 4, 12), new THREE.MeshStandardMaterial({ color: 0x2d3656, roughness: 0.8 }));
+hero.position.set(+(q.get('hx') || 1.3), 0.875, +(q.get('hz') || 1.2));
+hero.castShadow = true;
+if (q.get('hero') !== '0') scene.add(hero);
+
+let info = { ok: false };
+try {
+  const obj = await ASSET(q.get('src'), { surfaces: q.get('surf') !== '0', keepHierarchy: true });
+  obj.traverse((o) => { if (o.isMesh) { o.castShadow = true; o.receiveShadow = true; } });
+  scene.add(obj);
+  const lit = q.get('lit');
+  // ASSET resolves the declared parts on this instance, as isles.js relies on
+  if (lit !== null) for (const node of Object.values(obj.userData.parts || {})) node.traverse((o) => {
+    if (!o.isMesh) return;
+    o.material = o.material.clone();
+    o.material.emissiveIntensity = +lit;
+  });
+  if (q.get('marks')) {
+    const dot = (p, c) => { const m = new THREE.Mesh(new THREE.SphereGeometry(0.03, 12, 8), new THREE.MeshBasicMaterial({ color: c, depthTest: false })); m.position.set(...p); m.renderOrder = 99; scene.add(m); };
+    const L = obj.userData.lens, E = obj.userData.emit;
+    if (L) dot(L.center, 0xff00ff);
+    if (E) dot(E, 0x00ff00);
+  }
+  const size = new THREE.Vector2(W, H);
+  const composer = new EffectComposer(renderer, new THREE.WebGLRenderTarget(W, H, { type: THREE.HalfFloatType, samples: 4 }));
+  composer.setSize(W, H);
+  const pass = new RenderPass(scene, new THREE.PerspectiveCamera());
+  composer.addPass(pass);
+  composer.addPass(new UnrealBloomPass(size, 0.35, 0.4, 1.1));
+  composer.addPass(new OutputPass());
+  views.forEach(([d, azDeg, camH, lookY, fov = 50, lookZ = 0], i) => {
+    const a = azDeg * Math.PI / 180;
+    const cam = new THREE.PerspectiveCamera(fov, W / H, 0.05, 900);
+    cam.position.set(Math.sin(a) * d, camH, lookZ + Math.cos(a) * d);
+    cam.lookAt(0, lookY, lookZ);
+    sky.position.copy(cam.position);
+    pass.camera = cam;
+    composer.render();
+    ctx.drawImage(renderer.domElement, (i % cols) * W, Math.floor(i / cols) * H);
+  });
+  info = { ok: true, lens: obj.userData.lens, emit: obj.userData.emit, parts: Object.keys(obj.userData.parts || {}) };
+} catch (e) { info = { ok: false, error: String(e && e.stack || e) }; }
+window.__INFO__ = info;
+window.__DONE__ = true;
+</script></body></html>
