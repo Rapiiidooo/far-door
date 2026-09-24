@@ -15,6 +15,34 @@ On 24 September 2026 the owner asked for more detail everywhere, a new planet li
 
 `node scripts/playthrough.mjs outputs/playthrough` played from the title through the four levels to the credits and back, with no page or console error ([log](playthrough/log.json)). In the frozen reach it slid the stream at a run and jumped the crevasse, pushed the block east against a spire and north under the notch, climbed the block and the notch, ran the thin ice (the tiles broke behind it), rode both floes, charged the disc at the prism and freed the stela, and watched the ring open onto the forest. No shader program was compiled in play: 156 at the first start and 156 at the end. `--from=w4` plays the frozen reach alone and passes too.
 
+## The public URL
+
+Commit `bec8425` was deployed to <https://fardoor.rapidoai.dev/> as release `20260924-bec842579a5f`; every served file checked matches the commit. The first attempt was refused by the deploy script's own check and the previous release was restored at once: the check piped the page into `grep -q` under `pipefail`, which fails as soon as the page outgrows one write. The check now reads the page whole, and the second attempt went live. The jam gate, as published:
+
+```text
+=== 404 JAM VERDICT ===
+url             https://fardoor.rapidoai.dev/
+utc             2026-09-24T19:11:20.412Z
+commit          bec842579a5f96bf76a19232feec9e0eadb1d51d
+viewport        390x844 @3x phone, real touch, Android Chrome UA
+network         4G: 4 Mbps down, 1 Mbps up, 60 ms latency, CPU 2x slower
+ready           4.6 s   budget 20 s   PASS
+weight          3.4 MB   budget 10 MB   PASS
+started         yes (tap on #startb)
+moved           3.2 m   needs 1 m   PASS
+peak draws      412   budget 900   PASS
+peak tris       324,091   budget 1,500,000   PASS
+median fps      60 (ANGLE (Apple, ANGLE Metal Renderer: Apple M5 Max, Unspecified Version))
+errors          0   PASS
+404s            0   PASS
+external deps   none
+outside folder  none, every file came from the game folder
+RESULT: PASS
+=== END ===
+```
+
+With the software renderer forced it was ready in 8.8 s and passed too ([phone verdict](gate-live/phone-verdict.json), [software verdict](gate-live/software-verdict.json), [frame in motion](gate-live/phone-moving.png)).
+
 ## Other checks
 
 - **Menus and level flow:** `node scripts/menu-check.mjs` passes 19 of 19, including a Levels screen of five starts and the way back from the frozen reach to Mira's camp, her ring still open ([results](menu-check.json)).
