@@ -1,0 +1,116 @@
+[
+ {
+  "ok": true,
+  "mounts": "back",
+  "meshes": 150,
+  "tris": 5844,
+  "materials": 5,
+  "size": [
+   16,
+   13,
+   3
+  ],
+  "groundOffset": 0,
+  "centreOffset": [
+   0,
+   0
+  ],
+  "sides": {
+   "front": {
+    "coverage": 0.4003,
+    "edgeDensity": 0.2092
+   },
+   "right": {
+    "coverage": 0.1169,
+    "edgeDensity": 0.1127
+   },
+   "back": {
+    "coverage": 0.4084,
+    "edgeDensity": 0.0351
+   },
+   "left": {
+    "coverage": 0.1191,
+    "edgeDensity": 0.1211
+   }
+  },
+  "error": null,
+  "name": "temple_facade_a",
+  "problems": []
+ },
+ {
+  "ok": true,
+  "mounts": "back",
+  "meshes": 112,
+  "tris": 9980,
+  "materials": 5,
+  "size": [
+   16,
+   13,
+   3
+  ],
+  "groundOffset": 0,
+  "centreOffset": [
+   0,
+   0
+  ],
+  "sides": {
+   "front": {
+    "coverage": 0.4035,
+    "edgeDensity": 0.2431
+   },
+   "right": {
+    "coverage": 0.1163,
+    "edgeDensity": 0.1345
+   },
+   "back": {
+    "coverage": 0.4056,
+    "edgeDensity": 0.032
+   },
+   "left": {
+    "coverage": 0.1172,
+    "edgeDensity": 0.1652
+   }
+  },
+  "error": null,
+  "name": "temple_facade_b",
+  "problems": []
+ },
+ {
+  "ok": true,
+  "mounts": "back",
+  "meshes": 155,
+  "tris": 10332,
+  "materials": 5,
+  "size": [
+   16,
+   12.99,
+   3
+  ],
+  "groundOffset": 0,
+  "centreOffset": [
+   0,
+   0
+  ],
+  "sides": {
+   "front": {
+    "coverage": 0.4037,
+    "edgeDensity": 0.2704
+   },
+   "right": {
+    "coverage": 0.1194,
+    "edgeDensity": 0.1923
+   },
+   "back": {
+    "coverage": 0.4029,
+    "edgeDensity": 0.0217
+   },
+   "left": {
+    "coverage": 0.1188,
+    "edgeDensity": 0.2272
+   }
+  },
+  "error": null,
+  "name": "temple_facade_c",
+  "problems": []
+ }
+]

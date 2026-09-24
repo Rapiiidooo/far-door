@@ -1,0 +1,71 @@
+{
+  "log": [
+    "start 21.0,37.2 feet 8",
+    "jumped the gap: 4.62,37.20 feet 8",
+    "hanging from the edge, feet 5.86",
+    "caught the crack at 4.68,32.71",
+    "climbed up at 8.61,31.75",
+    "reached the court floor",
+    "pushed the block",
+    "lit: left",
+    "lit: left,right",
+    "on the island 17.00,30.06",
+    "lit: left,top,right",
+    "crossed into the second world at -0.44,-0.03",
+    "reached the end card",
+    "errors: none"
+  ],
+  "last": {
+    "mode": "end",
+    "pos": [
+      -0.13516899212112654,
+      -44.39525537011443
+    ],
+    "feet": 0,
+    "state": "ground",
+    "fps": 60,
+    "speed": 8.694308204261295e-52,
+    "score": 3,
+    "over": true,
+    "draws": 131,
+    "tris": 164858,
+    "camYaw": 3.1310303356013724,
+    "cinematic": true,
+    "mirrors": [
+      {
+        "id": "m1",
+        "yaw": -0.1608752771983212,
+        "locked": "m2"
+      },
+      {
+        "id": "m2",
+        "yaw": -1.2402747423695533,
+        "locked": "m3"
+      },
+      {
+        "id": "m3",
+        "yaw": 2.9200720500117603,
+        "locked": "top"
+      }
+    ],
+    "lit": [
+      "left",
+      "top",
+      "right"
+    ],
+    "gateOpen": true,
+    "assets": {
+      "push_block": true,
+      "sun_mirror": true,
+      "hero_explorer": true,
+      "glyph_stela": true,
+      "far_gate": true,
+      "guardian_colossus": true,
+      "broken_column": true,
+      "temple_facade": true,
+      "brazier": true,
+      "basalt_spire": true
+    }
+  },
+  "errors": []
+}

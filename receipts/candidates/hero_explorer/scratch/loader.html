@@ -1,0 +1,48 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><title>loader check</title>
+<script type="importmap">{ "imports": { "three": "/game/vendor/three.module.js", "three/addons/": "/game/vendor/" } }</script>
+<style>body{margin:0}canvas{display:block}</style></head>
+<body><script type="module">
+// Throwaway: load C through the game's loader with the hierarchy kept, pose it via the resolved joints.
+import * as THREE from 'three';
+import { ASSET } from '/game/assetlib.js';
+const out = { ok: false };
+try {
+  const url = '/receipts/candidates/hero_explorer/hero_explorer_c.js';
+  const a = await ASSET(url, { keepHierarchy: true, surfaces: true, height: 1.75 });
+  const b = await ASSET(url, { keepHierarchy: true, surfaces: true, height: 1.75 });
+  const J = a.userData.joints, JB = b.userData.joints;
+  out.jointKeys = Object.keys(J || {});
+  out.allGroups = Object.values(J || {}).every((j) => j && j.isGroup);
+  out.grip = a.userData.grip;
+  out.scale = a.scale.x;
+  out.distinctInstances = J.head !== JB.head;
+  // run pose on a, hang pose on b, through the loader's resolved references
+  Object.assign(J.leftUpperLeg.rotation, { x: -0.6 }); J.rightUpperLeg.rotation.x = 0.5;
+  J.leftLowerLeg.rotation.x = 0.7; J.rightLowerLeg.rotation.x = 0.7;
+  J.leftUpperArm.rotation.x = 0.5; J.rightUpperArm.rotation.x = -0.6;
+  J.leftLowerArm.rotation.x = -0.9; J.rightLowerArm.rotation.x = -0.9; J.scarfTail.rotation.x = 0.5;
+  JB.leftUpperArm.rotation.x = -2.9; JB.rightUpperArm.rotation.x = -2.9;
+  a.position.set(-0.8, 0, 0); b.position.set(0.8, 0, 0);
+  const scene = new THREE.Scene();
+  scene.background = new THREE.Color(0xc9d6de);
+  scene.add(new THREE.HemisphereLight(0xdfe9ff, 0xb08658, 1.3));
+  const sun = new THREE.DirectionalLight(0xfff0d8, 3.2); sun.position.set(6, 12, 8); scene.add(sun);
+  const ground = new THREE.Mesh(new THREE.PlaneGeometry(40, 40), new THREE.MeshStandardMaterial({ color: 0xd4a373, roughness: 0.95 }));
+  ground.rotation.x = -Math.PI / 2; scene.add(ground, a, b);
+  // measured hang height: highest vertex of b over the ground
+  scene.updateMatrixWorld(true);
+  const v = new THREE.Vector3(); let top = -Infinity, low = Infinity;
+  b.traverse((n) => { const p = n.isMesh && n.geometry.attributes.position; if (!p) return;
+    for (let i = 0; i < p.count; i++) { v.fromBufferAttribute(p, i).applyMatrix4(n.matrixWorld); top = Math.max(top, v.y); low = Math.min(low, v.y); } });
+  out.hangTop = +top.toFixed(4); out.hangLow = +low.toFixed(4);
+  let draws = 0; a.traverse((n) => { if (n.isMesh) draws++; }); out.meshes = draws;
+  const r = new THREE.WebGLRenderer({ antialias: true, preserveDrawingBuffer: true });
+  r.setSize(900, 600, false); r.outputColorSpace = THREE.SRGBColorSpace; r.toneMapping = THREE.ACESFilmicToneMapping;
+  document.body.appendChild(r.domElement);
+  const cam = new THREE.PerspectiveCamera(40, 1.5, 0.1, 100); cam.position.set(2.2, 1.9, 4.2); cam.lookAt(0, 1.05, 0);
+  r.render(scene, cam);
+  out.ok = true;
+} catch (e) { out.error = String(e && e.stack || e); }
+window.__OUT__ = out; window.__DONE__ = true;
+</script></body></html>

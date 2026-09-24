@@ -1,0 +1,116 @@
+[
+ {
+  "ok": true,
+  "mounts": null,
+  "meshes": 55,
+  "tris": 1248,
+  "materials": 3,
+  "size": [
+   4.105,
+   9,
+   4.127
+  ],
+  "groundOffset": 0,
+  "centreOffset": [
+   0,
+   0
+  ],
+  "sides": {
+   "front": {
+    "coverage": 0.0792,
+    "edgeDensity": 0.0624
+   },
+   "right": {
+    "coverage": 0.0684,
+    "edgeDensity": 0.0475
+   },
+   "back": {
+    "coverage": 0.1259,
+    "edgeDensity": 0.036
+   },
+   "left": {
+    "coverage": 0.1308,
+    "edgeDensity": 0.0702
+   }
+  },
+  "error": null,
+  "name": "basalt_spire_a",
+  "problems": []
+ },
+ {
+  "ok": true,
+  "mounts": null,
+  "meshes": 26,
+  "tris": 1816,
+  "materials": 3,
+  "size": [
+   4.234,
+   9,
+   4.381
+  ],
+  "groundOffset": 0,
+  "centreOffset": [
+   0,
+   0
+  ],
+  "sides": {
+   "front": {
+    "coverage": 0.0729,
+    "edgeDensity": 0.1167
+   },
+   "right": {
+    "coverage": 0.106,
+    "edgeDensity": 0.0877
+   },
+   "back": {
+    "coverage": 0.1255,
+    "edgeDensity": 0.0433
+   },
+   "left": {
+    "coverage": 0.1286,
+    "edgeDensity": 0.085
+   }
+  },
+  "error": null,
+  "name": "basalt_spire_b",
+  "problems": []
+ },
+ {
+  "ok": true,
+  "mounts": null,
+  "meshes": 31,
+  "tris": 572,
+  "materials": 3,
+  "size": [
+   4.53,
+   9,
+   4.028
+  ],
+  "groundOffset": 0,
+  "centreOffset": [
+   0,
+   0
+  ],
+  "sides": {
+   "front": {
+    "coverage": 0.0671,
+    "edgeDensity": 0.0816
+   },
+   "right": {
+    "coverage": 0.0575,
+    "edgeDensity": 0.0755
+   },
+   "back": {
+    "coverage": 0.1393,
+    "edgeDensity": 0.0485
+   },
+   "left": {
+    "coverage": 0.1312,
+    "edgeDensity": 0.0511
+   }
+  },
+  "error": null,
+  "name": "basalt_spire_c",
+  "problems": []
+ }
+]

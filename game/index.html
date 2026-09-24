@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Far Door</title>
+    <meta
+      name="description"
+      content="An explorer bends sunlight through a sunken ruin to open a gate onto another world."
+    />
+    <link rel="stylesheet" href="./style.css" />
+    <script type="importmap">
+      {
+        "imports": {
+          "three": "./vendor/three.module.js",
+          "three/addons/": "./vendor/"
+        }
+      }
+    </script>
+    <script type="module" src="./main.js"></script>
+  </head>
+  <body>
+    <canvas id="view" tabindex="0" aria-label="Game view"></canvas>
+
+    <section id="title" class="screen" aria-live="polite">
+      <div class="title-card">
+        <p class="kicker">A prototype</p>
+        <h1>Far Door</h1>
+        <p class="tagline">Every tomb hides an address.</p>
+        <button id="start" type="button" disabled>Loading the ruin…</button>
+        <ul class="controls" id="controls-help">
+          <li><b data-key="move">WASD</b> move</li>
+          <li><b>Mouse</b> look</li>
+          <li><b>Space</b> jump and climb</li>
+          <li><b data-key="interact">E</b> hold to grab or turn</li>
+          <li><b data-key="drop">C</b> hang or let go</li>
+          <li><b>Shift</b> walk safely</li>
+        </ul>
+      </div>
+    </section>
+
+    <div id="hud" hidden>
+      <div id="address" aria-label="Address glyphs">
+        <span class="glyph" data-id="left"></span>
+        <span class="glyph" data-id="top"></span>
+        <span class="glyph" data-id="right"></span>
+      </div>
+      <p id="objective"></p>
+      <p id="prompt" aria-live="polite"></p>
+    </div>
+
+    <div id="fade"></div>
+
+    <section id="pause" class="screen" hidden>
+      <div class="title-card small">
+        <p class="kicker">Paused</p>
+        <button id="resume" type="button">Resume</button>
+      </div>
+    </section>
+
+    <section id="end" class="screen" hidden>
+      <div class="title-card">
+        <p class="kicker">End of the prototype</p>
+        <h1>Far Door</h1>
+        <p class="tagline">The network has more doors.</p>
+        <button id="again" type="button">Play again</button>
+      </div>
+    </section>
+  </body>
+</html>

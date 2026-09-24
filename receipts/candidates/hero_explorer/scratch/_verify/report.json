@@ -1,0 +1,116 @@
+[
+ {
+  "ok": true,
+  "mounts": null,
+  "meshes": 33,
+  "tris": 3856,
+  "materials": 8,
+  "size": [
+   0.691,
+   2.144,
+   0.423
+  ],
+  "groundOffset": 0,
+  "centreOffset": [
+   0,
+   0
+  ],
+  "sides": {
+   "front": {
+    "coverage": 0.1218,
+    "edgeDensity": 0.1337
+   },
+   "right": {
+    "coverage": 0.0849,
+    "edgeDensity": 0.1541
+   },
+   "back": {
+    "coverage": 0.1212,
+    "edgeDensity": 0.144
+   },
+   "left": {
+    "coverage": 0.0864,
+    "edgeDensity": 0.1523
+   }
+  },
+  "error": null,
+  "name": "posed_hang",
+  "problems": []
+ },
+ {
+  "ok": true,
+  "mounts": null,
+  "meshes": 33,
+  "tris": 3856,
+  "materials": 8,
+  "size": [
+   1.665,
+   1.748,
+   0.643
+  ],
+  "groundOffset": 0,
+  "centreOffset": [
+   0,
+   0
+  ],
+  "sides": {
+   "front": {
+    "coverage": 0.1012,
+    "edgeDensity": 0.1622
+   },
+   "right": {
+    "coverage": 0.0661,
+    "edgeDensity": 0.193
+   },
+   "back": {
+    "coverage": 0.1075,
+    "edgeDensity": 0.161
+   },
+   "left": {
+    "coverage": 0.0653,
+    "edgeDensity": 0.2057
+   }
+  },
+  "error": null,
+  "name": "posed_look",
+  "problems": []
+ },
+ {
+  "ok": true,
+  "mounts": null,
+  "meshes": 33,
+  "tris": 3856,
+  "materials": 8,
+  "size": [
+   0.691,
+   1.695,
+   1.288
+  ],
+  "groundOffset": 0,
+  "centreOffset": [
+   0,
+   0
+  ],
+  "sides": {
+   "front": {
+    "coverage": 0.1165,
+    "edgeDensity": 0.1391
+   },
+   "right": {
+    "coverage": 0.1078,
+    "edgeDensity": 0.1577
+   },
+   "back": {
+    "coverage": 0.1143,
+    "edgeDensity": 0.1502
+   },
+   "left": {
+    "coverage": 0.1118,
+    "edgeDensity": 0.1731
+   }
+  },
+  "error": null,
+  "name": "posed_run",
+  "problems": []
+ }
+]

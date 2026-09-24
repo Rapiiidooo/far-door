@@ -1,0 +1,116 @@
+[
+ {
+  "ok": true,
+  "mounts": null,
+  "meshes": 203,
+  "tris": 7072,
+  "materials": 5,
+  "size": [
+   8.46,
+   14,
+   9.66
+  ],
+  "groundOffset": 0,
+  "centreOffset": [
+   0,
+   0
+  ],
+  "sides": {
+   "front": {
+    "coverage": 0.2045,
+    "edgeDensity": 0.221
+   },
+   "right": {
+    "coverage": 0.2016,
+    "edgeDensity": 0.2266
+   },
+   "back": {
+    "coverage": 0.1955,
+    "edgeDensity": 0.2213
+   },
+   "left": {
+    "coverage": 0.2014,
+    "edgeDensity": 0.2248
+   }
+  },
+  "error": null,
+  "name": "guardian_colossus_a",
+  "problems": []
+ },
+ {
+  "ok": true,
+  "mounts": null,
+  "meshes": 101,
+  "tris": 12068,
+  "materials": 5,
+  "size": [
+   8.48,
+   14.03,
+   9.7
+  ],
+  "groundOffset": 0,
+  "centreOffset": [
+   0,
+   0
+  ],
+  "sides": {
+   "front": {
+    "coverage": 0.2037,
+    "edgeDensity": 0.2203
+   },
+   "right": {
+    "coverage": 0.2026,
+    "edgeDensity": 0.2106
+   },
+   "back": {
+    "coverage": 0.1948,
+    "edgeDensity": 0.216
+   },
+   "left": {
+    "coverage": 0.2024,
+    "edgeDensity": 0.232
+   }
+  },
+  "error": null,
+  "name": "guardian_colossus_b",
+  "problems": []
+ },
+ {
+  "ok": true,
+  "mounts": null,
+  "meshes": 123,
+  "tris": 12776,
+  "materials": 5,
+  "size": [
+   8.4,
+   14,
+   9.66
+  ],
+  "groundOffset": 0,
+  "centreOffset": [
+   0,
+   0
+  ],
+  "sides": {
+   "front": {
+    "coverage": 0.2047,
+    "edgeDensity": 0.2228
+   },
+   "right": {
+    "coverage": 0.2005,
+    "edgeDensity": 0.2459
+   },
+   "back": {
+    "coverage": 0.1957,
+    "edgeDensity": 0.2518
+   },
+   "left": {
+    "coverage": 0.2008,
+    "edgeDensity": 0.2654
+   }
+  },
+  "error": null,
+  "name": "guardian_colossus_c",
+  "problems": []
+ }
+]

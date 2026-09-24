@@ -1,0 +1,116 @@
+[
+ {
+  "ok": true,
+  "mounts": null,
+  "meshes": 43,
+  "tris": 5364,
+  "materials": 5,
+  "size": [
+   1.836,
+   1.9,
+   1.2
+  ],
+  "groundOffset": 0,
+  "centreOffset": [
+   0,
+   0
+  ],
+  "sides": {
+   "front": {
+    "coverage": 0.236,
+    "edgeDensity": 0.1231
+   },
+   "right": {
+    "coverage": 0.114,
+    "edgeDensity": 0.1601
+   },
+   "back": {
+    "coverage": 0.2357,
+    "edgeDensity": 0.1602
+   },
+   "left": {
+    "coverage": 0.114,
+    "edgeDensity": 0.1581
+   }
+  },
+  "error": null,
+  "name": "sun_mirror_a",
+  "problems": []
+ },
+ {
+  "ok": true,
+  "mounts": null,
+  "meshes": 20,
+  "tris": 5856,
+  "materials": 5,
+  "size": [
+   1.78,
+   1.9,
+   1.2
+  ],
+  "groundOffset": 0,
+  "centreOffset": [
+   0,
+   0
+  ],
+  "sides": {
+   "front": {
+    "coverage": 0.2385,
+    "edgeDensity": 0.1187
+   },
+   "right": {
+    "coverage": 0.1151,
+    "edgeDensity": 0.1437
+   },
+   "back": {
+    "coverage": 0.2383,
+    "edgeDensity": 0.123
+   },
+   "left": {
+    "coverage": 0.1151,
+    "edgeDensity": 0.1274
+   }
+  },
+  "error": null,
+  "name": "sun_mirror_b",
+  "problems": []
+ },
+ {
+  "ok": true,
+  "mounts": null,
+  "meshes": 40,
+  "tris": 5508,
+  "materials": 5,
+  "size": [
+   1.806,
+   1.9,
+   1.2
+  ],
+  "groundOffset": 0,
+  "centreOffset": [
+   0,
+   0
+  ],
+  "sides": {
+   "front": {
+    "coverage": 0.2358,
+    "edgeDensity": 0.1264
+   },
+   "right": {
+    "coverage": 0.1137,
+    "edgeDensity": 0.1754
+   },
+   "back": {
+    "coverage": 0.2356,
+    "edgeDensity": 0.14
+   },
+   "left": {
+    "coverage": 0.1137,
+    "edgeDensity": 0.1672
+   }
+  },
+  "error": null,
+  "name": "sun_mirror_c",
+  "problems": []
+ }
+]

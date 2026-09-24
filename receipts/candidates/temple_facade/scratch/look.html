@@ -1,0 +1,55 @@
+<!doctype html>
+<html><head><meta charset="utf-8">
+<script type="importmap">{ "imports": { "three": "https://cdn.jsdelivr.net/npm/three@0.169.0/build/three.module.js" } }</script>
+<style>body{margin:0;background:#000}canvas{display:block}</style></head>
+<body><script type="module">
+// Scratch look-render: low sun with shadows, game-like distances. Not a gate.
+import * as THREE from 'three';
+const q = new URLSearchParams(location.search);
+const src = q.get('src');
+const W = +(q.get('w') || 900), H = +(q.get('h') || 600);
+const shots = JSON.parse(q.get('shots'));
+const sky = new THREE.Color(q.get('sky') || '#c9b79a');
+const groundHex = q.get('ground') || '#b08a60';
+const renderer = new THREE.WebGLRenderer({ antialias: true, preserveDrawingBuffer: true });
+renderer.setSize(W * shots.length, H, false);
+renderer.outputColorSpace = THREE.SRGBColorSpace;
+renderer.toneMapping = THREE.ACESFilmicToneMapping;
+renderer.shadowMap.enabled = true;
+renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+document.body.appendChild(renderer.domElement);
+const scene = new THREE.Scene();
+scene.background = sky;
+scene.fog = new THREE.Fog(sky, 60, 220);
+scene.add(new THREE.HemisphereLight(0xfff1dc, 0x6b5440, 1.1));
+const sun = new THREE.DirectionalLight(0xffe2b8, 3.2);
+sun.castShadow = true;
+sun.shadow.mapSize.set(4096, 4096);
+const S = 14; Object.assign(sun.shadow.camera, { left: -S, right: S, top: S, bottom: -S, near: 1, far: 200 });
+sun.shadow.bias = -0.0015; sun.shadow.normalBias = 0.08;
+scene.add(sun, sun.target);
+const ground = new THREE.Mesh(new THREE.PlaneGeometry(400, 400), new THREE.MeshStandardMaterial({ color: groundHex, roughness: 1 }));
+ground.rotation.x = -Math.PI / 2; ground.receiveShadow = true; scene.add(ground);
+let info = {};
+try {
+  const mod = await import(src);
+  const obj = mod.default(THREE);
+  obj.traverse((o) => { if (o.isMesh) { o.castShadow = true; o.receiveShadow = true; } });
+  scene.add(obj);
+  const box = new THREE.Box3().setFromObject(obj);
+  info = { size: box.getSize(new THREE.Vector3()).toArray(), userData: obj.userData };
+  const ctr = box.getCenter(new THREE.Vector3());
+  shots.forEach((s, i) => {
+    // s: { az, el (camera), dist, ty (target height), sunAz, sunEl, fov }
+    const r = (d) => d * Math.PI / 180;
+    sun.position.set(ctr.x + Math.sin(r(s.sunAz)) * Math.cos(r(s.sunEl)) * 80, Math.sin(r(s.sunEl)) * 80, ctr.z + Math.cos(r(s.sunAz)) * Math.cos(r(s.sunEl)) * 80);
+    sun.target.position.copy(ctr); sun.target.updateMatrixWorld();
+    const cam = new THREE.PerspectiveCamera(s.fov || 40, W / H, 0.1, 500);
+    cam.position.set(ctr.x + Math.sin(r(s.az)) * s.dist, s.cy ?? 2.5, ctr.z + Math.cos(r(s.az)) * s.dist);
+    cam.lookAt(ctr.x + (s.tx || 0), s.ty ?? ctr.y, ctr.z + (s.tz || 0));
+    renderer.setViewport(i * W, 0, W, H); renderer.setScissor(i * W, 0, W, H); renderer.setScissorTest(true);
+    renderer.render(scene, cam);
+  });
+} catch (e) { info.error = String(e && e.stack || e); }
+window.__INFO__ = info; window.__DONE__ = true;
+</script></body></html>

@@ -1,0 +1,116 @@
+[
+ {
+  "ok": true,
+  "mounts": null,
+  "meshes": 5,
+  "tris": 1712,
+  "materials": 5,
+  "size": [
+   1.3,
+   2.4,
+   0.681
+  ],
+  "groundOffset": 0,
+  "centreOffset": [
+   0,
+   0
+  ],
+  "sides": {
+   "front": {
+    "coverage": 0.2595,
+    "edgeDensity": 0.1027
+   },
+   "right": {
+    "coverage": 0.1788,
+    "edgeDensity": 0.0951
+   },
+   "back": {
+    "coverage": 0.2594,
+    "edgeDensity": 0.1088
+   },
+   "left": {
+    "coverage": 0.1787,
+    "edgeDensity": 0.1148
+   }
+  },
+  "error": null,
+  "name": "glyph_stela_a",
+  "problems": []
+ },
+ {
+  "ok": true,
+  "mounts": null,
+  "meshes": 5,
+  "tris": 1916,
+  "materials": 5,
+  "size": [
+   1.3,
+   2.4,
+   0.68
+  ],
+  "groundOffset": 0,
+  "centreOffset": [
+   0,
+   0
+  ],
+  "sides": {
+   "front": {
+    "coverage": 0.2572,
+    "edgeDensity": 0.1355
+   },
+   "right": {
+    "coverage": 0.177,
+    "edgeDensity": 0.1371
+   },
+   "back": {
+    "coverage": 0.2572,
+    "edgeDensity": 0.1401
+   },
+   "left": {
+    "coverage": 0.177,
+    "edgeDensity": 0.1283
+   }
+  },
+  "error": null,
+  "name": "glyph_stela_b",
+  "problems": []
+ },
+ {
+  "ok": true,
+  "mounts": null,
+  "meshes": 5,
+  "tris": 1828,
+  "materials": 5,
+  "size": [
+   1.3,
+   2.4,
+   0.68
+  ],
+  "groundOffset": 0,
+  "centreOffset": [
+   0,
+   0
+  ],
+  "sides": {
+   "front": {
+    "coverage": 0.2566,
+    "edgeDensity": 0.129
+   },
+   "right": {
+    "coverage": 0.1754,
+    "edgeDensity": 0.1369
+   },
+   "back": {
+    "coverage": 0.2563,
+    "edgeDensity": 0.1225
+   },
+   "left": {
+    "coverage": 0.1754,
+    "edgeDensity": 0.1367
+   }
+  },
+  "error": null,
+  "name": "glyph_stela_c",
+  "problems": []
+ }
+]

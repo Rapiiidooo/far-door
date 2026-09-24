@@ -1,0 +1,94 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>rig preview</title>
+<script type="importmap">
+{ "imports": {
+  "three": "/game/vendor/three.module.js",
+  "three/addons/": "/game/vendor/"
+} }
+</script>
+<style>body{margin:0;background:#111}canvas{display:block}</style>
+</head>
+<body>
+<script type="module">
+// Throwaway: renders one asset through the game's own loader and rig, so a
+// metalness 1 face is judged under the sky environment it will have in play.
+import * as THREE from 'three';
+import { ASSET } from '/game/assetlib.js';
+import { createRig } from '/game/rig.js';
+
+const q = new URLSearchParams(location.search);
+const src = q.get('src');
+const size = +(q.get('size') || 480);
+const surfaces = q.get('surfaces') === '1';
+const hour = +(q.get('hour') || 10.5);
+const azimuth = +(q.get('az') || 150);
+const target = (q.get('target') || '0,1.0,0').split(',').map(Number);
+const dist = +(q.get('dist') || 5.2);
+const VIEWS = (q.get('views') || 'front:0:10,three:35:18,back:180:14,side:90:12,far:25:26:14')
+  .split(',').map((s) => { const [n, a, e, d] = s.split(':'); return { n, a: +a, e: +e, d: d ? +d : dist }; });
+
+const renderer = new THREE.WebGLRenderer({ antialias: true, preserveDrawingBuffer: true });
+renderer.setSize(size, size, false);
+document.body.appendChild(renderer.domElement);
+const strip = document.createElement('canvas');
+strip.width = size * VIEWS.length; strip.height = size;
+document.body.appendChild(strip);
+const ctx = strip.getContext('2d');
+
+const scene = new THREE.Scene();
+const ground = new THREE.Mesh(new THREE.PlaneGeometry(120, 120),
+  new THREE.MeshStandardMaterial({ color: 0xc9a47a, roughness: 1 }));
+ground.rotation.x = -Math.PI / 2;
+ground.receiveShadow = true;
+scene.add(ground);
+
+const cam = new THREE.PerspectiveCamera(40, 1, 0.1, 500);
+cam.position.set(0, 2, 6); cam.lookAt(0, 1, 0);
+// csmfix=1: give the CSM chunk the r186 STANDARD block that initialises material.dfg,
+// which the vendored CSMShader lacks (without it every metal renders black).
+if (q.get('csmfix') === '1') {
+  const { CSMShader } = await import('three/addons/csm/CSMShader.js');
+  const core = THREE.ShaderChunk.lights_fragment_begin;
+  const block = core.slice(core.indexOf('#ifdef STANDARD'), core.indexOf('IncidentLight directLight;'));
+  CSMShader.lights_fragment_begin = CSMShader.lights_fragment_begin.replace('IncidentLight directLight;', block + 'IncidentLight directLight;');
+}
+const rigOpts = JSON.parse(q.get('rig') || '{}');
+const rig = createRig(THREE, renderer, scene, { hour, azimuth, tier: 'high', camera: cam, ...rigOpts });
+let info = { ok: false };
+try {
+  const obj = await ASSET(src, { surfaces });
+  scene.add(obj);
+  if (q.get('probe') === '1') {
+    for (const [x, c, r] of [[-1.6, 0xffffff, 0.02], [1.6, 0xe0b56a, 0.18]]) {
+      const s = new THREE.Mesh(new THREE.SphereGeometry(0.35, 48, 32), new THREE.MeshStandardMaterial({ color: c, metalness: 1, roughness: r }));
+      s.position.set(x, 1.3, 0.6); scene.add(s);
+    }
+  }
+  rig.refresh(scene);
+  rig.update(cam, 0.016);
+  await rig.ready;
+  const T = new THREE.Vector3(...target);
+  VIEWS.forEach((v, i) => {
+    const a = v.a * Math.PI / 180, e = v.e * Math.PI / 180;
+    cam.position.set(T.x + Math.sin(a) * v.d * Math.cos(e), T.y + v.d * Math.sin(e), T.z + Math.cos(a) * v.d * Math.cos(e));
+    cam.lookAt(T);
+    cam.updateMatrixWorld(true);
+    for (let k = 0; k < 4; k++) rig.render(cam, 0.016);
+    ctx.drawImage(renderer.domElement, i * size, 0, size, size);
+  });
+  const env = scene.environment;
+  const gl = renderer.getContext();
+  const dbg = gl.getExtension('WEBGL_debug_renderer_info');
+  info = { ok: true, gpu: dbg ? gl.getParameter(dbg.UNMASKED_RENDERER_WEBGL) : '?', env: env ? { type: env.type, mapping: env.mapping, w: env.image && env.image.width, h: env.image && env.image.height } : null, envI: scene.environmentIntensity };
+} catch (e) {
+  info = { ok: false, error: String(e && e.stack || e) };
+}
+renderer.domElement.style.display = 'none';
+window.__INFO__ = info;
+window.__DONE__ = true;
+</script>
+</body>
+</html>

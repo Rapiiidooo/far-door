@@ -1,0 +1,21 @@
+{
+  "name": "far-door",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=24"
+  },
+  "scripts": {
+    "start": "node scripts/serve.mjs",
+    "vendor": "node scripts/vendor-three.mjs",
+    "check": "node ../404-game-recipe/harness/ship.mjs game",
+    "format": "prettier --write --no-config --prose-wrap preserve --embedded-language-formatting off",
+    "format:check": "prettier --check --no-config --prose-wrap preserve --embedded-language-formatting off"
+  },
+  "devDependencies": {
+    "prettier": "3.9.8",
+    "puppeteer-core": "25.8.0",
+    "three": "0.186.0"
+  }
+}

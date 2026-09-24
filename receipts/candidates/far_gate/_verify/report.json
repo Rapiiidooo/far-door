@@ -1,0 +1,116 @@
+[
+ {
+  "ok": true,
+  "mounts": null,
+  "meshes": 11,
+  "tris": 14124,
+  "materials": 11,
+  "size": [
+   12,
+   9,
+   6
+  ],
+  "groundOffset": 0,
+  "centreOffset": [
+   0,
+   0
+  ],
+  "sides": {
+   "front": {
+    "coverage": 0.2025,
+    "edgeDensity": 0.201
+   },
+   "right": {
+    "coverage": 0.1518,
+    "edgeDensity": 0.1337
+   },
+   "back": {
+    "coverage": 0.1975,
+    "edgeDensity": 0.241
+   },
+   "left": {
+    "coverage": 0.1513,
+    "edgeDensity": 0.1575
+   }
+  },
+  "error": null,
+  "name": "far_gate_a",
+  "problems": []
+ },
+ {
+  "ok": true,
+  "mounts": null,
+  "meshes": 11,
+  "tris": 28760,
+  "materials": 11,
+  "size": [
+   12,
+   9,
+   6
+  ],
+  "groundOffset": 0,
+  "centreOffset": [
+   0,
+   0
+  ],
+  "sides": {
+   "front": {
+    "coverage": 0.2224,
+    "edgeDensity": 0.2041
+   },
+   "right": {
+    "coverage": 0.1552,
+    "edgeDensity": 0.1662
+   },
+   "back": {
+    "coverage": 0.2197,
+    "edgeDensity": 0.2219
+   },
+   "left": {
+    "coverage": 0.1552,
+    "edgeDensity": 0.1723
+   }
+  },
+  "error": null,
+  "name": "far_gate_b",
+  "problems": []
+ },
+ {
+  "ok": true,
+  "mounts": null,
+  "meshes": 11,
+  "tris": 22836,
+  "materials": 11,
+  "size": [
+   12,
+   9,
+   6
+  ],
+  "groundOffset": 0,
+  "centreOffset": [
+   0,
+   0
+  ],
+  "sides": {
+   "front": {
+    "coverage": 0.1938,
+    "edgeDensity": 0.2161
+   },
+   "right": {
+    "coverage": 0.1495,
+    "edgeDensity": 0.1602
+   },
+   "back": {
+    "coverage": 0.1905,
+    "edgeDensity": 0.2415
+   },
+   "left": {
+    "coverage": 0.1494,
+    "edgeDensity": 0.1599
+   }
+  },
+  "error": null,
+  "name": "far_gate_c",
+  "problems": []
+ }
+]

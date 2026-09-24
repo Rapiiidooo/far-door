@@ -1,0 +1,116 @@
+[
+ {
+  "ok": true,
+  "mounts": null,
+  "meshes": 24,
+  "tris": 3768,
+  "materials": 4,
+  "size": [
+   0.8,
+   1.1,
+   0.8
+  ],
+  "groundOffset": 0,
+  "centreOffset": [
+   0,
+   0
+  ],
+  "sides": {
+   "front": {
+    "coverage": 0.1348,
+    "edgeDensity": 0.1166
+   },
+   "right": {
+    "coverage": 0.1279,
+    "edgeDensity": 0.1177
+   },
+   "back": {
+    "coverage": 0.1345,
+    "edgeDensity": 0.16
+   },
+   "left": {
+    "coverage": 0.1271,
+    "edgeDensity": 0.1365
+   }
+  },
+  "error": null,
+  "name": "brazier_a",
+  "problems": []
+ },
+ {
+  "ok": true,
+  "mounts": null,
+  "meshes": 18,
+  "tris": 3720,
+  "materials": 3,
+  "size": [
+   0.8,
+   1.1,
+   0.8
+  ],
+  "groundOffset": 0,
+  "centreOffset": [
+   0,
+   0
+  ],
+  "sides": {
+   "front": {
+    "coverage": 0.138,
+    "edgeDensity": 0.096
+   },
+   "right": {
+    "coverage": 0.1308,
+    "edgeDensity": 0.097
+   },
+   "back": {
+    "coverage": 0.1374,
+    "edgeDensity": 0.1474
+   },
+   "left": {
+    "coverage": 0.1303,
+    "edgeDensity": 0.125
+   }
+  },
+  "error": null,
+  "name": "brazier_b",
+  "problems": []
+ },
+ {
+  "ok": true,
+  "mounts": null,
+  "meshes": 21,
+  "tris": 3864,
+  "materials": 3,
+  "size": [
+   0.8,
+   1.1,
+   0.8
+  ],
+  "groundOffset": 0,
+  "centreOffset": [
+   0,
+   0
+  ],
+  "sides": {
+   "front": {
+    "coverage": 0.1397,
+    "edgeDensity": 0.1019
+   },
+   "right": {
+    "coverage": 0.1323,
+    "edgeDensity": 0.1206
+   },
+   "back": {
+    "coverage": 0.1402,
+    "edgeDensity": 0.1289
+   },
+   "left": {
+    "coverage": 0.1314,
+    "edgeDensity": 0.1187
+   }
+  },
+  "error": null,
+  "name": "brazier_c",
+  "problems": []
+ }
+]
