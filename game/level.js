@@ -146,6 +146,7 @@ export class Level {
     this.buildDrifts(sand);
     faces.build(this.root);
 
+    this.buildHorizon(rock);
     for (const b of COURT.BLOCKS) await this.addBlock(b);
     for (const m of COURT.MIRRORS) await this.addMirror(m);
     for (const s of COURT.STELAE) await this.addStela(s);
@@ -197,6 +198,17 @@ export class Level {
       await put("broken_column", x, z, yaw);
       this.world.add(x - 1.1, -10, z - 1.1, x + 1.1, 3.4, z + 1.1, "prop");
     }
+    for (const [name, x, y, z, yaw, box] of COURT.PROPS) {
+      const o = await this.assets.make(name);
+      if (!o) continue;
+      o.position.set(x, y, z);
+      o.rotation.y = yaw;
+      this.root.add(o);
+      if (box) {
+        const [hw, hd, h] = box;
+        this.world.add(x - hw, -10, z - hd, x + hw, y + h, z + hd, "prop");
+      }
+    }
     this.fires = [];
     const flame = flameMaterial();
     for (const [x, z] of COURT.BRAZIERS) {
@@ -220,6 +232,51 @@ export class Level {
       });
       this.fires.push({ light, x, z, top, tongues, seed: Math.random() * 10 });
     }
+  }
+
+  // Mesas and buttes far beyond the rim, so the canyon sits in a landscape rather than
+  // against an empty sky. The rig's aerial perspective hazes them into the distance.
+  buildHorizon(rock) {
+    let seed = 91;
+    const rand = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
+    const cx = 15,
+      cz = 22;
+    const group = new THREE.Group();
+    for (let i = 0; i < 16; i++) {
+      const a = (i / 16) * Math.PI * 2 + rand() * 0.3;
+      const d = 160 + rand() * 260;
+      const w = 30 + rand() * 70,
+        h = 25 + rand() * 60;
+      const geo = new THREE.CylinderGeometry(
+        w * (0.55 + rand() * 0.2),
+        w,
+        h,
+        9,
+        4,
+      );
+      const p = geo.attributes.position;
+      for (let k = 0; k < p.count; k++) {
+        const x = p.getX(k),
+          y = p.getY(k),
+          z = p.getZ(k);
+        const r =
+          1 +
+          Math.sin(y * 0.3 + x * 0.05) * 0.06 +
+          Math.sin(z * 0.08 + i) * 0.08;
+        p.setXYZ(
+          k,
+          x * r,
+          y + (y > h / 2 - 1 ? Math.sin(x * 0.2) * 2 : 0),
+          z * r,
+        );
+      }
+      geo.computeVertexNormals();
+      const m = new THREE.Mesh(geo, rock);
+      m.position.set(cx + Math.sin(a) * d, h / 2 - 12, cz + Math.cos(a) * d);
+      m.rotation.y = rand() * 3;
+      group.add(m);
+    }
+    this.root.add(group);
   }
 
   // Soft darkening on the ground near taller rock, precomputed at half-metre resolution

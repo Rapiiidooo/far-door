@@ -13,7 +13,10 @@ import { Hud } from "./hud.js";
 import { Gate } from "./gate.js";
 import { WorldTwo } from "./world-two.js";
 import { Sound } from "./sound.js";
-import { Dust } from "./fx.js";
+import { Dust, Stamps } from "./fx.js";
+import { Bubbles } from "./bubbles.js";
+import { SunDisc, fallbackDisc } from "./disc.js";
+import { LAYOUT } from "./checkpoint.js";
 import * as COURT from "./court.js";
 
 const params = new URLSearchParams(location.search);
@@ -65,7 +68,17 @@ const rig = createRig(THREE, renderer, scene, {
 });
 
 // --- assets -----------------------------------------------------------------------------
-const MOVING = new Set(["hero_explorer", "far_gate", "glyph_stela"]);
+const MOVING = new Set([
+  "hero_explorer",
+  "far_gate",
+  "glyph_stela",
+  "warden",
+  "customs_booth",
+  "confiscation_bin",
+  "crystal_emitter",
+  "lumen_plant",
+  "sun_disc",
+]);
 const available = new Map();
 async function probe(name) {
   const inst = await ASSET(`./assets/${name}.js`, {
@@ -93,9 +106,11 @@ const input = new Input(canvas);
 const hud = new Hud(input);
 const sound = new Sound();
 const dust = new Dust(scene);
+const bubbles = new Bubbles();
 const follow = new FollowCamera(camera, world);
 const hero = new Hero(world, level);
-let heroModel, animator, beams, gate, worldTwo;
+let heroModel, animator, beams, gate, worldTwo, disc, stamps;
+const MAX_HEALTH = 4;
 
 const state = {
   mode: "loading",
@@ -119,6 +134,20 @@ async function load() {
       "broken_column",
       "brazier",
       "basalt_spire",
+      "warden",
+      "sun_disc",
+      "customs_booth",
+      "confiscation_bin",
+      "queue_post",
+      "crystal_emitter",
+      "lumen_plant",
+      "expedition_tent",
+      "supply_crates",
+      "clay_urns",
+      "fallen_head",
+      "boulder_cluster",
+      "desert_agave",
+      "glyph_banner",
     ].map(probe),
   );
   await level.build();
@@ -146,9 +175,10 @@ async function load() {
   };
   gate = new Gate(scene, world, level, assets, renderer, sound);
   await gate.build(COURT.GATE);
-  worldTwo = new WorldTwo(renderer, assets);
+  worldTwo = new WorldTwo(renderer, assets, { bubbles, sound, hud });
   await worldTwo.build();
   gate.destination = worldTwo;
+  await wireCheckpoint();
 
   // The explorer keeps flat colours: procedural cloth grain washes its canvas out to white.
   heroModel =
@@ -201,6 +231,12 @@ function begin() {
     quat: camera.quaternion.clone(),
   };
   hud.objective("Find a way down into the court.");
+  // Development shortcut: ?w2=1 steps straight through the gate into the second world.
+  if (params.has("w2")) {
+    hero.spawn(gate.center.x, gate.center.z - 0.2, gate.daisTop + 0.02, Math.PI);
+    enterWorldTwo();
+    follow.snap(hero);
+  }
 }
 
 // Objectives follow progress, and a hint appears if the court puzzle stalls.
@@ -288,6 +324,7 @@ function step(dt) {
     interactHeld: input.held("interact"),
     drop: input.pressed("drop"),
     walk: input.held("walk"),
+    roll: input.pressed("roll"),
   };
   if (state.cinematic) {
     for (const k of Object.keys(commands))
@@ -300,6 +337,7 @@ function step(dt) {
     commands.jump = false;
     commands.interactPressed = false;
     commands.drop = false;
+    commands.roll = false;
   }
   for (const e of hero.events.splice(0)) onHeroEvent(e);
   if (state.mode === "play") {
@@ -310,8 +348,23 @@ function step(dt) {
     if (gate.crossed(hero)) enterWorldTwo();
   } else if (state.mode === "world2") {
     worldTwo.update(dt, hero, state);
+    if (
+      input.pressed("throw") &&
+      disc?.ready &&
+      !state.cinematic &&
+      !state.processing &&
+      ["ground", "air", "roll"].includes(hero.state) &&
+      disc.throw(worldTwo.scene, camera, hero.yaw)
+    )
+      hero.throwT = 0;
+    disc?.update(dt, hero, () => (hero.catchT = 0));
+    stamps?.update(dt);
     if (worldTwo.finished && state.mode !== "end") finish();
   }
+  hero.throwT = (hero.throwT ?? 9) + dt;
+  hero.catchT = (hero.catchT ?? 9) + dt;
+  hero.holding = !!disc?.ready;
+  bubbles.update(dt, camera);
   place(dt);
   dust.update(dt);
   if (state.cinematic) state.cinematic.update(dt, camera);
@@ -353,6 +406,60 @@ function onHeroEvent(e) {
   sound.play(e);
 }
 
+// --- the checkpoint: the disc, the fight, the lamp ------------------------------------
+async function wireCheckpoint() {
+  const cp = worldTwo.checkpoint;
+  const mesh =
+    (await assets.make("sun_disc", { keepHierarchy: true })) || fallbackDisc();
+  disc = new SunDisc(mesh, worldTwo.world, sound);
+  disc.beams.push(cp.beam);
+  disc.targets.push(cp.lampTarget());
+  stamps = new Stamps(worldTwo.scene);
+  cp.onTakeDisc = () => {
+    disc.attach(heroModel.userData.joints.rightLowerArm);
+    state.health = MAX_HEALTH;
+    hud.health(state.health, MAX_HEALTH);
+    hud.objective("The Wardens want it back. Keep it.");
+    setTimeout(() => hud.hint("throw"), 900);
+  };
+  cp.onGuard = (g) => disc.targets.push(g);
+  cp.onGuardDown = () => sound.play("pop");
+  cp.onCleared = () => {
+    state.health = MAX_HEALTH;
+    hud.health(state.health, MAX_HEALTH);
+    setTimeout(
+      () => hud.objective("The barrier is locked, and its lamp is dark."),
+      1800,
+    );
+  };
+  cp.onOpen = () => hud.objective("The way is open. Walk to the edge.");
+  cp.onStrike = (warden, sx, sz, hit) => {
+    stamps.mark(sx, warden.feet, sz);
+    dust.burst(sx, warden.feet, sz, 1.2, 12);
+    follow.shake = Math.max(follow.shake, hit ? 0.9 : 0.35);
+    sound.play("stamp");
+    if (hit && hero.takeHit(warden.pos.x, warden.pos.z, 6)) {
+      state.health -= 1;
+      hud.health(state.health, MAX_HEALTH);
+      if (state.health <= 0) processed();
+    }
+  };
+}
+
+// Knocked out at the checkpoint: the case is closed and the explorer starts back down the path.
+function processed() {
+  state.processing = true;
+  hud.processed(() => {
+    const r = LAYOUT.respawn;
+    hero.spawn(r.x, r.z, 0, r.yaw);
+    follow.snap(hero);
+    state.health = MAX_HEALTH;
+    hud.health(state.health, MAX_HEALTH);
+    worldTwo.checkpoint.resetFight();
+    state.processing = false;
+  });
+}
+
 function enterWorldTwo() {
   state.mode = "world2";
   hud.flash(0.9);
@@ -364,7 +471,7 @@ function enterWorldTwo() {
     p.sprite.material.color.setHex(0x6a5a78);
   }
   hud.objective("");
-  setTimeout(() => hud.objective("A new world. Walk to the edge."), 1600);
+  setTimeout(() => hud.objective("A new world. Follow the path."), 1600);
 }
 
 function finish() {
@@ -395,6 +502,14 @@ function publish() {
     })),
     lit: level.stelae.filter((s) => s.lit).map((s) => s.id),
     gateOpen: !!gate?.isOpen,
+    health: state.health ?? MAX_HEALTH,
+    checkpoint: worldTwo?.checkpoint?.phase,
+    disc: disc ? { state: disc.state, charged: disc.charged } : null,
+    guards: worldTwo?.checkpoint?.guards.map((g) => ({
+      state: g.state,
+      hp: g.hp,
+      pos: [g.pos.x, g.pos.z],
+    })),
     assets: Object.fromEntries(available),
   };
 }

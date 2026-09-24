@@ -1,0 +1,116 @@
+[
+ {
+  "ok": true,
+  "mounts": null,
+  "meshes": 5,
+  "tris": 2748,
+  "materials": 5,
+  "size": [
+   1.04,
+   2.1,
+   1.04
+  ],
+  "groundOffset": 0,
+  "centreOffset": [
+   0,
+   0
+  ],
+  "sides": {
+   "front": {
+    "coverage": 0.1691,
+    "edgeDensity": 0.0951
+   },
+   "right": {
+    "coverage": 0.1716,
+    "edgeDensity": 0.0957
+   },
+   "back": {
+    "coverage": 0.1903,
+    "edgeDensity": 0.1125
+   },
+   "left": {
+    "coverage": 0.1935,
+    "edgeDensity": 0.1057
+   }
+  },
+  "error": null,
+  "name": "crystal_emitter_a",
+  "problems": []
+ },
+ {
+  "ok": true,
+  "mounts": null,
+  "meshes": 5,
+  "tris": 3132,
+  "materials": 5,
+  "size": [
+   1.154,
+   2.1,
+   0.999
+  ],
+  "groundOffset": 0,
+  "centreOffset": [
+   0,
+   0
+  ],
+  "sides": {
+   "front": {
+    "coverage": 0.1634,
+    "edgeDensity": 0.1098
+   },
+   "right": {
+    "coverage": 0.1639,
+    "edgeDensity": 0.1075
+   },
+   "back": {
+    "coverage": 0.1516,
+    "edgeDensity": 0.1429
+   },
+   "left": {
+    "coverage": 0.1642,
+    "edgeDensity": 0.123
+   }
+  },
+  "error": null,
+  "name": "crystal_emitter_b",
+  "problems": []
+ },
+ {
+  "ok": true,
+  "mounts": null,
+  "meshes": 5,
+  "tris": 2592,
+  "materials": 5,
+  "size": [
+   1,
+   2.1,
+   1
+  ],
+  "groundOffset": 0,
+  "centreOffset": [
+   0,
+   0
+  ],
+  "sides": {
+   "front": {
+    "coverage": 0.1744,
+    "edgeDensity": 0.0863
+   },
+   "right": {
+    "coverage": 0.1799,
+    "edgeDensity": 0.099
+   },
+   "back": {
+    "coverage": 0.1854,
+    "edgeDensity": 0.1006
+   },
+   "left": {
+    "coverage": 0.1823,
+    "edgeDensity": 0.0845
+   }
+  },
+  "error": null,
+  "name": "crystal_emitter_c",
+  "problems": []
+ }
+]

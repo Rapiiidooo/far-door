@@ -1,0 +1,116 @@
+[
+ {
+  "ok": true,
+  "mounts": null,
+  "meshes": 3,
+  "tris": 4816,
+  "materials": 3,
+  "size": [
+   0.766,
+   1.297,
+   0.862
+  ],
+  "groundOffset": 0,
+  "centreOffset": [
+   0,
+   0
+  ],
+  "sides": {
+   "front": {
+    "coverage": 0.0898,
+    "edgeDensity": 0.0726
+   },
+   "right": {
+    "coverage": 0.098,
+    "edgeDensity": 0.0689
+   },
+   "back": {
+    "coverage": 0.1058,
+    "edgeDensity": 0.0728
+   },
+   "left": {
+    "coverage": 0.1121,
+    "edgeDensity": 0.0668
+   }
+  },
+  "error": null,
+  "name": "lumen_plant_a",
+  "problems": []
+ },
+ {
+  "ok": true,
+  "mounts": null,
+  "meshes": 3,
+  "tris": 4322,
+  "materials": 3,
+  "size": [
+   0.761,
+   1.305,
+   0.856
+  ],
+  "groundOffset": 0,
+  "centreOffset": [
+   0,
+   0
+  ],
+  "sides": {
+   "front": {
+    "coverage": 0.0955,
+    "edgeDensity": 0.0811
+   },
+   "right": {
+    "coverage": 0.1028,
+    "edgeDensity": 0.0704
+   },
+   "back": {
+    "coverage": 0.1117,
+    "edgeDensity": 0.0706
+   },
+   "left": {
+    "coverage": 0.1176,
+    "edgeDensity": 0.0708
+   }
+  },
+  "error": null,
+  "name": "lumen_plant_b",
+  "problems": []
+ },
+ {
+  "ok": true,
+  "mounts": null,
+  "meshes": 3,
+  "tris": 4560,
+  "materials": 3,
+  "size": [
+   0.971,
+   1.307,
+   0.988
+  ],
+  "groundOffset": 0,
+  "centreOffset": [
+   0,
+   0
+  ],
+  "sides": {
+   "front": {
+    "coverage": 0.0876,
+    "edgeDensity": 0.0858
+   },
+   "right": {
+    "coverage": 0.0853,
+    "edgeDensity": 0.0881
+   },
+   "back": {
+    "coverage": 0.1042,
+    "edgeDensity": 0.0809
+   },
+   "left": {
+    "coverage": 0.1051,
+    "edgeDensity": 0.0788
+   }
+  },
+  "error": null,
+  "name": "lumen_plant_c",
+  "problems": []
+ }
+]

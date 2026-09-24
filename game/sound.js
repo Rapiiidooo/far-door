@@ -109,6 +109,53 @@ export class Sound {
         return this.bell(261.6, 3);
       case "respawn":
         return this.burst(0.4, 400, 0.1, 0.7);
+      case "roll":
+        return this.burst(0.35, 500, 0.08, 0.9);
+      case "hurt":
+        this.tone(140, 0.2, 0.12, "square");
+        return this.burst(0.2, 700, 0.12, 1.2);
+      case "throw":
+        return this.sweep(900, 2400, 0.28, 0.06, "sawtooth");
+      case "catch":
+        return this.tone(1560, 0.12, 0.06, "triangle");
+      case "clink":
+        this.tone(2100, 0.18, 0.05, "triangle");
+        return this.tone(3150, 0.12, 0.03, "sine");
+      case "charge":
+        this.bell(784, 1.2);
+        return this.sweep(600, 1800, 0.5, 0.05, "sine");
+      case "warden-alert":
+        this.sweep(700, 1300, 0.12, 0.07, "square");
+        return setTimeout(
+          () => this.sweep(1300, 800, 0.14, 0.07, "square"),
+          130,
+        );
+      case "warden-windup":
+        return this.sweep(200, 520, 0.6, 0.06, "sawtooth");
+      case "warden-hit":
+        this.tone(95, 0.2, 0.2, "sine");
+        return this.sweep(1400, 500, 0.18, 0.08, "square");
+      case "warden-down":
+        return this.sweep(900, 120, 0.9, 0.09, "sawtooth");
+      case "pop":
+        this.burst(0.15, 2000, 0.12, 2);
+        return this.bell(1046.5, 0.6);
+      case "stamp":
+        this.tone(60, 0.3, 0.3, "sine");
+        return this.burst(0.18, 350, 0.25, 0.7);
+      case "alarm":
+        for (let i = 0; i < 4; i++)
+          setTimeout(() => this.sweep(600, 950, 0.28, 0.08, "square"), i * 320);
+        return;
+      case "lamp":
+        this.bell(659.25, 2.4);
+        return this.bell(987.8, 2.4);
+      case "barrier":
+        return this.sweep(180, 90, 1.2, 0.08, "sawtooth");
+      case "clerk":
+        return this.sweep(500, 620, 0.09, 0.03, "square");
+      case "use":
+        return this.burst(0.2, 1200, 0.08, 1.5);
       default:
     }
   }
@@ -139,6 +186,25 @@ export class Sound {
     g.gain.setValueAtTime(level, t);
     g.gain.exponentialRampToValueAtTime(0.0001, t + duration);
     o.connect(g).connect(this.master);
+    o.start(t);
+    o.stop(t + duration + 0.05);
+  }
+
+  // A pitch glide: whooshes, squeaks and alarms.
+  sweep(from, to, duration, level, type = "sine") {
+    const ctx = this.ctx,
+      t = ctx.currentTime;
+    const o = ctx.createOscillator();
+    o.type = type;
+    o.frequency.setValueAtTime(from, t);
+    o.frequency.exponentialRampToValueAtTime(to, t + duration);
+    const f = ctx.createBiquadFilter();
+    f.type = "lowpass";
+    f.frequency.value = 2600;
+    const g = ctx.createGain();
+    g.gain.setValueAtTime(level, t);
+    g.gain.exponentialRampToValueAtTime(0.0001, t + duration);
+    o.connect(f).connect(g).connect(this.master);
     o.start(t);
     o.stop(t + duration + 0.05);
   }

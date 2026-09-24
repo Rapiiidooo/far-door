@@ -46,6 +46,9 @@ export class Hero {
     // eased out by the renderer, so the body glides instead of teleporting.
     this.snap = { x: 0, z: 0 };
     this.sinceJump = 9;
+    this.stun = 0;
+    this.invulnerable = 0;
+    this.canRoll = true;
   }
 
   spawn(x, z, feet, yaw) {
@@ -75,6 +78,8 @@ export class Hero {
     this.snap.x *= decay;
     this.snap.z *= decay;
     this.sinceJump += dt;
+    this.stun = Math.max(0, this.stun - dt);
+    this.invulnerable = Math.max(0, this.invulnerable - dt);
     if (input.jump) this.buffer = BUFFER;
     else this.buffer = Math.max(0, this.buffer - dt);
     const wish = worldWish(input.move, input.camYaw);
@@ -125,7 +130,13 @@ export class Hero {
     }
 
     const target2 = this.interactTarget();
-    if (target2) this.prompt = target2.kind === "mirror" ? "turn" : "grab";
+    if (target2)
+      this.prompt =
+        target2.kind === "mirror"
+          ? "turn"
+          : target2.kind === "use"
+            ? target2.prompt
+            : "grab";
     else if (this.speed < 1.5 && this.findEdgeBelow()) this.prompt = "edge";
 
     if (this.buffer > 0) {
@@ -154,6 +165,10 @@ export class Hero {
       this.events.push("grip");
       return;
     }
+    if (input.interactPressed && target2?.kind === "use") {
+      if (this.level.use?.(target2.ref)) this.events.push("use");
+      return;
+    }
     if (input.interactHeld && target2?.kind === "block") {
       this.beginGrab(target2);
       return;
@@ -162,6 +177,71 @@ export class Hero {
       const edge = this.findEdgeBelow();
       if (edge) this.beginHangFromTop(edge);
     }
+    if (input.roll && this.canRoll) return this.beginRoll(wish);
+  }
+
+  // --- roll and knockback ---------------------------------------------------
+  beginRoll(wish) {
+    const d = wish.len > 0.2 ? { x: wish.x, z: wish.z } : this.facing;
+    const len = Math.hypot(d.x, d.z) || 1;
+    this.rollDir = { x: d.x / len, z: d.z / len };
+    this.yaw = Math.atan2(this.rollDir.x, this.rollDir.z);
+    this.state = "roll";
+    this.t = 0;
+    this.invulnerable = Math.max(this.invulnerable, 0.42);
+    this.events.push("roll");
+  }
+
+  roll(dt, input, wish) {
+    const w = this.world;
+    this.t += dt;
+    const k = Math.min(1, this.t / 0.52);
+    const speed = 8.2 * (1 - k) + 1.2;
+    this.vel.x = this.rollDir.x * speed;
+    this.vel.z = this.rollDir.z * speed;
+    this.pos.x += this.vel.x * dt;
+    this.pos.z += this.vel.z * dt;
+    w.resolve(this.pos, R, this.feet, 1.0, STEP);
+    const g = w.ground(this.pos.x, this.pos.z, R * 0.6, this.feet, STEP);
+    if (g < this.feet - 0.6) {
+      this.state = "air";
+      this.vel.y = 0;
+      this.fallStart = this.feet;
+      return;
+    }
+    if (g !== this.feet) this.stepLift += this.feet - g;
+    this.feet = g;
+    if (k >= 1) {
+      this.state = "ground";
+      this.t = 0;
+      if (wish.len < 0.1) {
+        this.vel.x *= 0.3;
+        this.vel.z *= 0.3;
+      }
+    }
+  }
+
+  // Knocked back by a blow: a short hop away from it with the controls taken for a beat.
+  takeHit(fromX, fromZ, force = 5) {
+    if (
+      this.invulnerable > 0 ||
+      this.state === "hang" ||
+      this.state === "climb"
+    )
+      return false;
+    const dx = this.pos.x - fromX,
+      dz = this.pos.z - fromZ;
+    const d = Math.hypot(dx, dz) || 1;
+    this.vel.x = (dx / d) * force;
+    this.vel.z = (dz / d) * force;
+    this.vel.y = 3.6;
+    this.state = "air";
+    this.fallStart = this.feet;
+    this.stun = 0.5;
+    this.invulnerable = 1.2;
+    this.jumpCut = true;
+    this.events.push("hurt");
+    return true;
   }
 
   // --- air ------------------------------------------------------------------
@@ -180,7 +260,7 @@ export class Hero {
     }
     this.vel.y -= GRAVITY * (this.vel.y < 0 ? 1.3 : 1) * dt;
     const air = 1 - Math.exp(-2.2 * dt);
-    if (wish.len > 0.05) {
+    if (wish.len > 0.05 && this.stun <= 0) {
       this.vel.x += (wish.x * RUN - this.vel.x) * air * 0.5;
       this.vel.z += (wish.z * RUN - this.vel.z) * air * 0.5;
       this.turnTowards(Math.atan2(wish.x, wish.z), dt, 4);
@@ -207,7 +287,7 @@ export class Hero {
       }
     }
     // Hands catch a ledge on the way down, or near the top of the jump.
-    if (this.vel.y < 2.5 && this.regrab <= 0 && !input.drop) {
+    if (this.vel.y < 2.5 && this.regrab <= 0 && !input.drop && this.stun <= 0) {
       const ledge = this.findLedge(1.3, this.hands + 0.4, R + 0.3);
       // Only a wall the explorer is heading into, or hanging still beside, is caught.
       if (ledge && this.vel.x * ledge.n.x + this.vel.z * ledge.n.z < 0.8)

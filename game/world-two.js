@@ -6,6 +6,7 @@ import { OutputPass } from "three/addons/postprocessing/OutputPass.js";
 import { World } from "./world.js";
 import { terrainMaterial } from "./terrain.js";
 import { gateColliders } from "./gate.js";
+import { Checkpoint } from "./checkpoint.js";
 
 // The second world: a black-sand plateau under a violet sky, a ringed giant on the
 // horizon, and a cliff edge above a plain of basalt spires. Lit by a cold star with warm
@@ -15,7 +16,8 @@ const STAR = new THREE.Vector3(0.78, 0.3, 0.55).normalize();
 const PLANET = new THREE.Vector3(-0.18, 0.2, -1).normalize();
 
 export class WorldTwo {
-  constructor(renderer, assets) {
+  constructor(renderer, assets, services = {}) {
+    this.services = services;
     this.renderer = renderer;
     this.assets = assets;
     this.scene = new THREE.Scene();
@@ -62,6 +64,14 @@ export class WorldTwo {
     this.buildGround();
     await this.buildGate();
     await this.buildSpires();
+    await this.buildFlora();
+    this.checkpoint = new Checkpoint(
+      this.scene,
+      this.world,
+      this.assets,
+      this.services,
+    );
+    await this.checkpoint.build();
 
     this.composer = null;
     this.makeComposer();
@@ -182,7 +192,7 @@ export class WorldTwo {
       const x = p.getX(i),
         z = p.getZ(i) - 20;
       p.setZ(i, z);
-      const side = Math.max(0, Math.abs(x) - 9);
+      const side = Math.max(0, Math.abs(x) - 13.5);
       const dune =
         Math.sin(x * 0.21 + z * 0.08) * 0.6 +
         Math.sin(x * 0.05 - z * 0.13) * 1.2;
@@ -345,6 +355,44 @@ export class WorldTwo {
     }
   }
 
+  // Glowing plants along the path: the only soft, warm light in this world.
+  async buildFlora() {
+    let seed = 23;
+    const rand = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
+    const spots = [
+      [-9, -6],
+      [9.5, -9],
+      [-10.5, -15],
+      [11, -16],
+      [-8.5, -34],
+      [8, -38],
+      [-11, -42],
+      [10.5, -47],
+      [6.5, 4],
+      [-7, 3],
+    ];
+    for (const [x, z] of spots) {
+      const plant = await this.assets.make("lumen_plant", {
+        keepHierarchy: true,
+      });
+      if (!plant) return;
+      plant.position.set(x, 0, z);
+      plant.rotation.y = rand() * 6;
+      plant.scale.multiplyScalar(0.8 + rand() * 0.6);
+      plant.userData.parts?.pods?.traverse((o) => {
+        if (!o.isMesh) return;
+        o.material = o.material.clone();
+        o.material.emissive = new THREE.Color(0xd98cff);
+        o.material.emissiveIntensity = 1.6;
+      });
+      this.scene.add(plant);
+      const light = new THREE.PointLight(0xd98cff, 3, 6, 1.8);
+      light.position.set(x, 1.1, z);
+      this.scene.add(light);
+      this.world.add(x - 0.5, -10, z - 0.5, x + 0.5, 1.2, z + 0.5, "prop");
+    }
+  }
+
   makeComposer() {
     const r = this.renderer;
     const size = r.getSize(new THREE.Vector2());
@@ -384,7 +432,12 @@ export class WorldTwo {
     hero.pos.z += dz;
     hero.feet += dy;
     hero.world = this.world;
-    hero.level = { interactables: () => [], moveBlock: () => false };
+    const cp = this.checkpoint;
+    hero.level = {
+      interactables: () => cp.interactables(),
+      use: (ref) => ref.use(),
+      moveBlock: () => false,
+    };
     follow.world = this.world;
     follow.target.x += dx;
     follow.target.z += dz;
@@ -398,6 +451,7 @@ export class WorldTwo {
   }
 
   update(dt, hero, state) {
+    this.checkpoint.update(dt, hero);
     this.time += dt;
     this.gateLight.intensity = Math.max(4, this.gateLight.intensity - dt * 25);
     if (!this.finale && hero.pos.z < -44) {

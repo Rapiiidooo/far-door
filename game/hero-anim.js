@@ -37,7 +37,7 @@ const TUNING = {
   rightLowerLeg: [10, 0.85],
 };
 
-class Spring {
+export class Spring {
   constructor(v = 0) {
     this.v = v;
     this.dv = 0;
@@ -107,6 +107,7 @@ export class HeroAnimator {
     const root = { bob: 0, pitch: 0, roll: 0 };
     const builder = POSES[hero.state] || POSES.ground;
     builder.call(this, pose, root, hero, dt, { turnRate, accel });
+    overlays(pose, root, hero);
 
     for (const name of JOINTS) {
       const j = this.joints[name],
@@ -143,7 +144,18 @@ export class HeroAnimator {
       hero.feet + hero.stepLift,
       hero.pos.z + hero.snap.z,
     );
-    m.rotation.set(pitch, yaw.v, roll, "YXZ");
+    // A roll turns the whole body once about its tucked middle, not about the feet.
+    let tumble = 0;
+    if (hero.state === "roll") {
+      tumble = Math.min(1, hero.t / 0.52) * Math.PI * 2;
+      const c = 0.55;
+      const ly = c - c * Math.cos(tumble),
+        lz = -c * Math.sin(tumble);
+      m.position.x += Math.sin(yaw.v) * lz;
+      m.position.z += Math.cos(yaw.v) * lz;
+      m.position.y += ly;
+    }
+    m.rotation.set(pitch + tumble, yaw.v, roll, "YXZ");
     this.updateScarf(dt, hero, turnRate);
   }
 
@@ -276,8 +288,59 @@ function locomotion(pose, root, hero, dt, { turnRate, accel }) {
   }
 }
 
+// Upper-body layers on top of any state: the disc thrown, caught or carried, and a flinch.
+function overlays(pose, root, hero) {
+  const t = hero.throwT;
+  if (t !== undefined && t < 0.5) {
+    // Wind back, whip across, follow through.
+    const wind = smooth(0, 0.08, t),
+      whip = smooth(0.08, 0.2, t),
+      back = smooth(0.25, 0.5, t);
+    const armX = mix(mix(0, 0.9, wind), -1.55, whip) * (1 - back);
+    const armZ = mix(mix(0, -0.9, wind), -0.2, whip) * (1 - back);
+    add(pose, "rightUpperArm", armX, 0, armZ);
+    add(pose, "rightLowerArm", mix(-1.2 * wind, -0.15, whip) * (1 - back));
+    add(
+      pose,
+      "spine",
+      0.1 * whip * (1 - back),
+      mix(0.5 * wind, -0.45, whip) * (1 - back),
+    );
+  } else if (hero.holding) {
+    add(pose, "rightUpperArm", -0.35, 0, -0.08);
+    add(pose, "rightLowerArm", -0.55);
+  }
+  const c = hero.catchT;
+  if (c !== undefined && c < 0.3) {
+    const k = Math.sin((c / 0.3) * Math.PI);
+    add(pose, "rightUpperArm", -1.3 * k, 0, -0.2 * k);
+  }
+  if (hero.stun > 0) {
+    const k = Math.min(1, hero.stun / 0.3);
+    add(pose, "spine", -0.45 * k);
+    add(pose, "head", 0.3 * k);
+    add(pose, "leftUpperArm", -0.9 * k, 0, 0.6 * k);
+    add(pose, "rightUpperArm", -0.9 * k, 0, -0.6 * k);
+    root.pitch -= 0.25 * k;
+  }
+}
+
 const POSES = {
   ground: locomotion,
+
+  // Tucked tight for the tumble; the body's rotation is applied at the root.
+  roll(pose) {
+    set(pose, "leftUpperLeg", -1.9);
+    set(pose, "rightUpperLeg", -1.8);
+    set(pose, "leftLowerLeg", 2.2);
+    set(pose, "rightLowerLeg", 2.1);
+    set(pose, "leftUpperArm", -1.4, 0, 0.3);
+    set(pose, "rightUpperArm", -1.4, 0, -0.3);
+    set(pose, "leftLowerArm", -1.6);
+    set(pose, "rightLowerArm", -1.6);
+    set(pose, "spine", 0.9);
+    set(pose, "head", 0.5);
+  },
 
   // Rising, tucked at the top, reaching for the ground on the way down.
   air(pose, root, hero) {

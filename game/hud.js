@@ -28,6 +28,7 @@ export class Hud {
       move: this.input.moveLabel(),
       interact: this.input.label("interact"),
       drop: this.input.label("drop"),
+      roll: this.input.labels.get("KeyQ") || "Q",
     };
     for (const k of document.querySelectorAll("[data-key]"))
       k.textContent = labels[k.dataset.key] || k.textContent;
@@ -67,10 +68,54 @@ export class Hud {
       turning: `Steer left and right to turn · release ${k("interact")}`,
       hang: `Move sideways to shimmy · forward to climb · ${k("drop")} to let go`,
       edge: `${k("drop")} to hang from the edge`,
+      take: `${k("interact")} Take back the sun disc`,
     }[code];
     const p = this.el("prompt");
     if (text) p.innerHTML = text;
     p.classList.toggle("on", !!text);
+  }
+
+  // Bronze pips for the explorer's composure; hidden until the first fight.
+  health(value, max) {
+    const el = this.el("health");
+    el.hidden = false;
+    if (el.children.length !== max) {
+      el.innerHTML = "";
+      for (let i = 0; i < max; i++)
+        el.appendChild(document.createElement("span"));
+    }
+    [...el.children].forEach((pip, i) =>
+      pip.classList.toggle("spent", i >= value),
+    );
+    el.classList.remove("hit");
+    void el.offsetWidth;
+    el.classList.add("hit");
+  }
+
+  // A one-off control hint in the middle of the screen.
+  hint(kind) {
+    const k = (a) => `<kbd>${this.input.label(a)}</kbd>`;
+    const text = {
+      throw: `${k("throw")} throw the disc · ${k("roll")} roll`,
+    }[kind];
+    const el = this.el("hint");
+    el.innerHTML = text;
+    el.classList.add("on");
+    clearTimeout(this.hintTimer);
+    this.hintTimer = setTimeout(() => el.classList.remove("on"), 6500);
+  }
+
+  // Knocked out by the Wardens: a rubber stamp and a verdict, then back down the path.
+  processed(done) {
+    const el = this.el("processed");
+    el.hidden = false;
+    el.classList.remove("show");
+    void el.offsetWidth;
+    el.classList.add("show");
+    setTimeout(() => {
+      el.hidden = true;
+      done();
+    }, 2300);
   }
 
   pause(on) {

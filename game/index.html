@@ -35,6 +35,7 @@
           <li><b data-key="interact">E</b> hold to grab or turn</li>
           <li><b data-key="drop">C</b> hang or let go</li>
           <li><b>Shift</b> walk safely</li>
+          <li><b data-key="roll">Q</b> roll</li>
         </ul>
       </div>
     </section>
@@ -47,7 +48,16 @@
       </div>
       <p id="objective"></p>
       <p id="prompt" aria-live="polite"></p>
+      <div id="health" hidden aria-label="Composure"></div>
+      <p id="hint"></p>
     </div>
+
+    <section id="processed" hidden>
+      <p class="verdict">Processed</p>
+      <p class="sub">
+        Your case has been closed. Please return to the start of the queue.
+      </p>
+    </section>
 
     <div id="fade"><p id="fade-line"></p></div>
 
@@ -60,9 +70,11 @@
 
     <section id="end" class="screen" hidden>
       <div class="title-card">
-        <p class="kicker">End of the prototype</p>
+        <p class="kicker">To be continued</p>
         <h1>Far Door</h1>
-        <p class="tagline">The network has more doors.</p>
+        <p class="tagline">
+          The network has more doors, and every door has a queue.
+        </p>
         <button id="again" type="button">Play again</button>
       </div>
     </section>

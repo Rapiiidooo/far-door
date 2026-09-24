@@ -85,3 +85,64 @@ export class Dust {
     }
   }
 }
+
+// Ink marks left where a Warden's stamp came down: an ochre ring and a verdict, fading out.
+export class Stamps {
+  constructor(scene) {
+    this.scene = scene;
+    this.items = [];
+    this.textures = ["DENIED", "VOID", "REJECTED"].map((word) => {
+      const c = document.createElement("canvas");
+      c.width = c.height = 256;
+      const ctx = c.getContext("2d");
+      ctx.strokeStyle = "rgba(170,40,30,0.9)";
+      ctx.lineWidth = 14;
+      ctx.beginPath();
+      ctx.arc(128, 128, 110, 0, Math.PI * 2);
+      ctx.stroke();
+      ctx.lineWidth = 5;
+      ctx.beginPath();
+      ctx.arc(128, 128, 88, 0, Math.PI * 2);
+      ctx.stroke();
+      ctx.fillStyle = "rgba(170,40,30,0.95)";
+      ctx.font = "900 44px 'Barlow Condensed', sans-serif";
+      ctx.textAlign = "center";
+      ctx.textBaseline = "middle";
+      ctx.fillText(word, 128, 130);
+      const t = new THREE.CanvasTexture(c);
+      t.colorSpace = THREE.SRGBColorSpace;
+      return t;
+    });
+    this.geo = new THREE.PlaneGeometry(1.1, 1.1).rotateX(-Math.PI / 2);
+  }
+
+  mark(x, y, z) {
+    const m = new THREE.Mesh(
+      this.geo,
+      new THREE.MeshBasicMaterial({
+        map: this.textures[Math.floor(Math.random() * this.textures.length)],
+        transparent: true,
+        depthWrite: false,
+        polygonOffset: true,
+        polygonOffsetFactor: -2,
+      }),
+    );
+    m.position.set(x, y + 0.03, z);
+    m.rotation.y = Math.random() * Math.PI * 2;
+    this.scene.add(m);
+    this.items.push({ m, life: 3 });
+  }
+
+  update(dt) {
+    for (const s of this.items) {
+      s.life -= dt;
+      s.m.material.opacity = Math.min(1, s.life);
+    }
+    this.items = this.items.filter((s) => {
+      if (s.life > 0) return true;
+      s.m.removeFromParent();
+      s.m.material.dispose();
+      return false;
+    });
+  }
+}

@@ -97,3 +97,22 @@ export const BRAZIERS = [
   [11.2, 14.6],
   [18.8, 14.6],
 ];
+
+// Set dressing: [asset, x, y, z, yaw, collider as [half width, half depth, height] or null].
+// The camp on the terrace belongs to the expedition that came before.
+export const PROPS = [
+  ["fallen_head", 24.3, 0, 34.9, -0.45, [2.1, 1.3, 2.6]],
+  ["boulder_cluster", 26.5, 0, 26.2, 0.8, [1.2, 1.2, 2.0]],
+  ["boulder_cluster", 3.5, 0, 16.9, 2.2, [1.1, 1.1, 2.0]],
+  ["desert_agave", 27.0, 0, 22.6, 0.3, null],
+  ["desert_agave", 12.4, 0, 35.3, 1.1, null],
+  ["desert_agave", 19.3, 0, 35.5, 2.4, null],
+  ["desert_agave", 2.9, 0, 24.8, 0.7, null],
+  ["desert_agave", 27.1, 8, 38.6, 1.9, null],
+  ["glyph_banner", 16.8, 8, 36.45, 0.15, [0.22, 0.22, 3.6]],
+  ["glyph_banner", 26.2, 8, 36.45, -0.2, [0.22, 0.22, 3.6]],
+  ["expedition_tent", 24.6, 8, 40.3, 2.95, [1.35, 0.95, 1.6]],
+  ["supply_crates", 21.6, 8, 40.9, 0.35, [0.95, 0.65, 1.3]],
+  ["clay_urns", 26.6, 0, 17.6, 0.2, [0.7, 0.7, 1.0]],
+  ["clay_urns", 12.9, 8, 41.0, 2.6, [0.7, 0.7, 1.0]],
+];

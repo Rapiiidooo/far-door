@@ -13,8 +13,10 @@ const ACTIONS = {
   interact: ["KeyE", "KeyF"],
   drop: ["KeyC", "ControlLeft"],
   walk: ["ShiftLeft", "ShiftRight"],
+  throw: ["KeyR", "Mouse0"],
+  roll: ["KeyQ", "Mouse2"],
 };
-const PAD = { jump: 0, drop: 1, interact: 2, walk: 6 };
+const PAD = { jump: 0, drop: 1, interact: 2, roll: 5, walk: 6, throw: 7 };
 
 export class Input {
   constructor(canvas) {
@@ -38,10 +40,19 @@ export class Input {
     });
     addEventListener("keyup", (e) => this.down.delete(e.code));
     addEventListener("blur", () => this.down.clear());
+    // With the pointer locked, mouse buttons are actions; without it, the right button
+    // drags the view.
     canvas.addEventListener("mousedown", (e) => {
-      if (e.button === 2) this.dragging = true;
+      if (this.locked) {
+        this.down.add("Mouse" + e.button);
+        this.edges.add("Mouse" + e.button);
+        this.usingPad = false;
+      } else if (e.button === 2) this.dragging = true;
     });
-    addEventListener("mouseup", () => (this.dragging = false));
+    addEventListener("mouseup", (e) => {
+      this.dragging = false;
+      this.down.delete("Mouse" + e.button);
+    });
     canvas.addEventListener("contextmenu", (e) => e.preventDefault());
     addEventListener("mousemove", (e) => {
       if (document.pointerLockElement === canvas || this.dragging) {
@@ -52,7 +63,16 @@ export class Input {
     navigator.keyboard
       ?.getLayoutMap?.()
       .then((map) => {
-        for (const code of ["KeyW", "KeyA", "KeyS", "KeyD", "KeyE", "KeyC"])
+        for (const code of [
+          "KeyW",
+          "KeyA",
+          "KeyS",
+          "KeyD",
+          "KeyE",
+          "KeyC",
+          "KeyR",
+          "KeyQ",
+        ])
           if (map.get(code)) this.labels.set(code, map.get(code).toUpperCase());
       })
       .catch(() => {});
@@ -134,8 +154,18 @@ export class Input {
   label(action) {
     if (this.usingPad)
       return (
-        { jump: "A", interact: "X", drop: "B", walk: "LT" }[action] || action
+        {
+          jump: "A",
+          interact: "X",
+          drop: "B",
+          walk: "LT",
+          throw: "RT",
+          roll: "RB",
+        }[action] || action
       );
+    if (action === "throw") return `Click / ${this.labels.get("KeyR") || "R"}`;
+    if (action === "roll")
+      return `Right click / ${this.labels.get("KeyQ") || "Q"}`;
     const code = {
       jump: "Space",
       interact: "KeyE",
