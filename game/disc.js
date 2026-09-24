@@ -74,8 +74,25 @@ export class SunDisc {
     return this.state === "held";
   }
 
+  // Before the explorer takes it back: resting on the pile of confiscated things,
+  // turning slowly and glowing so it can be seen from the path.
+  display(scene, at) {
+    this.state = "display";
+    this.mesh.visible = true;
+    scene.add(this.mesh);
+    this.displayAt = at.clone();
+    this.mesh.position.copy(at);
+    this.displayLight = new THREE.PointLight(0x39e3d0, 4, 4, 1.8);
+    this.displayLight.position.copy(at).add(new THREE.Vector3(0, 0.4, 0));
+    scene.add(this.displayLight);
+  }
+
   // The disc rides in the right hand, lying flat.
   attach(hand) {
+    if (this.displayLight) {
+      this.displayLight.removeFromParent();
+      this.displayLight = null;
+    }
     this.hand = hand;
     this.state = "held";
     this.mesh.visible = true;
@@ -144,6 +161,17 @@ export class SunDisc {
     for (const m of this.lens) {
       m.emissive = TURQUOISE;
       m.emissiveIntensity = 0.4 + glow * 3;
+    }
+    if (this.state === "display") {
+      this.spin += dt * 1.2;
+      this.mesh.position.set(
+        this.displayAt.x,
+        this.displayAt.y + Math.sin(this.spin * 2) * 0.05,
+        this.displayAt.z,
+      );
+      this.mesh.rotation.set(0.9, this.spin, 0);
+      this.halo.material.opacity = 0.35 + Math.sin(this.spin * 3) * 0.1;
+      return;
     }
     if (this.state === "held" || this.state === "hidden") return;
     this.t += dt;

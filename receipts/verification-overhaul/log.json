@@ -1,0 +1,120 @@
+{
+  "log": [
+    "start 21.0,37.2 feet 8",
+    "jumped the gap: 4.85,37.20 feet 8",
+    "hanging from the edge, feet 5.86",
+    "caught the crack at 4.88,32.71",
+    "climbed up at 8.66,31.75",
+    "reached the court floor",
+    "pushed the block",
+    "lit: left",
+    "lit: left,right",
+    "on the island 17.29,30.06",
+    "lit: left,top,right",
+    "crossed into the second world at -0.51,-0.03",
+    "took the disc back; alarm",
+    "guards cleared with 7 throws and 0 rolls, health 4",
+    "lamp lit, barrier open",
+    "reached the end card",
+    "errors: none"
+  ],
+  "last": {
+    "mode": "end",
+    "pos": [
+      0.24160755659755126,
+      -44.38336058224604
+    ],
+    "feet": 0,
+    "state": "ground",
+    "fps": 60,
+    "speed": 8.680482664999569e-52,
+    "score": 3,
+    "over": true,
+    "draws": 267,
+    "tris": 268108,
+    "camYaw": 3.1222936304445983,
+    "cinematic": true,
+    "mirrors": [
+      {
+        "id": "m1",
+        "yaw": -0.1608752771983212,
+        "locked": "m2"
+      },
+      {
+        "id": "m2",
+        "yaw": -1.2402747423695533,
+        "locked": "m3"
+      },
+      {
+        "id": "m3",
+        "yaw": 2.9200720500117603,
+        "locked": "top"
+      }
+    ],
+    "lit": [
+      "left",
+      "top",
+      "right"
+    ],
+    "gateOpen": true,
+    "health": 4,
+    "checkpoint": "open",
+    "disc": {
+      "state": "held",
+      "charged": false
+    },
+    "guards": [
+      {
+        "state": "gone",
+        "hp": -1,
+        "pos": [
+          -3.92546378699518,
+          -21.304467839098034
+        ]
+      },
+      {
+        "state": "gone",
+        "hp": -1,
+        "pos": [
+          -3.2424005815697945,
+          -19.953944945973447
+        ]
+      },
+      {
+        "state": "gone",
+        "hp": -1,
+        "pos": [
+          -3.942235021175468,
+          -16.80115315522646
+        ]
+      }
+    ],
+    "assets": {
+      "hero_explorer": true,
+      "glyph_stela": true,
+      "push_block": true,
+      "sun_mirror": true,
+      "far_gate": true,
+      "guardian_colossus": true,
+      "brazier": true,
+      "temple_facade": true,
+      "broken_column": true,
+      "basalt_spire": true,
+      "sun_disc": true,
+      "warden": true,
+      "customs_booth": true,
+      "confiscation_bin": true,
+      "queue_post": true,
+      "crystal_emitter": true,
+      "lumen_plant": true,
+      "expedition_tent": true,
+      "supply_crates": true,
+      "clay_urns": true,
+      "fallen_head": true,
+      "boulder_cluster": true,
+      "glyph_banner": true,
+      "desert_agave": true
+    }
+  },
+  "errors": []
+}

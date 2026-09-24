@@ -1,0 +1,112 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><title>look</title>
+<script type="importmap">{ "imports": { "three": "/game/vendor/three.module.js", "three/addons/": "/game/vendor/" } }</script>
+<style>body{margin:0;background:#000}canvas{display:block}</style></head>
+<body><script type="module">
+// Throwaway close-up renderer for the booth, bin and post candidates.
+// ?src=/path/a.js,/path/b.js  one module per column
+// &views=yaw:elev:dist[:tx:ty:tz];...  one row per view (degrees, metres; target defaults to the box centre)
+// &night=1  the second world's light (star, planetshine, violet hemisphere, bloom), else the verifier's
+// &pose=joint:axis:deg,...  &size=px  &ground=1
+import * as THREE from 'three';
+import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js';
+import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
+import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js';
+import { OutputPass } from 'three/addons/postprocessing/OutputPass.js';
+const q = new URLSearchParams(location.search);
+const srcs = q.get('src').split(',');
+const views = (q.get('views') || '0:25:0;90:25:0;180:25:0;270:25:0;45:35:0').split(';').map((s) => s.split(':').map(Number));
+const night = q.get('night') === '1', S = +(q.get('size') || 420);
+const poses = (q.get('pose') || '').split(',').filter(Boolean).map((s) => s.split(':'));
+// tiles run views-major for one source; with several sources each row is one view
+const COLS = +(q.get('cols') || (srcs.length > 1 ? srcs.length : Math.min(3, views.length)));
+const NT = srcs.length * views.length, ROWS = Math.ceil(NT / COLS);
+const W = S * COLS, H = S * ROWS;
+const renderer = new THREE.WebGLRenderer({ antialias: true, preserveDrawingBuffer: true });
+renderer.setSize(W, H, false);
+renderer.outputColorSpace = THREE.SRGBColorSpace;
+if (night) { renderer.toneMapping = THREE.ACESFilmicToneMapping; renderer.toneMappingExposure = 1.0; renderer.shadowMap.enabled = true; }
+document.body.appendChild(renderer.domElement);
+const info = [];
+const scenes = [];
+for (const src of srcs) {
+  const scene = new THREE.Scene();
+  if (night) {
+    scene.background = new THREE.Color(0x1a1028);
+    const star = new THREE.DirectionalLight(0xd4e2ff, 3.4);
+    star.position.copy(new THREE.Vector3(0.78, 0.3, 0.55).normalize()).multiplyScalar(30);
+    star.castShadow = true; star.shadow.mapSize.set(2048, 2048);
+    Object.assign(star.shadow.camera, { left: -8, right: 8, top: 8, bottom: -8, near: 1, far: 80 });
+    star.shadow.bias = -0.0004; star.shadow.normalBias = 0.02;
+    scene.add(star);
+    const shine = new THREE.DirectionalLight(0xff9f7a, 0.75);
+    shine.position.copy(new THREE.Vector3(-0.18, 0.2, -1).normalize()).multiplyScalar(30);
+    scene.add(shine);
+    scene.add(new THREE.HemisphereLight(0x7a64b8, 0x2a1e30, 1.25));
+  } else {
+    scene.background = new THREE.Color(0x22262b);
+    scene.add(new THREE.HemisphereLight(0xffffff, 0x556677, 2.0));
+    const sun = new THREE.DirectionalLight(0xffffff, 1.9); sun.position.set(5, 9, 7); scene.add(sun);
+  }
+  const mod = await import(src + '?t=' + Date.now());
+  const g = mod.default(THREE);
+  for (const [j, axis, deg] of poses) {
+    const node = g.userData.joints && g.userData.joints[j];
+    if (node) node.rotation[axis] += (+deg * Math.PI) / 180;
+  }
+  g.traverse((o) => { if (o.isMesh) { o.castShadow = true; o.receiveShadow = true; } });
+  scene.add(g);
+  if (q.get('ground') === '1' || night) {
+    const ground = new THREE.Mesh(new THREE.PlaneGeometry(60, 60), new THREE.MeshStandardMaterial({ color: night ? 0x4a4058 : 0x3a3f46, roughness: 0.95 }));
+    ground.rotation.x = -Math.PI / 2; ground.receiveShadow = true; scene.add(ground);
+  }
+  g.updateMatrixWorld(true);
+  const box = new THREE.Box3().setFromObject(g);
+  info.push({ src, size: box.getSize(new THREE.Vector3()).toArray().map((x) => +x.toFixed(3)) });
+  scenes.push({ scene, box });
+}
+renderer.setScissorTest(true);
+let composer = null;
+views.forEach(([yaw, elev, dist, tx, ty, tz], row) => {
+  scenes.forEach(({ scene, box }, col) => {
+    const c = box.getCenter(new THREE.Vector3());
+    const t = Number.isFinite(tx) ? new THREE.Vector3(tx, ty, tz) : c;
+    const r = 0.5 * box.getSize(new THREE.Vector3()).length();
+    const d = dist > 0 ? dist : (r / Math.sin((17 * Math.PI) / 180)) * 1.05;
+    const a = (yaw * Math.PI) / 180, e = (elev * Math.PI) / 180;
+    const cam = new THREE.PerspectiveCamera(34, 1, 0.05, 400);
+    cam.position.set(t.x + Math.sin(a) * d * Math.cos(e), t.y + d * Math.sin(e), t.z + Math.cos(a) * d * Math.cos(e));
+    cam.lookAt(t);
+    const k = srcs.length > 1 ? row * srcs.length + col : row;
+    const x = (k % COLS) * S, y = H - (Math.floor(k / COLS) + 1) * S;
+    renderer.setViewport(x, y, S, S); renderer.setScissor(x, y, S, S);
+    if (night) {
+      // bloom per tile through an offscreen composer, then blit into the tile
+      const rt = new THREE.WebGLRenderTarget(S, S, { type: THREE.HalfFloatType, samples: 4 });
+      const comp = new EffectComposer(renderer, rt);
+      comp.renderToScreen = false;
+      comp.setSize(S, S);
+      comp.addPass(new RenderPass(scene, cam));
+      comp.addPass(new UnrealBloomPass(new THREE.Vector2(S, S), 0.55, 0.4, 1.1));
+      comp.addPass(new OutputPass());
+      renderer.setScissorTest(false);
+      comp.render();
+      const tex = comp.readBuffer.texture;
+      const quad = new THREE.Mesh(new THREE.PlaneGeometry(2, 2), new THREE.MeshBasicMaterial({ map: tex, toneMapped: false }));
+      const qs = new THREE.Scene(); qs.add(quad);
+      const oc = new THREE.OrthographicCamera(-1, 1, 1, -1, 0, 1);
+      renderer.setRenderTarget(null);
+      renderer.setScissorTest(true);
+      renderer.setViewport(x, y, S, S); renderer.setScissor(x, y, S, S);
+      const tm = renderer.toneMapping; renderer.toneMapping = THREE.NoToneMapping;
+      const cs = renderer.outputColorSpace; renderer.outputColorSpace = THREE.LinearSRGBColorSpace;
+      renderer.render(qs, oc);
+      renderer.toneMapping = tm; renderer.outputColorSpace = cs;
+    } else {
+      renderer.render(scene, cam);
+    }
+  });
+});
+window.__INFO__ = info;
+window.__DONE__ = true;
+</script></body></html>

@@ -31,6 +31,16 @@ export class Input {
     this.usingPad = false;
     this.labels = new Map();
     this.dragging = false;
+    // Look sensitivity and inversion persist for this browser; storage may be unavailable.
+    this.settings = { sensitivity: 1, invertY: false };
+    try {
+      Object.assign(
+        this.settings,
+        JSON.parse(localStorage.getItem("far-door-settings") || "{}"),
+      );
+    } catch {
+      /* private window or blocked storage: defaults */
+    }
     addEventListener("keydown", (e) => {
       if (e.repeat) return;
       if (isGameKey(e.code)) e.preventDefault();
@@ -76,6 +86,14 @@ export class Input {
           if (map.get(code)) this.labels.set(code, map.get(code).toUpperCase());
       })
       .catch(() => {});
+  }
+
+  saveSettings() {
+    try {
+      localStorage.setItem("far-door-settings", JSON.stringify(this.settings));
+    } catch {
+      /* not persisted */
+    }
   }
 
   lockPointer() {
@@ -140,8 +158,10 @@ export class Input {
 
   // Camera look in radians for this frame.
   takeLook(dt) {
-    const x = this.lookX * 0.0026 + this.padLook.x * 2.6 * dt;
-    const y = this.lookY * 0.0022 + this.padLook.y * 1.8 * dt;
+    const k = this.settings.sensitivity,
+      inv = this.settings.invertY ? -1 : 1;
+    const x = (this.lookX * 0.0026 + this.padLook.x * 2.6 * dt) * k;
+    const y = (this.lookY * 0.0022 + this.padLook.y * 1.8 * dt) * k * inv;
     this.lookX = this.lookY = 0;
     return { x, y };
   }

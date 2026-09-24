@@ -1,0 +1,70 @@
+<!doctype html>
+<html><head><meta charset="utf-8">
+<script type="importmap">{ "imports": { "three": "/game/vendor/three.module.js", "three/addons/": "/game/vendor/" } }</script>
+<style>body{margin:0;background:#000}canvas{display:block}</style></head>
+<body>
+<script type="module">
+// Throwaway: the camp props in the game's own rig (same options as game/main.js), loaded
+// through the game's assetlib with surfaces on, on a sunlit sandstone floor, hero for scale.
+import * as THREE from 'three';
+import { createRig } from '/game/rig.js';
+import { ASSET } from '/game/assetlib.js';
+const q = new URLSearchParams(location.search);
+const W = +(q.get('w') || 1280), H = +(q.get('h') || 720);
+const renderer = new THREE.WebGLRenderer({ antialias: true, preserveDrawingBuffer: true });
+renderer.setSize(W, H, false);
+document.body.appendChild(renderer.domElement);
+const scene = new THREE.Scene();
+const camera = new THREE.PerspectiveCamera(55, W / H, 0.1, 900);
+let info = { ok: false };
+try {
+  const rig = createRig(THREE, renderer, scene, {
+    hour: +(q.get('hour') || 15.2), azimuth: +(q.get('az') || 236), maxElevation: 58, camera,
+    fogStart: 60, fogDensity: 0.0032, exposure: 0.86,
+  });
+  await rig.ready;
+  const floor = new THREE.MeshStandardMaterial({ color: 0xd4a373, roughness: 0.92 });
+  floor.name = 'stone';
+  const ground = new THREE.Mesh(new THREE.PlaneGeometry(200, 200), floor);
+  ground.rotation.x = -Math.PI / 2;
+  ground.receiveShadow = true;
+  scene.add(ground);
+  const wall = new THREE.Mesh(new THREE.BoxGeometry(60, 14, 4), new THREE.MeshStandardMaterial({ color: 0xb57f4f, roughness: 0.95 }));
+  wall.position.set(0, 7, -14);
+  wall.castShadow = wall.receiveShadow = true;
+  scene.add(wall);
+
+  const hero = await ASSET('/game/assets/hero_explorer.js', { surfaces: false, keepHierarchy: true });
+  hero.traverse((o) => {
+    const c = o.isMesh && o.material.color;
+    if (c && Math.abs(c.getHex() - 0xcdbf9f) < 0x030303) { o.material = o.material.clone(); o.material.color.setHex(0x9e8660); }
+    if (o.isMesh) { o.castShadow = true; o.receiveShadow = true; }
+  });
+  const [hx, hz, hr] = (q.get('hero') || '2.2,2.4,-2.4').split(',').map(Number);
+  hero.position.set(hx, 0, hz); hero.rotation.y = hr;
+  scene.add(hero);
+
+  const srcs = (q.get('srcs') || '').split(',').filter(Boolean);
+  const place = (q.get('pos') || '').split(';').map((s) => s.split(',').map(Number));
+  for (let i = 0; i < srcs.length; i++) {
+    const obj = await ASSET(srcs[i], { surfaces: q.get('surf') !== '0' });
+    const [x = 0, z = 0, r = 0] = place[i] || [];
+    obj.position.set(x, 0, z); obj.rotation.y = r;
+    obj.traverse((o) => { if (o.isMesh) { o.castShadow = true; o.receiveShadow = true; } });
+    scene.add(obj);
+  }
+  rig.refresh(scene);
+  const views = JSON.parse(q.get('views') || '[[0,2.2,7,0,0.8,0,50]]');
+  window.shot = async (i) => {
+    const [x, y, z, lx, ly, lz, fov] = views[i];
+    camera.position.set(x, y, z); camera.fov = fov || 50; camera.updateProjectionMatrix();
+    camera.lookAt(lx, ly, lz);
+    for (let k = 0; k < 4; k++) { rig.render(camera, 0.016); await new Promise((r) => requestAnimationFrame(r)); }
+    return true;
+  };
+  window.__VIEWS__ = views.length;
+  info = { ok: true };
+} catch (e) { info = { ok: false, error: String(e && e.stack || e) }; }
+window.__INFO__ = info;
+window.__DONE__ = true;
+</script></body></html>

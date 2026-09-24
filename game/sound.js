@@ -48,6 +48,139 @@ export class Sound {
     this.hum = humGain;
   }
 
+  // --- music: slow generative pads per place, and a bouncy pulse while Wardens give chase.
+  startMusic() {
+    if (!this.ctx || this.music) return;
+    const ctx = this.ctx;
+    const bus = ctx.createGain();
+    bus.gain.value = 0.9;
+    const tone = ctx.createBiquadFilter();
+    tone.type = "lowpass";
+    tone.frequency.value = 1100;
+    bus.connect(tone).connect(this.master);
+    this.music = {
+      mode: "court",
+      bus,
+      nextChord: ctx.currentTime + 0.5,
+      chord: 0,
+      nextBeat: 0,
+      beat: 0,
+    };
+    this.musicTimer = setInterval(() => this.tickMusic(), 100);
+  }
+
+  setMusic(mode) {
+    if (this.music && this.music.mode !== mode) {
+      this.music.mode = mode;
+      this.music.nextChord = Math.min(
+        this.music.nextChord,
+        this.ctx.currentTime + 0.3,
+      );
+      this.music.nextBeat = this.ctx.currentTime + 0.1;
+    }
+  }
+
+  tickMusic() {
+    const M = this.music,
+      ctx = this.ctx;
+    if (!M || ctx.state !== "running") return;
+    const t = ctx.currentTime;
+    const hz = (m) => 440 * Math.pow(2, (m - 69) / 12);
+    const SETS = {
+      // D dorian in the court: warm and patient.
+      court: [
+        [50, 57, 60, 65, 69],
+        [46, 53, 57, 62, 65],
+        [48, 55, 60, 64, 67],
+        [45, 52, 55, 60, 64],
+      ],
+      // Lydian shimmer under the violet sky.
+      world2: [
+        [52, 59, 63, 68, 70],
+        [49, 56, 59, 64, 68],
+        [45, 52, 56, 61, 64],
+        [47, 54, 58, 63, 66],
+      ],
+      fight: [
+        [45, 52, 57, 60, 64],
+        [43, 50, 55, 59, 62],
+      ],
+    };
+    if (t + 0.4 > M.nextChord) {
+      const set = SETS[M.mode] || SETS.court;
+      const notes = set[M.chord % set.length];
+      M.chord++;
+      const len = M.mode === "fight" ? 4.4 : 8.5;
+      for (const [i, n] of notes.entries())
+        this.pad(hz(n), M.nextChord, len, i === 0 ? 0.028 : 0.018);
+      M.nextChord += M.mode === "fight" ? 3.64 : 8;
+    }
+    if (M.mode === "fight") {
+      const step = 60 / 132 / 2;
+      const bass = [45, 45, 52, 45, 57, 45, 52, 50];
+      if (M.nextBeat < t) M.nextBeat = t + 0.05;
+      while (M.nextBeat < t + 0.35) {
+        const b = M.beat++;
+        this.pluck(hz(bass[b % bass.length] - 12), M.nextBeat, 0.16, 0.09);
+        if (b % 2 === 1) this.tick(M.nextBeat, 0.035);
+        M.nextBeat += step;
+      }
+    }
+  }
+
+  pad(freq, at, length, level) {
+    const ctx = this.ctx;
+    const g = ctx.createGain();
+    g.gain.setValueAtTime(0.0001, at);
+    g.gain.exponentialRampToValueAtTime(level, at + 2.4);
+    g.gain.setValueAtTime(level, at + length - 2.5);
+    g.gain.exponentialRampToValueAtTime(0.0001, at + length);
+    g.connect(this.music.bus);
+    for (const cents of [-7, 7]) {
+      const o = ctx.createOscillator();
+      o.type = "sawtooth";
+      o.frequency.value = freq;
+      o.detune.value = cents;
+      const lp = ctx.createBiquadFilter();
+      lp.type = "lowpass";
+      lp.frequency.value = 700;
+      o.connect(lp).connect(g);
+      o.start(at);
+      o.stop(at + length + 0.1);
+    }
+  }
+
+  pluck(freq, at, length, level) {
+    const ctx = this.ctx;
+    const o = ctx.createOscillator();
+    o.type = "square";
+    o.frequency.value = freq;
+    const lp = ctx.createBiquadFilter();
+    lp.type = "lowpass";
+    lp.frequency.setValueAtTime(900, at);
+    lp.frequency.exponentialRampToValueAtTime(200, at + length);
+    const g = ctx.createGain();
+    g.gain.setValueAtTime(level, at);
+    g.gain.exponentialRampToValueAtTime(0.0001, at + length);
+    o.connect(lp).connect(g).connect(this.music.bus);
+    o.start(at);
+    o.stop(at + length + 0.05);
+  }
+
+  tick(at, level) {
+    const ctx = this.ctx;
+    const src = ctx.createBufferSource();
+    src.buffer = this.noise;
+    const hp = ctx.createBiquadFilter();
+    hp.type = "highpass";
+    hp.frequency.value = 6000;
+    const g = ctx.createGain();
+    g.gain.setValueAtTime(level, at);
+    g.gain.exponentialRampToValueAtTime(0.0001, at + 0.05);
+    src.connect(hp).connect(g).connect(this.music.bus);
+    src.start(at, Math.random(), 0.06);
+  }
+
   update(dt, hero, beams) {
     if (!this.ctx) return;
     const t = this.ctx.currentTime;

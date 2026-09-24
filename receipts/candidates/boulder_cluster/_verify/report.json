@@ -1,0 +1,116 @@
+[
+ {
+  "ok": true,
+  "mounts": null,
+  "meshes": 46,
+  "tris": 1320,
+  "materials": 3,
+  "size": [
+   3.627,
+   2.291,
+   2.878
+  ],
+  "groundOffset": 0,
+  "centreOffset": [
+   0,
+   0
+  ],
+  "sides": {
+   "front": {
+    "coverage": 0.2164,
+    "edgeDensity": 0.1524
+   },
+   "right": {
+    "coverage": 0.1752,
+    "edgeDensity": 0.1615
+   },
+   "back": {
+    "coverage": 0.2121,
+    "edgeDensity": 0.1457
+   },
+   "left": {
+    "coverage": 0.1851,
+    "edgeDensity": 0.1463
+   }
+  },
+  "error": null,
+  "name": "boulder_cluster_a",
+  "problems": []
+ },
+ {
+  "ok": true,
+  "mounts": null,
+  "meshes": 18,
+  "tris": 792,
+  "materials": 3,
+  "size": [
+   3.678,
+   2.261,
+   2.683
+  ],
+  "groundOffset": 0,
+  "centreOffset": [
+   0,
+   0
+  ],
+  "sides": {
+   "front": {
+    "coverage": 0.2367,
+    "edgeDensity": 0.1605
+   },
+   "right": {
+    "coverage": 0.1641,
+    "edgeDensity": 0.1674
+   },
+   "back": {
+    "coverage": 0.2251,
+    "edgeDensity": 0.1526
+   },
+   "left": {
+    "coverage": 0.1791,
+    "edgeDensity": 0.1334
+   }
+  },
+  "error": null,
+  "name": "boulder_cluster_b",
+  "problems": []
+ },
+ {
+  "ok": true,
+  "mounts": null,
+  "meshes": 17,
+  "tris": 1574,
+  "materials": 3,
+  "size": [
+   3.633,
+   2.259,
+   2.741
+  ],
+  "groundOffset": 0,
+  "centreOffset": [
+   0,
+   0
+  ],
+  "sides": {
+   "front": {
+    "coverage": 0.2036,
+    "edgeDensity": 0.1519
+   },
+   "right": {
+    "coverage": 0.1714,
+    "edgeDensity": 0.1437
+   },
+   "back": {
+    "coverage": 0.2043,
+    "edgeDensity": 0.1221
+   },
+   "left": {
+    "coverage": 0.1635,
+    "edgeDensity": 0.1408
+   }
+  },
+  "error": null,
+  "name": "boulder_cluster_c",
+  "problems": []
+ }
+]

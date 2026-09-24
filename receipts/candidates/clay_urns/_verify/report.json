@@ -1,0 +1,116 @@
+[
+ {
+  "ok": true,
+  "mounts": null,
+  "meshes": 32,
+  "tris": 4442,
+  "materials": 3,
+  "size": [
+   1.138,
+   0.995,
+   1.191
+  ],
+  "groundOffset": 0,
+  "centreOffset": [
+   0,
+   0
+  ],
+  "sides": {
+   "front": {
+    "coverage": 0.1662,
+    "edgeDensity": 0.1462
+   },
+   "right": {
+    "coverage": 0.1535,
+    "edgeDensity": 0.1552
+   },
+   "back": {
+    "coverage": 0.199,
+    "edgeDensity": 0.154
+   },
+   "left": {
+    "coverage": 0.1392,
+    "edgeDensity": 0.1532
+   }
+  },
+  "error": null,
+  "name": "clay_urns_a",
+  "problems": []
+ },
+ {
+  "ok": true,
+  "mounts": null,
+  "meshes": 27,
+  "tris": 4644,
+  "materials": 3,
+  "size": [
+   1.141,
+   1,
+   1.082
+  ],
+  "groundOffset": 0,
+  "centreOffset": [
+   0,
+   0
+  ],
+  "sides": {
+   "front": {
+    "coverage": 0.1813,
+    "edgeDensity": 0.1403
+   },
+   "right": {
+    "coverage": 0.1622,
+    "edgeDensity": 0.1382
+   },
+   "back": {
+    "coverage": 0.2023,
+    "edgeDensity": 0.0923
+   },
+   "left": {
+    "coverage": 0.1444,
+    "edgeDensity": 0.1042
+   }
+  },
+  "error": null,
+  "name": "clay_urns_b",
+  "problems": []
+ },
+ {
+  "ok": true,
+  "mounts": null,
+  "meshes": 17,
+  "tris": 2532,
+  "materials": 6,
+  "size": [
+   1.14,
+   1.006,
+   1.096
+  ],
+  "groundOffset": 0,
+  "centreOffset": [
+   0,
+   0
+  ],
+  "sides": {
+   "front": {
+    "coverage": 0.1771,
+    "edgeDensity": 0.1705
+   },
+   "right": {
+    "coverage": 0.1528,
+    "edgeDensity": 0.1701
+   },
+   "back": {
+    "coverage": 0.1995,
+    "edgeDensity": 0.153
+   },
+   "left": {
+    "coverage": 0.146,
+    "edgeDensity": 0.1691
+   }
+  },
+  "error": null,
+  "name": "clay_urns_c",
+  "problems": []
+ }
+]

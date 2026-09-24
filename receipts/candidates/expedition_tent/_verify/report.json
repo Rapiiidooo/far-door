@@ -1,0 +1,116 @@
+[
+ {
+  "ok": true,
+  "mounts": null,
+  "meshes": 78,
+  "tris": 1682,
+  "materials": 6,
+  "size": [
+   1.883,
+   1.584,
+   2.662
+  ],
+  "groundOffset": 0,
+  "centreOffset": [
+   0,
+   0
+  ],
+  "sides": {
+   "front": {
+    "coverage": 0.164,
+    "edgeDensity": 0.262
+   },
+   "right": {
+    "coverage": 0.2733,
+    "edgeDensity": 0.1168
+   },
+   "back": {
+    "coverage": 0.1642,
+    "edgeDensity": 0.2229
+   },
+   "left": {
+    "coverage": 0.2698,
+    "edgeDensity": 0.0998
+   }
+  },
+  "error": null,
+  "name": "expedition_tent_a",
+  "problems": []
+ },
+ {
+  "ok": true,
+  "mounts": null,
+  "meshes": 62,
+  "tris": 6174,
+  "materials": 6,
+  "size": [
+   1.879,
+   1.568,
+   2.646
+  ],
+  "groundOffset": 0,
+  "centreOffset": [
+   0,
+   0
+  ],
+  "sides": {
+   "front": {
+    "coverage": 0.1576,
+    "edgeDensity": 0.2693
+   },
+   "right": {
+    "coverage": 0.2752,
+    "edgeDensity": 0.1169
+   },
+   "back": {
+    "coverage": 0.167,
+    "edgeDensity": 0.2373
+   },
+   "left": {
+    "coverage": 0.274,
+    "edgeDensity": 0.1038
+   }
+  },
+  "error": null,
+  "name": "expedition_tent_b",
+  "problems": []
+ },
+ {
+  "ok": true,
+  "mounts": null,
+  "meshes": 82,
+  "tris": 3943,
+  "materials": 6,
+  "size": [
+   1.885,
+   1.565,
+   2.736
+  ],
+  "groundOffset": 0,
+  "centreOffset": [
+   0,
+   0
+  ],
+  "sides": {
+   "front": {
+    "coverage": 0.1485,
+    "edgeDensity": 0.2612
+   },
+   "right": {
+    "coverage": 0.2527,
+    "edgeDensity": 0.1406
+   },
+   "back": {
+    "coverage": 0.1567,
+    "edgeDensity": 0.2305
+   },
+   "left": {
+    "coverage": 0.2554,
+    "edgeDensity": 0.1174
+   }
+  },
+  "error": null,
+  "name": "expedition_tent_c",
+  "problems": []
+ }
+]

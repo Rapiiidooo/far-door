@@ -1,0 +1,40 @@
+[
+ {
+  "ok": true,
+  "mounts": null,
+  "meshes": 12,
+  "tris": 10418,
+  "materials": 8,
+  "size": [
+   3.466,
+   5.052,
+   2.112
+  ],
+  "groundOffset": 0,
+  "centreOffset": [
+   0,
+   0
+  ],
+  "sides": {
+   "front": {
+    "coverage": 0.1054,
+    "edgeDensity": 0.2039
+   },
+   "right": {
+    "coverage": 0.0903,
+    "edgeDensity": 0.205
+   },
+   "back": {
+    "coverage": 0.1293,
+    "edgeDensity": 0.1638
+   },
+   "left": {
+    "coverage": 0.1171,
+    "edgeDensity": 0.1667
+   }
+  },
+  "error": null,
+  "name": "posed_booth_c_lift80",
+  "problems": []
+ }
+]

@@ -355,8 +355,56 @@ export class WorldTwo {
     }
   }
 
+  // Specks of light in the black sand that twinkle as the explorer walks by.
+  buildSparkles() {
+    const count = 700;
+    const pos = new Float32Array(count * 3),
+      seed = new Float32Array(count);
+    let s = 3;
+    const rand = () => (s = (s * 16807) % 2147483647) / 2147483647;
+    for (let i = 0; i < count; i++) {
+      pos[i * 3] = (rand() - 0.5) * 30;
+      pos[i * 3 + 1] = 0.03;
+      pos[i * 3 + 2] = 8 - rand() * 62;
+      seed[i] = rand();
+    }
+    const geo = new THREE.BufferGeometry();
+    geo.setAttribute("position", new THREE.BufferAttribute(pos, 3));
+    geo.setAttribute("seed", new THREE.BufferAttribute(seed, 1));
+    this.sparkleUniforms = {
+      uTime: { value: 0 },
+      uScale: { value: innerHeight * 0.5 },
+    };
+    const mat = new THREE.ShaderMaterial({
+      transparent: true,
+      depthWrite: false,
+      blending: THREE.AdditiveBlending,
+      uniforms: this.sparkleUniforms,
+      vertexShader: /* glsl */ `
+        attribute float seed; uniform float uTime; uniform float uScale; varying float vA; varying float vS;
+        void main() {
+          vec4 mv = modelViewMatrix * vec4(position, 1.0);
+          vA = pow(max(0.0, sin(uTime * (0.8 + seed * 2.0) + seed * 60.0)), 6.0);
+          vS = seed;
+          gl_PointSize = (0.05 + seed * 0.05) * uScale / -mv.z;
+          gl_Position = projectionMatrix * mv;
+        }`,
+      fragmentShader: /* glsl */ `
+        varying float vA; varying float vS;
+        void main() {
+          float d = length(gl_PointCoord - 0.5);
+          vec3 c = mix(vec3(1.6, 0.9, 2.2), vec3(0.6, 2.2, 2.0), step(0.7, vS));
+          gl_FragColor = vec4(c * smoothstep(0.5, 0.0, d) * vA, 1.0);
+        }`,
+    });
+    const points = new THREE.Points(geo, mat);
+    points.frustumCulled = false;
+    this.scene.add(points);
+  }
+
   // Glowing plants along the path: the only soft, warm light in this world.
   async buildFlora() {
+    this.buildSparkles();
     let seed = 23;
     const rand = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
     const spots = [
@@ -452,6 +500,7 @@ export class WorldTwo {
 
   update(dt, hero, state) {
     this.checkpoint.update(dt, hero);
+    this.sparkleUniforms.uTime.value += dt;
     this.time += dt;
     this.gateLight.intensity = Math.max(4, this.gateLight.intensity - dt * 25);
     if (!this.finale && hero.pos.z < -44) {

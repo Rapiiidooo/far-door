@@ -1,0 +1,116 @@
+[
+ {
+  "ok": true,
+  "mounts": null,
+  "meshes": 11,
+  "tris": 6970,
+  "materials": 8,
+  "size": [
+   6.75,
+   2.8,
+   2.033
+  ],
+  "groundOffset": 0,
+  "centreOffset": [
+   0,
+   0
+  ],
+  "sides": {
+   "front": {
+    "coverage": 0.0744,
+    "edgeDensity": 0.1824
+   },
+   "right": {
+    "coverage": 0.0431,
+    "edgeDensity": 0.1872
+   },
+   "back": {
+    "coverage": 0.1174,
+    "edgeDensity": 0.1615
+   },
+   "left": {
+    "coverage": 0.1202,
+    "edgeDensity": 0.1252
+   }
+  },
+  "error": null,
+  "name": "customs_booth_a",
+  "problems": []
+ },
+ {
+  "ok": true,
+  "mounts": null,
+  "meshes": 11,
+  "tris": 7488,
+  "materials": 8,
+  "size": [
+   6.65,
+   2.8,
+   2.054
+  ],
+  "groundOffset": 0,
+  "centreOffset": [
+   0,
+   0
+  ],
+  "sides": {
+   "front": {
+    "coverage": 0.0759,
+    "edgeDensity": 0.2086
+   },
+   "right": {
+    "coverage": 0.0423,
+    "edgeDensity": 0.2123
+   },
+   "back": {
+    "coverage": 0.1061,
+    "edgeDensity": 0.1454
+   },
+   "left": {
+    "coverage": 0.1094,
+    "edgeDensity": 0.1323
+   }
+  },
+  "error": null,
+  "name": "customs_booth_b",
+  "problems": []
+ },
+ {
+  "ok": true,
+  "mounts": null,
+  "meshes": 12,
+  "tris": 10418,
+  "materials": 8,
+  "size": [
+   6.7,
+   2.8,
+   2.112
+  ],
+  "groundOffset": 0,
+  "centreOffset": [
+   0,
+   0
+  ],
+  "sides": {
+   "front": {
+    "coverage": 0.0832,
+    "edgeDensity": 0.2514
+   },
+   "right": {
+    "coverage": 0.0536,
+    "edgeDensity": 0.2823
+   },
+   "back": {
+    "coverage": 0.1045,
+    "edgeDensity": 0.2209
+   },
+   "left": {
+    "coverage": 0.1095,
+    "edgeDensity": 0.1659
+   }
+  },
+  "error": null,
+  "name": "customs_booth_c",
+  "problems": []
+ }
+]

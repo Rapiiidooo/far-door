@@ -1,0 +1,40 @@
+[
+ {
+  "ok": true,
+  "mounts": null,
+  "meshes": 4,
+  "tris": 2772,
+  "materials": 4,
+  "size": [
+   0.449,
+   0.061,
+   0.449
+  ],
+  "groundOffset": 0,
+  "centreOffset": [
+   0,
+   0
+  ],
+  "sides": {
+   "front": {
+    "coverage": 0.1451,
+    "edgeDensity": 0.0866
+   },
+   "right": {
+    "coverage": 0.1451,
+    "edgeDensity": 0.0962
+   },
+   "back": {
+    "coverage": 0.145,
+    "edgeDensity": 0.1846
+   },
+   "left": {
+    "coverage": 0.145,
+    "edgeDensity": 0.1493
+   }
+  },
+  "error": null,
+  "name": "underside_c",
+  "problems": []
+ }
+]

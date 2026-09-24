@@ -300,7 +300,8 @@ try {
   await go(-3, -14, { walk: false });
   const t0 = Date.now();
   let throws = 0,
-    rolls = 0;
+    rolls = 0,
+    fightShot = false;
   for (;;) {
     s = await state();
     if (s.checkpoint === "locked") break;
@@ -309,6 +310,11 @@ try {
     const alive = (s.guards || []).filter(
       (g) => g.hp > 0 && g.state !== "gone",
     );
+    if (!fightShot && alive.some((g) => g.state === "windup" || g.state === "chase")) {
+      fightShot = true;
+      await sleep(700);
+      await shot("fight");
+    }
     const near = alive
       .map((g) => ({
         g,

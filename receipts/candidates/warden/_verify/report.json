@@ -1,0 +1,116 @@
+[
+ {
+  "ok": true,
+  "mounts": null,
+  "meshes": 17,
+  "tris": 5836,
+  "materials": 6,
+  "size": [
+   1.014,
+   1.15,
+   0.481
+  ],
+  "groundOffset": 0,
+  "centreOffset": [
+   0,
+   0
+  ],
+  "sides": {
+   "front": {
+    "coverage": 0.1958,
+    "edgeDensity": 0.1633
+   },
+   "right": {
+    "coverage": 0.1383,
+    "edgeDensity": 0.1373
+   },
+   "back": {
+    "coverage": 0.192,
+    "edgeDensity": 0.1641
+   },
+   "left": {
+    "coverage": 0.1495,
+    "edgeDensity": 0.1623
+   }
+  },
+  "error": null,
+  "name": "warden_a",
+  "problems": []
+ },
+ {
+  "ok": true,
+  "mounts": null,
+  "meshes": 17,
+  "tris": 5828,
+  "materials": 6,
+  "size": [
+   1.011,
+   1.15,
+   0.486
+  ],
+  "groundOffset": 0,
+  "centreOffset": [
+   0,
+   0
+  ],
+  "sides": {
+   "front": {
+    "coverage": 0.1993,
+    "edgeDensity": 0.1336
+   },
+   "right": {
+    "coverage": 0.1299,
+    "edgeDensity": 0.1096
+   },
+   "back": {
+    "coverage": 0.1951,
+    "edgeDensity": 0.1395
+   },
+   "left": {
+    "coverage": 0.1405,
+    "edgeDensity": 0.1371
+   }
+  },
+  "error": null,
+  "name": "warden_b",
+  "problems": []
+ },
+ {
+  "ok": true,
+  "mounts": null,
+  "meshes": 18,
+  "tris": 3780,
+  "materials": 6,
+  "size": [
+   1.015,
+   1.15,
+   0.481
+  ],
+  "groundOffset": 0,
+  "centreOffset": [
+   0,
+   0
+  ],
+  "sides": {
+   "front": {
+    "coverage": 0.202,
+    "edgeDensity": 0.1569
+   },
+   "right": {
+    "coverage": 0.1403,
+    "edgeDensity": 0.1128
+   },
+   "back": {
+    "coverage": 0.1984,
+    "edgeDensity": 0.1487
+   },
+   "left": {
+    "coverage": 0.1497,
+    "edgeDensity": 0.1378
+   }
+  },
+  "error": null,
+  "name": "warden_c",
+  "problems": []
+ }
+]

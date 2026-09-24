@@ -1,0 +1,73 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>rig preview</title>
+<script type="importmap">
+{ "imports": { "three": "/game/vendor/three.module.js", "three/addons/": "/game/vendor/" } }
+</script>
+<style>body{margin:0;background:#111}canvas{display:block}</style>
+</head>
+<body>
+<script type="module">
+// Throwaway: the disc candidates through the game's loader and daylight rig, lying on
+// sandstone beside the hero, seen close and at play distance.
+import * as THREE from 'three';
+import { ASSET } from '/game/assetlib.js';
+import { createRig } from '/game/rig.js';
+
+const q = new URLSearchParams(location.search);
+const files = (q.get('files') || '').split(',').filter(Boolean);
+const size = +(q.get('size') || 480);
+const gap = +(q.get('gap') || 0.62);
+const VIEWS = (q.get('views') || 'close:20:38:1.5,low:200:14:1.3,play:25:24:7')
+  .split(',').map((s) => { const [n, a, e, d] = s.split(':'); return { n, a: +a, e: +e, d: +d }; });
+
+const renderer = new THREE.WebGLRenderer({ antialias: true, preserveDrawingBuffer: true });
+renderer.setSize(size, size, false);
+document.body.appendChild(renderer.domElement);
+const strip = document.createElement('canvas');
+strip.width = size * VIEWS.length; strip.height = size;
+document.body.appendChild(strip);
+const ctx = strip.getContext('2d');
+
+const scene = new THREE.Scene();
+const ground = new THREE.Mesh(new THREE.PlaneGeometry(120, 120), new THREE.MeshStandardMaterial({ color: 0xc9a47a, roughness: 1 }));
+ground.rotation.x = -Math.PI / 2;
+ground.receiveShadow = true;
+scene.add(ground);
+const cam = new THREE.PerspectiveCamera(40, 1, 0.05, 500);
+cam.position.set(0, 2, 6); cam.lookAt(0, 1, 0);
+const rig = createRig(THREE, renderer, scene, { hour: 15.2, azimuth: 236, tier: 'high', camera: cam, exposure: 0.86 });
+let info = { ok: false };
+try {
+  const items = [];
+  for (const f of files) items.push(await ASSET(f, { keepHierarchy: true, surfaces: true }));
+  let x = -((items.length - 1) * gap) / 2;
+  for (const o of items) { o.position.x = x; x += gap; scene.add(o); }
+  if (q.get('hero') === '1') {
+    const hero = await ASSET('/game/assets/hero_explorer.js', { keepHierarchy: true });
+    hero.position.set(0, 0, -0.9);
+    scene.add(hero);
+  }
+  rig.refresh(scene);
+  rig.update(cam, 0.016);
+  await rig.ready;
+  const T = new THREE.Vector3(0, 0.03, 0);
+  VIEWS.forEach((v, i) => {
+    const a = v.a * Math.PI / 180, e = v.e * Math.PI / 180;
+    cam.position.set(T.x + Math.sin(a) * v.d * Math.cos(e), T.y + v.d * Math.sin(e), T.z + Math.cos(a) * v.d * Math.cos(e));
+    cam.lookAt(T); cam.updateMatrixWorld(true);
+    for (let k = 0; k < 4; k++) rig.render(cam, 0.016);
+    ctx.drawImage(renderer.domElement, i * size, 0, size, size);
+  });
+  info = { ok: true, items: items.length, parts: items.map((o) => Object.keys(o.userData.parts || {}).join(',')) };
+} catch (e) {
+  info = { ok: false, error: String(e && e.stack || e) };
+}
+renderer.domElement.style.display = 'none';
+window.__INFO__ = info;
+window.__DONE__ = true;
+</script>
+</body>
+</html>

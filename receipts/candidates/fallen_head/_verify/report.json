@@ -1,0 +1,116 @@
+[
+ {
+  "ok": true,
+  "mounts": null,
+  "meshes": 51,
+  "tris": 2516,
+  "materials": 6,
+  "size": [
+   4.65,
+   2.753,
+   3.22
+  ],
+  "groundOffset": 0,
+  "centreOffset": [
+   0,
+   0
+  ],
+  "sides": {
+   "front": {
+    "coverage": 0.2855,
+    "edgeDensity": 0.0937
+   },
+   "right": {
+    "coverage": 0.228,
+    "edgeDensity": 0.0936
+   },
+   "back": {
+    "coverage": 0.2945,
+    "edgeDensity": 0.0926
+   },
+   "left": {
+    "coverage": 0.2162,
+    "edgeDensity": 0.097
+   }
+  },
+  "error": null,
+  "name": "fallen_head_a",
+  "problems": []
+ },
+ {
+  "ok": true,
+  "mounts": null,
+  "meshes": 22,
+  "tris": 3526,
+  "materials": 6,
+  "size": [
+   4.617,
+   2.742,
+   3.33
+  ],
+  "groundOffset": 0,
+  "centreOffset": [
+   0,
+   0
+  ],
+  "sides": {
+   "front": {
+    "coverage": 0.2769,
+    "edgeDensity": 0.115
+   },
+   "right": {
+    "coverage": 0.2285,
+    "edgeDensity": 0.1062
+   },
+   "back": {
+    "coverage": 0.2826,
+    "edgeDensity": 0.0982
+   },
+   "left": {
+    "coverage": 0.211,
+    "edgeDensity": 0.0904
+   }
+  },
+  "error": null,
+  "name": "fallen_head_b",
+  "problems": []
+ },
+ {
+  "ok": true,
+  "mounts": null,
+  "meshes": 22,
+  "tris": 3018,
+  "materials": 6,
+  "size": [
+   4.846,
+   2.577,
+   3.184
+  ],
+  "groundOffset": 0,
+  "centreOffset": [
+   0,
+   0
+  ],
+  "sides": {
+   "front": {
+    "coverage": 0.2672,
+    "edgeDensity": 0.1039
+   },
+   "right": {
+    "coverage": 0.2068,
+    "edgeDensity": 0.1408
+   },
+   "back": {
+    "coverage": 0.2682,
+    "edgeDensity": 0.1194
+   },
+   "left": {
+    "coverage": 0.209,
+    "edgeDensity": 0.1466
+   }
+  },
+  "error": null,
+  "name": "fallen_head_c",
+  "problems": []
+ }
+]

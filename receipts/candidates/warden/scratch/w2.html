@@ -1,0 +1,133 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>world two preview</title>
+<script type="importmap">
+{ "imports": { "three": "/game/vendor/three.module.js", "three/addons/": "/game/vendor/" } }
+</script>
+<style>body{margin:0;background:#111}canvas{display:block}</style>
+</head>
+<body>
+<script type="module">
+// Throwaway: candidates loaded through the game's loader (keepHierarchy, surfaces) under
+// world two's lights and sky environment, beside the hero for scale.
+import * as THREE from 'three';
+import { ASSET } from '/game/assetlib.js';
+
+const q = new URLSearchParams(location.search);
+const files = (q.get('files') || '').split(',').filter(Boolean);
+const size = +(q.get('size') || 420);
+const surfaces = q.get('surfaces') !== '0';
+const hero = q.get('hero') !== '0';
+const spacing = +(q.get('gap') || 1.5);
+const VIEWS = (q.get('views') || 'front:0:12:4.2,three:35:20:4.2,back:180:14:4.2,side:-90:12:4.2,far:20:18:11')
+  .split(',').map((s) => { const [n, a, e, d] = s.split(':'); return { n, a: +a, e: +e, d: +d }; });
+
+const renderer = new THREE.WebGLRenderer({ antialias: true, preserveDrawingBuffer: true });
+renderer.setSize(size, size, false);
+renderer.outputColorSpace = THREE.SRGBColorSpace;
+renderer.toneMapping = THREE.ACESFilmicToneMapping;
+renderer.toneMappingExposure = 0.86;
+renderer.shadowMap.enabled = true;
+document.body.appendChild(renderer.domElement);
+const strip = document.createElement('canvas');
+strip.width = size * VIEWS.length; strip.height = size;
+document.body.appendChild(strip);
+const ctx = strip.getContext('2d');
+
+const STAR = new THREE.Vector3(0.78, 0.3, 0.55).normalize();
+const PLANET = new THREE.Vector3(-0.18, 0.2, -1).normalize();
+const skyMat = () => new THREE.ShaderMaterial({
+  side: THREE.BackSide, depthWrite: false, fog: false,
+  uniforms: { uStar: { value: STAR }, uPlanet: { value: PLANET } },
+  vertexShader: `varying vec3 vDir; void main() { vDir = normalize(position); gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0); }`,
+  fragmentShader: `
+    varying vec3 vDir; uniform vec3 uStar; uniform vec3 uPlanet;
+    void main() {
+      vec3 d = normalize(vDir); float h = d.y;
+      vec3 horizon = vec3(0.36, 0.17, 0.27), mid = vec3(0.1, 0.05, 0.19), zenith = vec3(0.018, 0.01, 0.05);
+      vec3 col = mix(horizon, mid, smoothstep(-0.02, 0.22, h));
+      col = mix(col, zenith, smoothstep(0.22, 0.85, h));
+      float p = max(dot(d, uPlanet), 0.0);
+      col += vec3(0.5, 0.26, 0.2) * pow(p, 6.0) * 0.5 * (1.0 - smoothstep(0.0, 0.5, h));
+      float s = max(dot(d, uStar), 0.0);
+      col += vec3(0.55, 0.6, 0.85) * pow(s, 24.0) * 0.5;
+      col = mix(col, vec3(0.1, 0.06, 0.12), smoothstep(0.0, -0.08, h));
+      gl_FragColor = vec4(col, 1.0);
+    }`,
+});
+const scene = new THREE.Scene();
+scene.fog = new THREE.FogExp2(0x4a3452, 0.0026);
+scene.background = new THREE.Color(0x1a1028);
+scene.add(new THREE.Mesh(new THREE.SphereGeometry(400, 32, 16), skyMat()));
+const star = new THREE.DirectionalLight(0xd4e2ff, 3.4);
+star.position.copy(STAR).multiplyScalar(30);
+star.castShadow = true;
+star.shadow.mapSize.set(2048, 2048);
+Object.assign(star.shadow.camera, { left: -6, right: 6, top: 6, bottom: -6, near: 1, far: 80 });
+star.shadow.bias = -0.0004; star.shadow.normalBias = 0.02;
+scene.add(star, star.target);
+const shine = new THREE.DirectionalLight(0xff9f7a, 0.75);
+shine.position.copy(PLANET).multiplyScalar(30);
+scene.add(shine, shine.target);
+scene.add(new THREE.HemisphereLight(0x7a64b8, 0x2a1e30, 1.25));
+const pmrem = new THREE.PMREMGenerator(renderer);
+const envScene = new THREE.Scene();
+envScene.add(new THREE.Mesh(new THREE.SphereGeometry(400, 32, 16), skyMat()));
+scene.environment = pmrem.fromScene(envScene, 0.04).texture;
+scene.environmentIntensity = 0.45;
+const ground = new THREE.Mesh(new THREE.PlaneGeometry(120, 120), new THREE.MeshStandardMaterial({ color: 0x2a2830, roughness: 0.95 }));
+ground.rotation.x = -Math.PI / 2; ground.receiveShadow = true; scene.add(ground);
+
+let info = { ok: false };
+try {
+  const items = [];
+  if (hero) items.push(await ASSET('/game/assets/hero_explorer.js', { keepHierarchy: true }));
+  for (const f of files) items.push(await ASSET(f, { keepHierarchy: true, surfaces }));
+  let x = -((items.length - 1) * spacing) / 2;
+  for (const o of items) { o.position.x = x; x += spacing; scene.add(o); }
+  const T = new THREE.Vector3(0, 0.75, 0);
+  const cam = new THREE.PerspectiveCamera(40, 1, 0.05, 900);
+  VIEWS.forEach((v, i) => {
+    const a = v.a * Math.PI / 180, e = v.e * Math.PI / 180;
+    cam.position.set(T.x + Math.sin(a) * v.d * Math.cos(e), T.y + v.d * Math.sin(e), T.z + Math.cos(a) * v.d * Math.cos(e));
+    cam.lookAt(T); cam.updateMatrixWorld(true);
+    renderer.render(scene, cam);
+    ctx.drawImage(renderer.domElement, i * size, 0, size, size);
+  });
+  const gl = renderer.getContext();
+  const dbg = gl.getExtension('WEBGL_debug_renderer_info');
+  info = { ok: true, gpu: dbg ? gl.getParameter(dbg.UNMASKED_RENDERER_WEBGL) : '?', items: items.length };
+  if (q.get('check') === '1' && files.length) {
+    // two instances through the loader: every declared joint and part must resolve to a node of
+    // THAT instance, and posing one must not move the other
+    const a = await ASSET(files[0], { keepHierarchy: true, height: 1.15 });
+    const b = await ASSET(files[0], { keepHierarchy: true });
+    const inTree = (root, node) => { let hit = false; root.traverse((o) => { if (o === node) hit = true; }); return hit; };
+    const report = {};
+    for (const key of ['joints', 'parts']) {
+      const m = a.userData[key] || {};
+      report[key] = Object.fromEntries(Object.entries(m).map(([k, n]) => [k, `${n.type}:${n.name}:${inTree(a, n) && !inTree(b, n) ? 'own' : 'SHARED'}`]));
+    }
+    const wp = (n) => n.getWorldPosition(new THREE.Vector3()).toArray().map((x) => +x.toFixed(3));
+    a.updateMatrixWorld(true); b.updateMatrixWorld(true);
+    const before = wp(b.userData.joints.stamp);
+    a.userData.joints.rightArm.rotation.x = -2.6;
+    a.updateMatrixWorld(true); b.updateMatrixWorld(true);
+    report.otherInstanceStill = JSON.stringify(before) === JSON.stringify(wp(b.userData.joints.stamp));
+    report.scale = a.scale.toArray().map((x) => +x.toFixed(4));
+    report.nativeSize = [b.userData.nativeSize.x, b.userData.nativeSize.y, b.userData.nativeSize.z].map((x) => +x.toFixed(3));
+    report.eyeEmissive = a.userData.parts.eye.material.emissiveIntensity;
+    report.pivots = Object.fromEntries(Object.entries(b.userData.joints).map(([k, n]) => [k, wp(n)]));
+    info.check = report;
+  }
+} catch (e) {
+  info = { ok: false, error: String(e && e.stack || e) };
+}
+renderer.domElement.style.display = 'none';
+window.__INFO__ = info;
+window.__DONE__ = true;
+</script>
+</body>
+</html>

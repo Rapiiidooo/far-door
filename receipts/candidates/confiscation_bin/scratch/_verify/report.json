@@ -1,0 +1,40 @@
+[
+ {
+  "ok": true,
+  "mounts": null,
+  "meshes": 13,
+  "tris": 6652,
+  "materials": 10,
+  "size": [
+   1.392,
+   1.444,
+   1.21
+  ],
+  "groundOffset": 0,
+  "centreOffset": [
+   0,
+   0
+  ],
+  "sides": {
+   "front": {
+    "coverage": 0.3222,
+    "edgeDensity": 0.1185
+   },
+   "right": {
+    "coverage": 0.2071,
+    "edgeDensity": 0.1557
+   },
+   "back": {
+    "coverage": 0.2339,
+    "edgeDensity": 0.0631
+   },
+   "left": {
+    "coverage": 0.2011,
+    "edgeDensity": 0.1367
+   }
+  },
+  "error": null,
+  "name": "posed_bin_c_open110",
+  "problems": []
+ }
+]

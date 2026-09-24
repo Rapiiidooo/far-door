@@ -1,0 +1,70 @@
+<!doctype html>
+<html><head><meta charset="utf-8">
+<script type="importmap">{ "imports": { "three": "/game/vendor/three.module.js", "three/addons/": "/game/vendor/" } }</script>
+<style>body{margin:0;background:#000}#gl{position:absolute;left:-9999px}#out{display:block}</style></head>
+<body>
+<canvas id="out"></canvas>
+<script type="module">
+// Throwaway game view: the game's own rig (hour 15.2, azimuth 236), terrain material and
+// assetlib with surfaces, several camera views tiled into one picture.
+import * as THREE from 'three';
+import { createRig } from '/game/rig.js';
+import { CSMShader } from 'three/addons/csm/CSMShader.js';
+import { ASSET } from '/game/assetlib.js';
+import { terrainMaterial } from '/game/terrain.js';
+{
+  const core = THREE.ShaderChunk.lights_fragment_begin;
+  const block = core.slice(core.indexOf('#ifdef STANDARD'), core.indexOf('IncidentLight directLight;'));
+  if (block && !CSMShader.lights_fragment_begin.includes('material.dfg'))
+    CSMShader.lights_fragment_begin = CSMShader.lights_fragment_begin.replace('IncidentLight directLight;', block + 'IncidentLight directLight;');
+}
+const q = new URLSearchParams(location.search);
+const W = +(q.get('w') || 800), H = +(q.get('h') || 450), cols = +(q.get('cols') || 2);
+const views = JSON.parse(q.get('views'));
+const place = JSON.parse(q.get('place'));
+const rows = Math.ceil(views.length / cols);
+const out = document.getElementById('out');
+out.width = W * cols; out.height = H * rows;
+const ctx = out.getContext('2d');
+const gl = document.createElement('canvas');
+gl.id = 'gl';
+document.body.appendChild(gl);
+const renderer = new THREE.WebGLRenderer({ canvas: gl, antialias: true, preserveDrawingBuffer: true });
+renderer.setPixelRatio(1);
+renderer.setSize(W, H, false);
+renderer.shadowMap.enabled = true;
+const scene = new THREE.Scene();
+const camera = new THREE.PerspectiveCamera(58, W / H, 0.1, 1200);
+const rig = createRig(THREE, renderer, scene, { hour: +(q.get('hour') || 15.2), azimuth: +(q.get('az') || 236), maxElevation: 58, camera, fogStart: 60, fogDensity: 0.0032, exposure: 0.86 });
+const groundKind = q.get('ground') || 'floor';
+const groundMat = groundKind === 'sand' ? terrainMaterial('sand', 0xd4a373, 0.98) : terrainMaterial('floor', 0xc4935f);
+const gg = new THREE.PlaneGeometry(200, 200, 1, 1);
+gg.rotateX(-Math.PI / 2);
+const ground = new THREE.Mesh(gg, groundMat);
+ground.receiveShadow = true;
+scene.add(ground);
+const wait = (ms) => new Promise((r) => setTimeout(r, ms));
+let info = { ok: false };
+try {
+  for (const [src, x, z, yaw = 0, y = 0] of place) {
+    const o = await ASSET(src, { surfaces: true });
+    o.position.set(x, y, z);
+    o.rotation.y = yaw;
+    o.traverse((m) => { if (m.isMesh) { m.castShadow = true; m.receiveShadow = true; } });
+    scene.add(o);
+  }
+  for (let i = 0; i < views.length; i++) {
+    const [cx, cy, cz, lx, ly, lz, fov = 50] = views[i];
+    camera.fov = fov;
+    camera.aspect = W / H;
+    camera.updateProjectionMatrix();
+    camera.position.set(cx, cy, cz);
+    camera.lookAt(lx, ly, lz);
+    for (let f = 0; f < 8; f++) { rig.render(camera, 0.016); await wait(20); }
+    ctx.drawImage(gl, (i % cols) * W, Math.floor(i / cols) * H, W, H);
+  }
+  info = { ok: true };
+} catch (e) { info = { ok: false, error: String((e && e.stack) || e) }; }
+window.__INFO__ = info;
+window.__DONE__ = true;
+</script></body></html>

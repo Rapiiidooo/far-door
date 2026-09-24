@@ -1,0 +1,116 @@
+[
+ {
+  "ok": true,
+  "mounts": null,
+  "meshes": 67,
+  "tris": 1308,
+  "materials": 5,
+  "size": [
+   0.997,
+   1.029,
+   1.052
+  ],
+  "groundOffset": 0,
+  "centreOffset": [
+   0,
+   0
+  ],
+  "sides": {
+   "front": {
+    "coverage": 0.1089,
+    "edgeDensity": 0.1817
+   },
+   "right": {
+    "coverage": 0.1084,
+    "edgeDensity": 0.1962
+   },
+   "back": {
+    "coverage": 0.109,
+    "edgeDensity": 0.1684
+   },
+   "left": {
+    "coverage": 0.1115,
+    "edgeDensity": 0.1781
+   }
+  },
+  "error": null,
+  "name": "desert_agave_a",
+  "problems": []
+ },
+ {
+  "ok": true,
+  "mounts": null,
+  "meshes": 48,
+  "tris": 1836,
+  "materials": 5,
+  "size": [
+   0.999,
+   1.005,
+   1.11
+  ],
+  "groundOffset": 0,
+  "centreOffset": [
+   0,
+   0
+  ],
+  "sides": {
+   "front": {
+    "coverage": 0.105,
+    "edgeDensity": 0.179
+   },
+   "right": {
+    "coverage": 0.1065,
+    "edgeDensity": 0.1798
+   },
+   "back": {
+    "coverage": 0.1022,
+    "edgeDensity": 0.1597
+   },
+   "left": {
+    "coverage": 0.1078,
+    "edgeDensity": 0.1732
+   }
+  },
+  "error": null,
+  "name": "desert_agave_b",
+  "problems": []
+ },
+ {
+  "ok": true,
+  "mounts": null,
+  "meshes": 5,
+  "tris": 3182,
+  "materials": 5,
+  "size": [
+   1.158,
+   1.03,
+   1.038
+  ],
+  "groundOffset": 0,
+  "centreOffset": [
+   0,
+   0
+  ],
+  "sides": {
+   "front": {
+    "coverage": 0.105,
+    "edgeDensity": 0.1887
+   },
+   "right": {
+    "coverage": 0.1046,
+    "edgeDensity": 0.2003
+   },
+   "back": {
+    "coverage": 0.111,
+    "edgeDensity": 0.164
+   },
+   "left": {
+    "coverage": 0.1023,
+    "edgeDensity": 0.1713
+   }
+  },
+  "error": null,
+  "name": "desert_agave_c",
+  "problems": []
+ }
+]

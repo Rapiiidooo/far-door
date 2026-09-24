@@ -1,0 +1,116 @@
+[
+ {
+  "ok": true,
+  "mounts": null,
+  "meshes": 106,
+  "tris": 2776,
+  "materials": 8,
+  "size": [
+   1.489,
+   3.69,
+   1.197
+  ],
+  "groundOffset": 0,
+  "centreOffset": [
+   0,
+   0
+  ],
+  "sides": {
+   "front": {
+    "coverage": 0.1433,
+    "edgeDensity": 0.1674
+   },
+   "right": {
+    "coverage": 0.0606,
+    "edgeDensity": 0.2944
+   },
+   "back": {
+    "coverage": 0.1243,
+    "edgeDensity": 0.1749
+   },
+   "left": {
+    "coverage": 0.0588,
+    "edgeDensity": 0.2875
+   }
+  },
+  "error": null,
+  "name": "glyph_banner_a",
+  "problems": []
+ },
+ {
+  "ok": true,
+  "mounts": null,
+  "meshes": 38,
+  "tris": 3864,
+  "materials": 8,
+  "size": [
+   1.489,
+   3.642,
+   1.225
+  ],
+  "groundOffset": 0,
+  "centreOffset": [
+   0,
+   0
+  ],
+  "sides": {
+   "front": {
+    "coverage": 0.1541,
+    "edgeDensity": 0.1426
+   },
+   "right": {
+    "coverage": 0.0588,
+    "edgeDensity": 0.2581
+   },
+   "back": {
+    "coverage": 0.1279,
+    "edgeDensity": 0.1498
+   },
+   "left": {
+    "coverage": 0.0585,
+    "edgeDensity": 0.3243
+   }
+  },
+  "error": null,
+  "name": "glyph_banner_b",
+  "problems": []
+ },
+ {
+  "ok": true,
+  "mounts": null,
+  "meshes": 37,
+  "tris": 3064,
+  "materials": 8,
+  "size": [
+   1.412,
+   3.6,
+   1.152
+  ],
+  "groundOffset": 0,
+  "centreOffset": [
+   0,
+   0
+  ],
+  "sides": {
+   "front": {
+    "coverage": 0.1409,
+    "edgeDensity": 0.1441
+   },
+   "right": {
+    "coverage": 0.058,
+    "edgeDensity": 0.2595
+   },
+   "back": {
+    "coverage": 0.1242,
+    "edgeDensity": 0.1533
+   },
+   "left": {
+    "coverage": 0.0561,
+    "edgeDensity": 0.2618
+   }
+  },
+  "error": null,
+  "name": "glyph_banner_c",
+  "problems": []
+ }
+]

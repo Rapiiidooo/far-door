@@ -1,0 +1,78 @@
+[
+ {
+  "ok": true,
+  "mounts": null,
+  "meshes": 18,
+  "tris": 3780,
+  "materials": 6,
+  "size": [
+   1.015,
+   1.148,
+   0.563
+  ],
+  "groundOffset": 0,
+  "centreOffset": [
+   0,
+   0
+  ],
+  "sides": {
+   "front": {
+    "coverage": 0.2033,
+    "edgeDensity": 0.1685
+   },
+   "right": {
+    "coverage": 0.1451,
+    "edgeDensity": 0.143
+   },
+   "back": {
+    "coverage": 0.1866,
+    "edgeDensity": 0.1605
+   },
+   "left": {
+    "coverage": 0.1375,
+    "edgeDensity": 0.1877
+   }
+  },
+  "error": null,
+  "name": "posed_slam",
+  "problems": []
+ },
+ {
+  "ok": true,
+  "mounts": null,
+  "meshes": 18,
+  "tris": 3780,
+  "materials": 6,
+  "size": [
+   1.015,
+   1.183,
+   0.61
+  ],
+  "groundOffset": 0,
+  "centreOffset": [
+   0,
+   0
+  ],
+  "sides": {
+   "front": {
+    "coverage": 0.1713,
+    "edgeDensity": 0.1605
+   },
+   "right": {
+    "coverage": 0.1382,
+    "edgeDensity": 0.1355
+   },
+   "back": {
+    "coverage": 0.1817,
+    "edgeDensity": 0.149
+   },
+   "left": {
+    "coverage": 0.1473,
+    "edgeDensity": 0.1561
+   }
+  },
+  "error": null,
+  "name": "posed_walk",
+  "problems": []
+ }
+]

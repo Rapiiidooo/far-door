@@ -214,8 +214,15 @@ function locomotion(pose, root, hero, dt, { turnRate, accel }) {
   const r = smooth(2.2, 4.6, speed);
   const moving = smooth(0.08, 0.7, speed);
   const cycle = mix(1.5, 2.9, r);
+  const before = this.phase;
   this.phase =
     (this.phase + (Math.PI * 2 * speed * dt) / cycle) % (Math.PI * 2);
+  // A foot lands twice a cycle; the game kicks up a little sand when it does.
+  if (
+    speed > 2.5 &&
+    Math.floor(before / Math.PI) !== Math.floor(this.phase / Math.PI)
+  )
+    this.footfall = (this.footfall || 0) + 1;
   const phi = this.phase;
   const thighAmp = mix(0.42, 0.8, r) * moving,
     swingKnee = mix(0.8, 1.6, r) * moving,

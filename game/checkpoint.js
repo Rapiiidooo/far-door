@@ -14,14 +14,17 @@ export const LAYOUT = {
   barrierZ: -27,
   barrierFrom: -2.5,
   barrierTo: 1.7,
+  // Queue posts stand 1.4 m apart so each rope hooks onto the next post.
   posts: [
-    [-6.4, -18.2],
-    [-4.6, -18.2],
-    [-2.8, -18.2],
+    [-6.6, -18.2],
+    [-5.2, -18.2],
+    [-3.8, -18.2],
+    [-2.4, -18.2],
     [-1.0, -18.2],
-    [-5.5, -20.6],
-    [-3.7, -20.6],
-    [-1.9, -20.6],
+    [-5.9, -20.6],
+    [-4.5, -20.6],
+    [-3.1, -20.6],
+    [-1.7, -20.6],
   ],
   guards: [
     [-3.7, -23.2],
@@ -59,10 +62,27 @@ export class Checkpoint {
       this.scene.add(o);
       return o;
     };
+    // The booth's origin is the middle of booth and arm together; its body sits 2.15 m
+    // towards -X of it, so the placement shifts to put the body at LAYOUT.booth.
     this.booth =
-      (await put("customs_booth", L.booth.x, L.booth.z, L.booth.yaw, {
+      (await put("customs_booth", L.booth.x + 2.15, L.booth.z, L.booth.yaw, {
         keepHierarchy: true,
       })) || fallbackBooth(this.scene, L.booth);
+    const local = (p, fallback) =>
+      p
+        ? new THREE.Vector3(...p).applyMatrix4(this.booth.matrixWorld)
+        : new THREE.Vector3(...fallback);
+    this.booth.updateMatrixWorld(true);
+    this.windowPos = local(this.booth.userData.window?.center, [
+      L.booth.x,
+      1.4,
+      L.booth.z + 0.6,
+    ]);
+    this.insidePos = local(this.booth.userData.inside, [
+      L.booth.x,
+      0.55,
+      L.booth.z - 0.1,
+    ]);
     this.barrier = this.booth.userData.joints?.barrier || null;
     this.lamp = this.booth.userData.parts?.lamp || null;
     this.lampMaterials = [];
@@ -139,7 +159,8 @@ export class Checkpoint {
       "prop",
     );
     for (const [x, z] of L.posts) {
-      await put("queue_post", x, z, 0);
+      // The post's own base sits 0.587 m towards -X of the asset's origin.
+      await put("queue_post", x + 0.587, z, 0);
       w.add(x - 0.18, -10, z - 0.18, x + 0.18, 1.0, z + 0.18, "prop");
     }
 
@@ -183,13 +204,14 @@ export class Checkpoint {
       fallbackWarden();
     this.clerk = new Warden(this.scene, this.world, clerkModel, {
       x: L.booth.x,
-      z: L.booth.z - 0.25,
+      z: this.insidePos.z,
       yaw: 0,
       bubbles: this.bubbles,
       sound: this.sound,
       role: "clerk",
     });
-    this.clerk.feet = 0.95;
+    this.clerk.pos.x = this.insidePos.x;
+    this.clerk.feet = this.insidePos.y;
     this.clerk.place();
   }
 
@@ -281,6 +303,7 @@ export class Checkpoint {
   use() {
     if (this.phase !== "arrive") return false;
     this.phase = "alarm";
+    this.lidKick = 1;
     this.onTakeDisc?.();
     this.clerk.talking = 1.5;
     this.clerk.say("HEY! That's evidence!", "shout", 2.2);
@@ -291,7 +314,11 @@ export class Checkpoint {
 
   spawnGuards() {
     const L = LAYOUT;
-    const window = { x: L.booth.x, y: 1.6, z: L.booth.z + 0.6 };
+    const window = {
+      x: this.windowPos.x,
+      y: this.windowPos.y,
+      z: this.windowPos.z + 0.3,
+    };
     L.guards.forEach(([x, z], i) => {
       setTimeout(async () => {
         const model =
@@ -418,6 +445,14 @@ export class Checkpoint {
     }
     const k = this.barrierOpen * this.barrierOpen * (3 - 2 * this.barrierOpen);
     if (this.barrier) this.barrier.rotation.z = k * 1.35;
+    // The bin's lid jumps when the disc is snatched out of it, then settles.
+    const lid = this.bin?.userData.joints?.lid;
+    if (lid) {
+      if (this.lidRest === undefined) this.lidRest = lid.rotation.x;
+      this.lidKick = Math.max(0, (this.lidKick || 0) - dt * 2.2);
+      lid.rotation.x =
+        this.lidRest - 0.55 * Math.sin(this.lidKick * Math.PI) * this.lidKick;
+    }
     this.beamGlow.scale.x = this.beamGlow.scale.z =
       0.85 + Math.sin(this.time * 9) * 0.15;
     this.clerk.update(dt, hero, [], null);

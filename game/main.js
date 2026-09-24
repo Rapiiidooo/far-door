@@ -212,6 +212,8 @@ async function load() {
       s.lit = true;
       beams.onLit(s);
     }
+  if (params.has("debug"))
+    window.__FD__ = { THREE, worldTwo, level, hero, gate };
   hud.ready(() => begin());
   state.mode = "title";
   window.__READY__ = true;
@@ -221,6 +223,7 @@ function begin() {
   if (state.mode !== "title") return;
   input.lockPointer();
   sound.start();
+  sound.startMusic();
   hud.hideTitle();
   hud.show();
   state.mode = "play";
@@ -233,8 +236,16 @@ function begin() {
   hud.objective("Find a way down into the court.");
   // Development shortcut: ?w2=1 steps straight through the gate into the second world.
   if (params.has("w2")) {
-    hero.spawn(gate.center.x, gate.center.z - 0.2, gate.daisTop + 0.02, Math.PI);
+    hero.spawn(
+      gate.center.x,
+      gate.center.z - 0.2,
+      gate.daisTop + 0.02,
+      Math.PI,
+    );
     enterWorldTwo();
+    const at = params.get("at")?.split(",").map(Number);
+    if (at?.length >= 3)
+      hero.spawn(at[0], at[1], at[2], ((at[3] ?? 180) * Math.PI) / 180);
     follow.snap(hero);
   }
 }
@@ -358,6 +369,20 @@ function step(dt) {
     )
       hero.throwT = 0;
     disc?.update(dt, hero, () => (hero.catchT = 0));
+    // The explorer and the Wardens push each other apart instead of overlapping.
+    for (const g of worldTwo.checkpoint.guards) {
+      if (!g.alive() || g.state === "enter") continue;
+      const dx = hero.pos.x - g.pos.x,
+        dz = hero.pos.z - g.pos.z;
+      const d = Math.hypot(dx, dz);
+      if (d > 0.01 && d < 0.85 && Math.abs(hero.feet - g.feet) < 1) {
+        const push = (0.85 - d) / d;
+        hero.pos.x += dx * push * 0.6;
+        hero.pos.z += dz * push * 0.6;
+        g.pos.x -= dx * push * 0.4;
+        g.pos.z -= dz * push * 0.4;
+      }
+    }
     stamps?.update(dt);
     if (worldTwo.finished && state.mode !== "end") finish();
   }
@@ -386,6 +411,17 @@ function step(dt) {
 
 function place(dt) {
   animator.update(dt, hero, reduced);
+  if (animator.footfall) {
+    animator.footfall = 0;
+    const f = hero.facing;
+    dust.burst(
+      hero.pos.x - f.x * 0.25,
+      hero.feet,
+      hero.pos.z - f.z * 0.25,
+      0.25,
+      3,
+    );
+  }
 }
 
 function onHeroEvent(e) {
@@ -412,6 +448,10 @@ async function wireCheckpoint() {
   const mesh =
     (await assets.make("sun_disc", { keepHierarchy: true })) || fallbackDisc();
   disc = new SunDisc(mesh, worldTwo.world, sound);
+  disc.display(
+    worldTwo.scene,
+    new THREE.Vector3(LAYOUT.bin.x, 1.15, LAYOUT.bin.z),
+  );
   disc.beams.push(cp.beam);
   disc.targets.push(cp.lampTarget());
   stamps = new Stamps(worldTwo.scene);
@@ -422,9 +462,13 @@ async function wireCheckpoint() {
     hud.objective("The Wardens want it back. Keep it.");
     setTimeout(() => hud.hint("throw"), 900);
   };
-  cp.onGuard = (g) => disc.targets.push(g);
+  cp.onGuard = (g) => {
+    disc.targets.push(g);
+    sound.setMusic("fight");
+  };
   cp.onGuardDown = () => sound.play("pop");
   cp.onCleared = () => {
+    sound.setMusic("world2");
     state.health = MAX_HEALTH;
     hud.health(state.health, MAX_HEALTH);
     setTimeout(
@@ -465,6 +509,7 @@ function enterWorldTwo() {
   hud.flash(0.9);
   sound.play("cross");
   worldTwo.enter(hero, follow, gate, heroModel, world);
+  sound.setMusic("world2");
   // The dust follows the explorer through, darker on black sand.
   for (const p of dust.items) {
     worldTwo.scene.add(p.sprite);
@@ -525,6 +570,20 @@ addEventListener("resize", () => {
 document
   .querySelector("#resume")
   .addEventListener("click", () => input.lockPointer());
+{
+  const sens = document.querySelector("#sensitivity"),
+    inv = document.querySelector("#invert");
+  sens.value = input.settings.sensitivity;
+  inv.checked = input.settings.invertY;
+  sens.addEventListener("input", () => {
+    input.settings.sensitivity = Number(sens.value);
+    input.saveSettings();
+  });
+  inv.addEventListener("change", () => {
+    input.settings.invertY = inv.checked;
+    input.saveSettings();
+  });
+}
 canvas.addEventListener("click", () => {
   if (state.mode === "play" || state.mode === "world2") input.lockPointer();
 });
