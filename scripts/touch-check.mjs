@@ -447,6 +447,17 @@ try {
   );
   full = await crowded();
   check("the isles fit a prompt and a card", !full.length, full.join(", "));
+  await open("?chapter=frost");
+  await sleep(2500);
+  await shot("frost");
+  full = [...(await clashes()), ...(await crowded())];
+  check("the frozen reach fits every control", !full.length, full.join(", "));
+  await page.setViewport(LANDSCAPE);
+  await sleep(800);
+  await shot("frost-landscape");
+  full = [...(await clashes()), ...(await crowded())];
+  check("the frozen reach fits in landscape", !full.length, full.join(", "));
+  await page.setViewport(PORTRAIT);
 
   // The credits skip at a tap.
   await open();

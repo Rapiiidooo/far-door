@@ -325,6 +325,14 @@ h1 {
   );
 }
 
+.level-card.four {
+  background: linear-gradient(
+    160deg,
+    rgba(169, 210, 227, 0.2),
+    rgba(18, 12, 9, 0.2)
+  );
+}
+
 .level-card.locked {
   opacity: 0.5;
 }

@@ -1,7 +1,7 @@
 // Checks the menus and level flow with real key events: the title menu, Levels, Settings,
 // pausing, starting any reached level, restarting, quitting to the title, the credits, walking
 // back through the first door, a new game's opening and notes, a knockout at the checkpoint,
-// and the way back from the isles to the checkpoint.
+// and the ways back from the isles to the checkpoint and from the frozen reach to the isles.
 //   node scripts/menu-check.mjs [outDir] [--url=http://localhost:3002/?nolock=1]
 import puppeteer from "puppeteer-core";
 import { mkdir, writeFile } from "node:fs/promises";
@@ -75,7 +75,7 @@ try {
       localStorage.setItem(
         "far-door-progress",
         JSON.stringify({
-          reached: ["court", "floor", "checkpoint", "isles"],
+          reached: ["court", "floor", "checkpoint", "isles", "frost"],
           last: "checkpoint",
         }),
       );
@@ -106,7 +106,7 @@ try {
   check(
     "levels screen lists every start",
     g.menu === "levels" &&
-      buttons.length === 4 &&
+      buttons.length === 5 &&
       buttons.every((b) => b.endsWith("open")),
     buttons.join(", "),
   );
@@ -321,6 +321,28 @@ try {
     "a knockout sends the explorer back to the queue",
     !(g instanceof Error) && !(knocked instanceof Error),
     g instanceof Error ? g.message : "",
+  );
+
+  // The way back from the frozen reach: Mira's ring's twin leads to her camp, the ring open.
+  await page.goto(url + "&chapter=frost", { waitUntil: "load" });
+  await page.waitForFunction(() => window.__READY__ === true, {
+    timeout: 90000,
+  });
+  await until((g) => g.where === "four", 6000, "the frozen reach");
+  await sleep(1500);
+  await page.keyboard.down("KeyS");
+  g = await until(
+    (g) => g.where === "three",
+    9000,
+    "walk back through Mira's ring's twin",
+  ).catch((e) => e);
+  await page.keyboard.up("KeyS");
+  await sleep(1200);
+  await shot("back-at-miras-camp");
+  check(
+    "the frozen reach leads back to Mira's camp, her ring open",
+    !(g instanceof Error) && g.isles?.ring?.phase === "open",
+    g instanceof Error ? g.message : `${g.isles?.ring?.phase}`,
   );
 
   // The way back from the isles: the far door's twin leads to the checkpoint, left open.

@@ -1,0 +1,116 @@
+[
+ {
+  "ok": true,
+  "mounts": null,
+  "meshes": 5,
+  "tris": 2832,
+  "materials": 5,
+  "size": [
+   1.097,
+   1.4,
+   1.009
+  ],
+  "groundOffset": 0,
+  "centreOffset": [
+   0,
+   0
+  ],
+  "sides": {
+   "front": {
+    "coverage": 0.1346,
+    "edgeDensity": 0.1116
+   },
+   "right": {
+    "coverage": 0.1419,
+    "edgeDensity": 0.1009
+   },
+   "back": {
+    "coverage": 0.1567,
+    "edgeDensity": 0.094
+   },
+   "left": {
+    "coverage": 0.1339,
+    "edgeDensity": 0.1128
+   }
+  },
+  "error": null,
+  "name": "glow_mushroom_a",
+  "problems": []
+ },
+ {
+  "ok": true,
+  "mounts": null,
+  "meshes": 5,
+  "tris": 2884,
+  "materials": 5,
+  "size": [
+   1.143,
+   1.4,
+   0.912
+  ],
+  "groundOffset": 0,
+  "centreOffset": [
+   0,
+   0
+  ],
+  "sides": {
+   "front": {
+    "coverage": 0.1325,
+    "edgeDensity": 0.1214
+   },
+   "right": {
+    "coverage": 0.1325,
+    "edgeDensity": 0.1114
+   },
+   "back": {
+    "coverage": 0.1444,
+    "edgeDensity": 0.1031
+   },
+   "left": {
+    "coverage": 0.1294,
+    "edgeDensity": 0.1022
+   }
+  },
+  "error": null,
+  "name": "glow_mushroom_b",
+  "problems": []
+ },
+ {
+  "ok": true,
+  "mounts": null,
+  "meshes": 8,
+  "tris": 2966,
+  "materials": 5,
+  "size": [
+   1.013,
+   1.4,
+   0.777
+  ],
+  "groundOffset": 0,
+  "centreOffset": [
+   0,
+   0
+  ],
+  "sides": {
+   "front": {
+    "coverage": 0.1436,
+    "edgeDensity": 0.1138
+   },
+   "right": {
+    "coverage": 0.1452,
+    "edgeDensity": 0.0961
+   },
+   "back": {
+    "coverage": 0.1654,
+    "edgeDensity": 0.0912
+   },
+   "left": {
+    "coverage": 0.1314,
+    "edgeDensity": 0.0901
+   }
+  },
+  "error": null,
+  "name": "glow_mushroom_c",
+  "problems": []
+ }
+]

@@ -148,3 +148,43 @@ Handed out on 24 September 2026, when the third world became the third level: th
 ## light_pylon
 
 A standing stone of the gate builders 2.8 m tall. A stepped, chamfered sandstone plinth 1.1 m square in two tiers (0.3 m and 0.2 m tall, the upper tier 0.85 m square), with a burnt sienna lower course. On it a four-sided shaft 1.5 m tall that tapers from 0.5 m to 0.36 m, with two incised horizontal grooves and a bone limestone band near its top. The shaft ends in a yoke of two short aged-bronze arms that hold upright an aged-bronze ring 0.9 m across and 0.1 m thick, facing +Z, its centre about 2.3 m up; a round lens of dormant crystal 0.62 m across fills the ring and is finished on both faces (its own mesh). In front of the plinth (+Z) a flat aged-bronze threshold plate 1.1 m wide, 0.55 m deep and 0.04 m thick lies on the ground, with a straight slot of dormant crystal 0.8 m long and 0.06 m wide along its front edge (its own mesh). Four bronze rivets on the ring's face. Finished on every side. Expose `g.userData.parts = { lens, slot }` and plain data `g.userData.lens = { center: [x, y, z], radius }` for the lens and `g.userData.emit = [x, y, z]` for the middle of the slot's front edge at the plate's top. Budget: at most 5,000 triangles.
+
+# Fifth wave
+
+Handed out on 24 September 2026, when the owner asked for more detail everywhere, a fourth level on ice and a glimpse of a wild forest behind the last door. Same contract, style lock and fallback as above. Ice is flat colour like everything else (the game gives it its gloss and translucency at load), chunky and faceted, never glassy filigree.
+
+## ice_block
+
+A block of clear ice 1.9 m on each side that the explorer pushes across a frozen pond. A cube with bevelled edges about 0.12 m wide and slightly irregular, faceted faces (each face bulges or dips by a few centimetres, never flat and never smooth); ice blue faces, glacier white bevels and a thin crust of frost on the top face; inside, visible where the faces are cut back, a darker deep-ice core and three or four trapped bubbles (small flattened spheres, glacier white) near the surface. Finished on every side, the base flat at y = 0 over its whole footprint. Budget: at most 3,000 triangles.
+
+## ice_spire
+
+A cluster of five ice crystals about 4 m tall growing from a low mound of frost-slate rock 2.6 m across dusted with glacier white snow. The crystals are six-sided prisms with pointed, faceted tips, leaning out from the centre at different angles: one tall central crystal (about 4 m), two of about 2.8 m and two stubby ones of about 1.4 m; ice blue faces with deep-ice undersides, a glacier white frost band where each leaves the rock. It must read from 20 m as a spike of ice, and from every side. Budget: at most 4,000 triangles.
+
+## ice_casing
+
+A shell of rough ice that encases a standing stone: 1.8 m wide, 3.0 m tall and 1.3 m deep, hollow inside with room for a stela 0.9 m wide, 2.4 m tall and 0.5 m deep standing at its centre on y = 0. Build it as three nested layers of chunky, faceted ice shards (each layer a ring of six to nine shards leaning inwards, the outer layer tallest and thickest), so each layer can fall away on its own: `g.userData.parts = { outer, middle, inner }`, three `Group`s. Ice blue and deep-ice shards with glacier white frost on their upper faces. Seen closed it reads as a jagged mound of ice around something tall. Budget: at most 5,000 triangles.
+
+## snow_pine
+
+A conifer of the frozen world, about 7 m tall: a straight dark bark-umber trunk visible at the base, and five or six stacked, drooping tiers of pine-needle branches that narrow to a crooked tip, each tier weighed down by a thick glacier white cap of snow on its upper side. Slightly asymmetric, one side more laden than the other. Readable from every side. Budget: at most 3,500 triangles.
+
+## frost_cairn
+
+A trail marker left by Mira's expedition, about 1.1 m tall: five flat, uneven frost-slate stones stacked slightly off-centre, a weathered-timber stake 1.3 m long driven in beside them, leaning, with a strip of explorer-vermilion cloth tied to its top and hanging down, and a thin crust of glacier white snow on the top stone. Finished on every side. Budget: at most 1,500 triangles.
+
+## wild_tree
+
+A huge old tree of the wild forest, about 16 m tall. A thick trunk 1.6 m across that twists slightly as it rises, flaring at the base into five or six buttress roots that spread 3 m out over the ground; bark-umber bark with moss-green patches on the roots and the lower trunk; two or three heavy limbs rising from about 8 m; a canopy about 14 m across made of eight to twelve irregular, chunky clumps of moss green and fern green foliage at different heights; three or four hanging vines (fern green) dropping 3 to 4 m from the limbs. Name the foliage material `foliage` and the bark `timber`. Readable from every side. Budget: at most 9,000 triangles.
+
+## fern_cluster
+
+A clump of forest ferns about 1.2 m across and 0.8 m tall: nine to twelve arching fronds rising from a centre and curving out and down, each frond a tapering blade with a zig-zag or notched edge suggesting leaflets, moss green at the base and fern green at the tips, with two tightly curled fiddleheads in the middle. Name the material `foliage`. Budget: at most 3,000 triangles.
+
+## glow_mushroom
+
+A cluster of four mushrooms of the wild forest on a mossy root knob about 0.8 m across: the tallest 1.4 m, then 1.0 m, 0.6 m and 0.35 m, with pale stems that thicken at the base and broad, slightly drooping caps (bark umber on top with a few paler spots); under each cap the gills are a separate mesh of spore lime (`emissive: 0xc3f25a`), so the game can make them glow. Expose `g.userData.parts = { glow }` holding the gills. Budget: at most 3,000 triangles.
+
+## rubble_pile
+
+A heap of fallen masonry from the builders' ruins, about 2.4 m across and 0.9 m tall: two broken dressed blocks with chamfered edges and a cut groove (sandstone and sunlit sandstone), one leaning on the other, a snapped drum of a column (bone limestone band), and eight to twelve smaller angular chunks and flakes spilling out around them (sandstone and burnt sienna). Name the material `stone`. It must read from 15 m as fallen worked stone, not as boulders. Budget: at most 3,000 triangles.

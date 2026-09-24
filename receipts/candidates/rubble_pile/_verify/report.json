@@ -1,0 +1,116 @@
+[
+ {
+  "ok": true,
+  "mounts": null,
+  "meshes": 41,
+  "tris": 821,
+  "materials": 4,
+  "size": [
+   2.388,
+   0.907,
+   1.961
+  ],
+  "groundOffset": 0,
+  "centreOffset": [
+   0,
+   0
+  ],
+  "sides": {
+   "front": {
+    "coverage": 0.148,
+    "edgeDensity": 0.1459
+   },
+   "right": {
+    "coverage": 0.1203,
+    "edgeDensity": 0.1387
+   },
+   "back": {
+    "coverage": 0.1473,
+    "edgeDensity": 0.1476
+   },
+   "left": {
+    "coverage": 0.1398,
+    "edgeDensity": 0.1412
+   }
+  },
+  "error": null,
+  "name": "rubble_pile_a",
+  "problems": []
+ },
+ {
+  "ok": true,
+  "mounts": null,
+  "meshes": 20,
+  "tris": 1042,
+  "materials": 4,
+  "size": [
+   2.357,
+   0.938,
+   1.955
+  ],
+  "groundOffset": 0,
+  "centreOffset": [
+   0,
+   0
+  ],
+  "sides": {
+   "front": {
+    "coverage": 0.1465,
+    "edgeDensity": 0.131
+   },
+   "right": {
+    "coverage": 0.1378,
+    "edgeDensity": 0.188
+   },
+   "back": {
+    "coverage": 0.1499,
+    "edgeDensity": 0.1622
+   },
+   "left": {
+    "coverage": 0.1326,
+    "edgeDensity": 0.1416
+   }
+  },
+  "error": null,
+  "name": "rubble_pile_b",
+  "problems": []
+ },
+ {
+  "ok": true,
+  "mounts": null,
+  "meshes": 20,
+  "tris": 712,
+  "materials": 4,
+  "size": [
+   2.373,
+   0.884,
+   1.958
+  ],
+  "groundOffset": 0,
+  "centreOffset": [
+   0,
+   0
+  ],
+  "sides": {
+   "front": {
+    "coverage": 0.1486,
+    "edgeDensity": 0.1281
+   },
+   "right": {
+    "coverage": 0.1164,
+    "edgeDensity": 0.1465
+   },
+   "back": {
+    "coverage": 0.1303,
+    "edgeDensity": 0.1387
+   },
+   "left": {
+    "coverage": 0.1394,
+    "edgeDensity": 0.1198
+   }
+  },
+  "error": null,
+  "name": "rubble_pile_c",
+  "problems": []
+ }
+]

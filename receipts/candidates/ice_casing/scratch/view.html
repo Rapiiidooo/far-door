@@ -1,0 +1,90 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<script type="importmap">{ "imports": { "three": "/three/three.module.js" } }</script>
+<style>body{margin:0;background:#1d2126}canvas{display:block}</style>
+</head>
+<body>
+<script type="module">
+// Scratch composite: each candidate with the real stela inside, closed and with
+// its layers removed one by one, two section cuts and a top view.
+import * as THREE from 'three';
+
+const q = new URLSearchParams(location.search);
+const names = q.get('files').split(',');
+const S = +(q.get('size') || 300);
+const VIEWS = ['closed', 'no outer', 'inner only', 'stela', 'cut x=0', 'cut z=0', 'top'];
+const renderer = new THREE.WebGLRenderer({ antialias: true, preserveDrawingBuffer: true });
+renderer.setSize(S * VIEWS.length, S * names.length, false);
+renderer.outputColorSpace = THREE.SRGBColorSpace;
+renderer.setScissorTest(true);
+document.body.appendChild(renderer.domElement);
+
+const scene = new THREE.Scene();
+scene.background = new THREE.Color(0x1d2126);
+scene.add(new THREE.HemisphereLight(0xdfe8ff, 0x55606a, 1.7));
+const sun = new THREE.DirectionalLight(0xffffff, 2.0);
+sun.position.set(5, 9, 7);
+scene.add(sun);
+const ground = new THREE.Mesh(new THREE.PlaneGeometry(6, 6), new THREE.MeshStandardMaterial({ color: 0x3d4654, roughness: 1 }));
+ground.rotation.x = -Math.PI / 2;
+ground.position.y = -0.002;
+scene.add(ground);
+
+const stela = (await import('/stela.js')).default(THREE);
+scene.add(stela);
+
+const all = [];
+for (const n of names) all.push({ name: n, g: (await import(`/cand/${n}.js`)).default(THREE) });
+
+const cam = (az, el, dist, target = new THREE.Vector3(0, 1.45, 0)) => {
+  const c = new THREE.PerspectiveCamera(30, 1, 0.05, 100);
+  c.position.set(target.x + Math.sin(az) * Math.cos(el) * dist, target.y + Math.sin(el) * dist, target.z + Math.cos(az) * Math.cos(el) * dist);
+  c.lookAt(target);
+  return c;
+};
+const setSide = (obj, side) => obj.traverse((m) => { if (m.isMesh) m.material.side = side; });
+
+all.forEach(({ g }, row) => {
+  scene.add(g);
+  const P = g.userData.parts;
+  const show = (o, m, i) => { P.outer.visible = o; P.middle.visible = m; P.inner.visible = i; };
+  VIEWS.forEach((v, col) => {
+    renderer.setViewport(col * S, (all.length - 1 - row) * S, S, S);
+    renderer.setScissor(col * S, (all.length - 1 - row) * S, S, S);
+    renderer.clippingPlanes = [];
+    setSide(g, THREE.FrontSide); setSide(stela, THREE.FrontSide);
+    ground.visible = true;
+    let c;
+    if (v === 'closed') { show(true, true, true); c = cam(0.6, 0.35, 6.6); }
+    else if (v === 'no outer') { show(false, true, true); c = cam(0.6, 0.35, 6.6); }
+    else if (v === 'inner only') { show(false, false, true); c = cam(0.6, 0.35, 6.6); }
+    else if (v === 'stela') { show(false, false, false); c = cam(0.6, 0.35, 6.6); }
+    else if (v === 'cut x=0') {
+      show(true, true, true); ground.visible = false;
+      renderer.clippingPlanes = [new THREE.Plane(new THREE.Vector3(-1, 0, 0), 0)];
+      setSide(g, THREE.DoubleSide); setSide(stela, THREE.DoubleSide);
+      c = cam(Math.PI / 2, 0.0, 7.6);
+    } else if (v === 'cut z=0') {
+      show(true, true, true); ground.visible = false;
+      renderer.clippingPlanes = [new THREE.Plane(new THREE.Vector3(0, 0, -1), 0)];
+      setSide(g, THREE.DoubleSide); setSide(stela, THREE.DoubleSide);
+      c = cam(0, 0.0, 7.6);
+    } else {
+      // straight down, the front (+Z) at the bottom of the frame
+      show(true, true, true);
+      c = new THREE.PerspectiveCamera(30, 1, 0.05, 100);
+      c.up.set(0, 0, -1);
+      c.position.set(0, 6.2, 0);
+      c.lookAt(0, 0, 0);
+    }
+    renderer.render(scene, c);
+  });
+  show(true, true, true);
+  scene.remove(g);
+});
+window.__DONE__ = true;
+</script>
+</body>
+</html>

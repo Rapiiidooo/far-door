@@ -104,6 +104,19 @@ export const ROPES = [
   ["landing", "midway"],
 ];
 
+// What the expedition left on the way, and the builders' fallen masonry by their pylons:
+// [asset, isle, dx, dz, yaw, scale], placed from the isle's centre, clear of every bridge
+// line and landing.
+const DRESSING = [
+  ["glyph_banner", "ledge", -3.5, 1.5, 0.3, 1],
+  ["supply_crates", "far", 2.8, 1.2, -0.6, 1],
+  ["glyph_banner", "landing", 3.2, 2.4, -0.2, 1],
+  ["rubble_pile", "gap", 4.2, 1.5, 0.8, 0.9],
+  ["rubble_pile", "pair", 3.6, 1.8, 2.1, 0.8],
+  ["rubble_pile", "landing", 3.4, -2.4, 1.3, 0.85],
+  ["rubble_pile", "camp", -4.8, -1.2, 0.4, 1],
+];
+
 // Mira's last camp, placed from the camp isle's centre, and the ring whose address she could
 // not finish. The path arrives from +z.
 export const CAMP = {
@@ -145,6 +158,7 @@ export class Isles {
     for (const def of PYLONS) await this.addPylon(def);
     for (const [on, toward] of ROPES) await this.addRope(on, toward);
     await this.buildCamp();
+    for (const spot of DRESSING) await this.dress(...spot);
     for (const i of this.isles) if (i.drift) this.measureDrift(i);
     this.reset();
   }
@@ -418,6 +432,32 @@ export class Isles {
     if (!this.firstRope) this.firstRope = V(x, lip, z);
   }
 
+  async dress(name, on, dx, dz, yaw, s) {
+    const c = this.isle(on).collider;
+    const x = c.x + dx,
+      z = c.z + dz;
+    const y = this.groundAt(x, z);
+    const o = await this.assets.make(name);
+    if (!o) return;
+    o.position.set(x, y, z);
+    o.rotation.y = yaw;
+    o.scale.multiplyScalar(s);
+    this.scene.add(o);
+    const cs = Math.cos(yaw),
+      sn = Math.sin(yaw);
+    for (const [cx, cz, r, top] of PROP_SHAPES[name] || [])
+      this.world.addRound(
+        x + (cx * cs + cz * sn) * s,
+        z + (-cx * sn + cz * cs) * s,
+        r * s,
+        y - 1,
+        y + top * s,
+        "prop",
+        null,
+        { cam: false },
+      );
+  }
+
   async buildCamp() {
     const home = this.isle("camp").collider;
     const at = ({ dx, dz, yaw = 0 }) => ({
@@ -637,9 +677,13 @@ export class Isles {
       sub = "",
       marks = [],
       key;
-    if (this.finished) key = "done";
-    else if (this.read) key = "finale";
-    else if (!past("well")) {
+    if (this.read && !this.ring.isOpen) key = "opening";
+    else if (this.read) {
+      key = "through";
+      objective = "Follow Mira through her ring";
+      sub = "Given two glyphs of three, it opened halfway: onto ice";
+      marks = [this.ring.center.clone().add(V(0, -1.8, 0))];
+    } else if (!past("well")) {
       key = `trail:${at}`;
       objective = "Follow Mira's trail";
       sub = "Take a run at each gap and jump";
@@ -747,6 +791,9 @@ export class Isles {
 
   // Everything the isles can show during play, shown once for the shader compiler.
   prepareForCompile(on) {
+    const R = this.ring;
+    R.disc.visible = on || R.phase !== "closed";
+    R.uniforms.uClear.value = on ? 1 : R.isOpen ? 1.02 : 0;
     for (const p of this.pylons) {
       if (on) p.bridge.wake(p.lasts);
       else p.bridge.off();
@@ -761,7 +808,6 @@ export class Isles {
     this.reached = 0;
     this.on = "arrival";
     this.read = false;
-    this.finished = false;
     this.guideKey = null;
     for (const i of this.isles) {
       if (i.crumble) this.settle(i);

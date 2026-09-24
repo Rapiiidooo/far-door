@@ -77,6 +77,8 @@ export class Hero {
   // input: { move: {x, y} camera relative, camYaw, jump, interact, interactHeld, drop, walk }
   update(dt, input) {
     this.t += dt;
+    // `t` restarts with each state; this clock never does.
+    this.clock = (this.clock ?? 0) + dt;
     this.regrab = Math.max(0, this.regrab - dt);
     this.landing = Math.max(0, this.landing - dt * 3);
     this.stepLift *= Math.exp(-dt * 14);
@@ -102,7 +104,15 @@ export class Hero {
   ground(dt, input, wish) {
     const w = this.world;
     const target = input.walk ? WALK : RUN;
-    const k = wish.len > 0.05 ? 11 : 14;
+    // On ice the explorer gathers speed slowly and slides a long way before stopping.
+    this.onIce = !!w.slickAt?.(this.pos.x, this.pos.z, this.feet);
+    const k = this.onIce
+      ? wish.len > 0.05
+        ? 1.8
+        : 0.7
+      : wish.len > 0.05
+        ? 11
+        : 14;
     const blend = 1 - Math.exp(-k * dt);
     this.vel.x += (wish.x * target - this.vel.x) * blend;
     this.vel.z += (wish.z * target - this.vel.z) * blend;
@@ -488,13 +498,19 @@ export class Hero {
       // Pulling needs a free cell of level ground behind the explorer.
       const bx = this.pos.x + n.x * 2,
         bz = this.pos.z + n.z * 2;
+      // A block of ice slides off on its own: it can only be pushed, never pulled.
       const room =
         !pulling ||
-        (this.world.free(bx, bz, R, this.feet + 0.05, this.feet + HEIGHT) &&
+        (!ref.slides &&
+          this.world.free(bx, bz, R, this.feet + 0.05, this.feet + HEIGHT) &&
           Math.abs(
             this.world.ground(bx, bz, R * 0.6, this.feet, STEP) - this.feet,
           ) < 0.05);
       if (room && this.level.moveBlock(ref, dir, SHOVE_TIME)) {
+        if (ref.slides) {
+          this.events.push("push");
+          return this.land();
+        }
         this.state = "shove";
         this.t = 0;
         this.from = { x: this.pos.x, z: this.pos.z };
@@ -673,8 +689,9 @@ export class Hero {
   }
 
   remember() {
-    if (this.feet < -0.5 || this.t - (this.rememberedAt || 0) < 0.3) return;
-    this.rememberedAt = this.t;
+    if (this.feet < -0.5 || this.clock - (this.rememberedAt ?? -1) < 0.3)
+      return;
+    this.rememberedAt = this.clock;
     const w = this.world;
     // A bridge of light fades and a lone rock strands: neither is a place to come back to.
     if (w.unsafeAt?.(this.pos.x, this.pos.z, this.feet)) return;

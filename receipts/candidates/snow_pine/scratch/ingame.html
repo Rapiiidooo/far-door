@@ -1,0 +1,62 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>snow pine in-game look</title>
+<script type="importmap">
+{ "imports": { "three": "/game/vendor/three.module.js", "three/addons/": "/game/vendor/" } }
+</script>
+<style>body{margin:0;background:#000}canvas{display:block}</style>
+</head>
+<body>
+<script type="module">
+// Scratch preview only: the three candidates loaded the way the game loads assets
+// (game/assetlib.js ASSET with surfaces, three r186), on snow, under a cool twilight
+// light with haze, from a third-person distance.
+import * as THREE from 'three';
+import { ASSET } from '/game/assetlib.js';
+
+const q = new URLSearchParams(location.search);
+const dist = +(q.get('dist') || 15), camY = +(q.get('camy') || 3.2);
+const W = 1500, H = 640;
+const renderer = new THREE.WebGLRenderer({ antialias: true, preserveDrawingBuffer: true });
+renderer.setSize(W, H, false);
+renderer.outputColorSpace = THREE.SRGBColorSpace;
+renderer.shadowMap.enabled = true;
+document.body.appendChild(renderer.domElement);
+
+const scene = new THREE.Scene();
+scene.background = new THREE.Color(0x6f86a8);
+scene.fog = new THREE.Fog(0x8fa3bf, 25, 90);
+scene.add(new THREE.HemisphereLight(0xb9c8e6, 0x3d4654, 1.6));
+const sun = new THREE.DirectionalLight(0xffe6c8, 1.8);
+sun.position.set(-12, 14, 10);
+sun.castShadow = true;
+sun.shadow.mapSize.set(2048, 2048);
+Object.assign(sun.shadow.camera, { left: -20, right: 20, top: 20, bottom: -20, near: 1, far: 60 });
+scene.add(sun);
+
+const ground = new THREE.Mesh(new THREE.PlaneGeometry(200, 200), new THREE.MeshStandardMaterial({ color: 0xe9f2f6, roughness: 0.95 }));
+ground.rotation.x = -Math.PI / 2;
+ground.receiveShadow = true;
+scene.add(ground);
+
+const names = ['a', 'b', 'c'];
+const out = [];
+for (let i = 0; i < names.length; i++) {
+  const t = await ASSET(`/receipts/candidates/snow_pine/snow_pine_${names[i]}.js`, { surfaces: true });
+  t.position.set((i - 1) * 7, 0, 0);
+  scene.add(t);
+  let tris = 0, draws = 0;
+  t.traverse((o) => { if (o.isMesh) { draws++; tris += (o.geometry.index ? o.geometry.index.count : o.geometry.attributes.position.count) / 3; } });
+  out.push({ name: names[i], draws, tris });
+}
+const cam = new THREE.PerspectiveCamera(50, W / H, 0.1, 300);
+cam.position.set(0, camY, dist);
+cam.lookAt(0, 3.0, 0);
+renderer.render(scene, cam);
+window.__INFO__ = out;
+window.__DONE__ = true;
+</script>
+</body>
+</html>

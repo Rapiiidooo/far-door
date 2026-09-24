@@ -34,10 +34,19 @@ Working title: Far Door. Every tomb holds the address of a gate; an explorer red
 | Dawn limestone     | `0xeadcc0` | Third world only: the tops of the floating isles and the arrival dais              |
 | Isle rock          | `0x9b7658` | Third world only: the undersides of the floating isles                             |
 | Cloud gold         | `0xf2d49a` | Third world only: the cloud sea, as a shader colour                                |
+| Glacier white      | `0xe9f2f6` | Fourth world only: snow, frost and the lit tops of ice                             |
+| Ice blue           | `0xa9d2e3` | Fourth world only: clear ice faces                                                 |
+| Deep ice           | `0x5b9bbd` | Fourth world only: ice in shadow, the cores of blocks and spires                   |
+| Frost slate        | `0x3d4654` | Fourth world only: the rock of the frozen canyon                                   |
+| Pine needle        | `0x2f4a3e` | Fourth world only: the snow pines                                                  |
+| Bark umber         | `0x5a4030` | Fifth world only: the forest's trunks and roots                                    |
+| Moss green         | `0x4f7a3a` | Fifth world only: moss, canopy and the darker fronds                               |
+| Fern green         | `0x7da04a` | Fifth world only: young fronds and leaves in light                                 |
+| Spore lime         | `0xc3f25a` | Emissive only, fifth world flora; never on anything built                          |
 
 ## Fixed decisions
 
-- Metres. The level is a grid of 2 m cells with heights in 0.5 m steps. The hero is 1.75 m tall. A push block is 1.9 m on each side. A sun mirror is 1.9 m tall. A glyph stela is 2.4 m tall. The gate ring is 9 m across. The seated colossus is 14 m tall. A Warden is 1.15 m tall. The sun disc is 0.45 m across. An address plate is 1.8 m across. A path lantern is 2.4 m tall. A floating isle is about 14 m across. A light pylon is 2.8 m tall.
+- Metres. The level is a grid of 2 m cells with heights in 0.5 m steps. The hero is 1.75 m tall. A push block is 1.9 m on each side. A sun mirror is 1.9 m tall. A glyph stela is 2.4 m tall. The gate ring is 9 m across. The seated colossus is 14 m tall. A Warden is 1.15 m tall. The sun disc is 0.45 m across. An address plate is 1.8 m across. A path lantern is 2.4 m tall. A floating isle is about 14 m across. A light pylon is 2.8 m tall. An ice block is 1.9 m on each side. A snow pine is about 7 m tall. A forest tree is about 16 m tall.
 - Base at y = 0, centred on x and z, front faces +Z.
 - Flat colours with sensible roughness; procedural surfaces are applied at load time. Name materials from the contract's list only: `plaster`, `stone`, `timber`, `tile`, `metal`, `fabric`, `foliage`, `ground`. Sandstone and basalt are `stone`, bronze is `metal`, cloth is `fabric`, leather is `fabric`.
 - Emissive turquoise parts are separate meshes with their own material (`emissive: 0x39e3d0`) so the game can switch them from dormant to lit.
@@ -60,6 +69,14 @@ The gate opens onto a bureaucratic checkpoint of the gate network, run by the Wa
 ## The third world: the dawn isles
 
 The checkpoint's far door opens onto a sky at dawn: pale limestone isles float over a sea of golden cloud, with more rings of the network hanging in the distance. It is the third level: the explorer follows Mira's trail from isle to isle, across bridges of turquoise light that the builders' pylons project when the sun disc, charged with light, strikes their lens. It stays simple and bright: warm light, soft haze, no creatures. The builders' pylons and crystals are the same sandstone, bone limestone, bronze and turquoise as in the court; the expedition's frayed ropes and last camp are the same weathered timber, canvas and rope as on the terrace.
+
+## The fourth world: the frozen reach
+
+Mira went on through a frost door: a world of ice under a twilight sky with slow ribbons of aurora. Snow lies on frost-slate rock; frozen streams and a frozen lake are clear ice over deep blue, and the ice holds blocks, spires and a stela. The only warm colours are the explorer and the expedition's timber, rope and vermilion markers; turquoise still marks the builders' technology (lenses, the ring, the stela's glyph). Ice is chunky and faceted, with bevelled edges and darker cores, never glassy filigree. Sizes: an ice block is 1.9 m on each side like the court's push block, an ice spire cluster about 4 m tall, a snow pine about 7 m, a trail cairn about 1.1 m.
+
+## The fifth world: the wild forest (seen through a door)
+
+Beyond the last door of the game lies a wild forest, only glimpsed through the ring at the end: huge old trees with buttress roots and moss, ferns, and mushrooms whose gills glow spore lime in the shade, under warm shafts of light through a high canopy. A forest tree is about 16 m tall with a canopy about 14 m across; a fern cluster about 1.2 m across; the tallest glowing mushroom about 1.4 m.
 
 ## Red lines (keep clear of existing franchises)
 

@@ -1,0 +1,116 @@
+[
+ {
+  "ok": true,
+  "mounts": null,
+  "meshes": 47,
+  "tris": 689,
+  "materials": 4,
+  "size": [
+   2.6,
+   4,
+   2.6
+  ],
+  "groundOffset": 0,
+  "centreOffset": [
+   0,
+   0
+  ],
+  "sides": {
+   "front": {
+    "coverage": 0.1819,
+    "edgeDensity": 0.1192
+   },
+   "right": {
+    "coverage": 0.1685,
+    "edgeDensity": 0.1275
+   },
+   "back": {
+    "coverage": 0.1777,
+    "edgeDensity": 0.1111
+   },
+   "left": {
+    "coverage": 0.1741,
+    "edgeDensity": 0.1276
+   }
+  },
+  "error": null,
+  "name": "ice_spire_a",
+  "problems": []
+ },
+ {
+  "ok": true,
+  "mounts": null,
+  "meshes": 41,
+  "tris": 1049,
+  "materials": 4,
+  "size": [
+   2.656,
+   4,
+   2.538
+  ],
+  "groundOffset": 0,
+  "centreOffset": [
+   0,
+   0
+  ],
+  "sides": {
+   "front": {
+    "coverage": 0.1712,
+    "edgeDensity": 0.1438
+   },
+   "right": {
+    "coverage": 0.1471,
+    "edgeDensity": 0.1336
+   },
+   "back": {
+    "coverage": 0.1645,
+    "edgeDensity": 0.141
+   },
+   "left": {
+    "coverage": 0.1612,
+    "edgeDensity": 0.134
+   }
+  },
+  "error": null,
+  "name": "ice_spire_b",
+  "problems": []
+ },
+ {
+  "ok": true,
+  "mounts": null,
+  "meshes": 4,
+  "tris": 528,
+  "materials": 4,
+  "size": [
+   2.592,
+   4,
+   2.549
+  ],
+  "groundOffset": 0,
+  "centreOffset": [
+   0,
+   0
+  ],
+  "sides": {
+   "front": {
+    "coverage": 0.1604,
+    "edgeDensity": 0.1321
+   },
+   "right": {
+    "coverage": 0.1488,
+    "edgeDensity": 0.1434
+   },
+   "back": {
+    "coverage": 0.1628,
+    "edgeDensity": 0.113
+   },
+   "left": {
+    "coverage": 0.1442,
+    "edgeDensity": 0.1245
+   }
+  },
+  "error": null,
+  "name": "ice_spire_c",
+  "problems": []
+ }
+]

@@ -545,6 +545,13 @@ export class WorldTwo {
       [10.8, -48],
       [10.6, 8],
       [-10.4, 9],
+      // Smaller ones between, so the valley's edges glow all the way along.
+      [-11.2, -13],
+      [11.3, -21],
+      [-11.4, -33],
+      [11.2, -40.5],
+      [-10.9, 1.5],
+      [10.8, 0.5],
     ]) {
       const plant = await this.assets.make("lumen_plant", {
         keepHierarchy: true,

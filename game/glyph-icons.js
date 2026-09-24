@@ -15,6 +15,13 @@ export const ICONS = {
     },
   ],
   disc: [{ circle: [12, 12, 7.5] }, { circle: [12, 12, 2.2] }],
+  // The frost star: six rays round a small ring, the glyph found under the ice.
+  star: [
+    {
+      path: "M12.0 3.0 L10.3 9.1 L4.2 7.5 L8.6 12.0 L4.2 16.5 L10.3 14.9 L12.0 21.0 L13.7 14.9 L19.8 16.5 L15.4 12.0 L19.8 7.5 L13.7 9.1z",
+    },
+    { circle: [12, 12, 1.3] },
+  ],
   // A glyph nobody has found yet.
   unknown: [
     { path: "M8.6 8.8a3.5 3.5 0 1 1 5 3.2c-1 .5-1.6 1.2-1.6 2.3v.9" },

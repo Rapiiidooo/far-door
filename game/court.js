@@ -132,6 +132,12 @@ export const PROPS = [
   ["supply_crates", 21.6, 8, 40.9, 0.35],
   ["clay_urns", 26.6, 0, 17.6, 0.2],
   ["clay_urns", 12.9, 8, 41.0, 2.6],
+  // Fallen masonry against the walls and on the terrace's far end, clear of the beams.
+  ["rubble_pile", 27.3, 0, 23.6, 0.4],
+  ["rubble_pile", 2.7, 0, 24.6, 2.2],
+  ["rubble_pile", 26.4, 8, 36.9, 1.1],
+  ["desert_agave", 27.4, 0, 12.5, 0.9],
+  ["desert_agave", 2.6, 0, 31.2, 2.8],
 ];
 
 // Colliders fitted to each prop's mesh: circles [x, z, radius, top] in the asset's own frame,
@@ -172,6 +178,10 @@ export const PROP_SHAPES = {
   ],
   desert_agave: [[0, 0, 0.32, 0.9]],
   glyph_banner: [[0.03, -0.03, 0.34, 3.6]],
+  rubble_pile: [
+    [0.35, 0, 0.8, 0.9],
+    [-0.65, 0.1, 0.55, 0.6],
+  ],
 };
 export const SMALL_PROPS = new Set(["desert_agave", "clay_urns"]);
 

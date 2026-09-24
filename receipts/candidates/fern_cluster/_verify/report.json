@@ -1,0 +1,116 @@
+[
+ {
+  "ok": true,
+  "mounts": null,
+  "meshes": 476,
+  "tris": 2738,
+  "materials": 3,
+  "size": [
+   1.281,
+   0.786,
+   1.206
+  ],
+  "groundOffset": 0,
+  "centreOffset": [
+   0,
+   0
+  ],
+  "sides": {
+   "front": {
+    "coverage": 0.0563,
+    "edgeDensity": 0.5081
+   },
+   "right": {
+    "coverage": 0.0564,
+    "edgeDensity": 0.5179
+   },
+   "back": {
+    "coverage": 0.0541,
+    "edgeDensity": 0.5036
+   },
+   "left": {
+    "coverage": 0.0559,
+    "edgeDensity": 0.5207
+   }
+  },
+  "error": null,
+  "name": "fern_cluster_a",
+  "problems": []
+ },
+ {
+  "ok": true,
+  "mounts": null,
+  "meshes": 9,
+  "tris": 2924,
+  "materials": 3,
+  "size": [
+   1.279,
+   0.811,
+   1.247
+  ],
+  "groundOffset": 0,
+  "centreOffset": [
+   0,
+   0
+  ],
+  "sides": {
+   "front": {
+    "coverage": 0.0641,
+    "edgeDensity": 0.3362
+   },
+   "right": {
+    "coverage": 0.0644,
+    "edgeDensity": 0.3336
+   },
+   "back": {
+    "coverage": 0.0744,
+    "edgeDensity": 0.2981
+   },
+   "left": {
+    "coverage": 0.0683,
+    "edgeDensity": 0.327
+   }
+  },
+  "error": null,
+  "name": "fern_cluster_b",
+  "problems": []
+ },
+ {
+  "ok": true,
+  "mounts": null,
+  "meshes": 3,
+  "tris": 2098,
+  "materials": 3,
+  "size": [
+   1.192,
+   0.793,
+   1.26
+  ],
+  "groundOffset": 0,
+  "centreOffset": [
+   0,
+   0
+  ],
+  "sides": {
+   "front": {
+    "coverage": 0.0824,
+    "edgeDensity": 0.3576
+   },
+   "right": {
+    "coverage": 0.0805,
+    "edgeDensity": 0.3667
+   },
+   "back": {
+    "coverage": 0.0787,
+    "edgeDensity": 0.3768
+   },
+   "left": {
+    "coverage": 0.0759,
+    "edgeDensity": 0.398
+   }
+  },
+  "error": null,
+  "name": "fern_cluster_c",
+  "problems": []
+ }
+]

@@ -1,0 +1,40 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>loadtest</title>
+<script type="importmap">
+{ "imports": { "three": "/game/vendor/three.module.js", "three/addons/": "/game/vendor/" } }
+</script>
+</head>
+<body>
+<script type="module">
+// Scratch: load each candidate through the game's own loader, the way the game
+// would (keepHierarchy, surfaces), and check that parts.glow resolves per instance.
+import * as THREE from 'three';
+import { ASSET } from '/game/assetlib.js';
+const out = {};
+for (const name of ['glow_mushroom_a', 'glow_mushroom_b', 'glow_mushroom_c']) {
+  const url = `/receipts/candidates/glow_mushroom/${name}.js`;
+  const r = {};
+  try {
+    const one = await ASSET(url, { keepHierarchy: true, surfaces: true });
+    const two = await ASSET(url, { keepHierarchy: true, surfaces: true });
+    const glow = one.userData.parts?.glow, glow2 = two.userData.parts?.glow;
+    let inTree = false, inTree2 = false;
+    one.traverse((o) => { if (o === glow) inTree = true; });
+    two.traverse((o) => { if (o === glow2) inTree2 = true; });
+    const glowMeshes = [];
+    glow?.traverse((o) => { if (o.isMesh) glowMeshes.push(`${o.material.emissive.getHexString()}@${o.material.emissiveIntensity} map:${!!o.material.map}`); });
+    let meshes = 0; one.traverse((o) => o.isMesh && meshes++);
+    const merged = await ASSET(url, { surfaces: true });
+    let mMeshes = 0, lime = 0; merged.traverse((o) => { if (o.isMesh) { mMeshes++; if (o.material.emissive?.getHexString() === 'c3f25a') lime++; } });
+    Object.assign(r, { resolved: !!glow, type: glow?.type, inTree, inTree2, distinct: glow !== glow2, glowMeshes, meshes, mergedMeshes: mMeshes, mergedLimeMeshes: lime });
+  } catch (e) { r.error = String(e); }
+  out[name] = r;
+}
+window.__RESULT__ = out;
+window.__DONE__ = true;
+</script>
+</body>
+</html>

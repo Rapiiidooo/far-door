@@ -1,0 +1,116 @@
+[
+ {
+  "ok": true,
+  "mounts": null,
+  "meshes": 9,
+  "tris": 690,
+  "materials": 9,
+  "size": [
+   1.814,
+   2.98,
+   1.303
+  ],
+  "groundOffset": 0,
+  "centreOffset": [
+   0,
+   0
+  ],
+  "sides": {
+   "front": {
+    "coverage": 0.265,
+    "edgeDensity": 0.0893
+   },
+   "right": {
+    "coverage": 0.2006,
+    "edgeDensity": 0.0962
+   },
+   "back": {
+    "coverage": 0.2636,
+    "edgeDensity": 0.0692
+   },
+   "left": {
+    "coverage": 0.1999,
+    "edgeDensity": 0.0692
+   }
+  },
+  "error": null,
+  "name": "ice_casing_a",
+  "problems": []
+ },
+ {
+  "ok": true,
+  "mounts": null,
+  "meshes": 9,
+  "tris": 2610,
+  "materials": 9,
+  "size": [
+   1.852,
+   3.006,
+   1.31
+  ],
+  "groundOffset": 0,
+  "centreOffset": [
+   0,
+   0
+  ],
+  "sides": {
+   "front": {
+    "coverage": 0.2687,
+    "edgeDensity": 0.1092
+   },
+   "right": {
+    "coverage": 0.1956,
+    "edgeDensity": 0.1243
+   },
+   "back": {
+    "coverage": 0.2673,
+    "edgeDensity": 0.0721
+   },
+   "left": {
+    "coverage": 0.196,
+    "edgeDensity": 0.0872
+   }
+  },
+  "error": null,
+  "name": "ice_casing_b",
+  "problems": []
+ },
+ {
+  "ok": true,
+  "mounts": null,
+  "meshes": 9,
+  "tris": 3527,
+  "materials": 9,
+  "size": [
+   1.797,
+   2.98,
+   1.209
+  ],
+  "groundOffset": 0,
+  "centreOffset": [
+   0,
+   0
+  ],
+  "sides": {
+   "front": {
+    "coverage": 0.2585,
+    "edgeDensity": 0.0878
+   },
+   "right": {
+    "coverage": 0.2114,
+    "edgeDensity": 0.162
+   },
+   "back": {
+    "coverage": 0.2616,
+    "edgeDensity": 0.0841
+   },
+   "left": {
+    "coverage": 0.2114,
+    "edgeDensity": 0.1244
+   }
+  },
+  "error": null,
+  "name": "ice_casing_c",
+  "problems": []
+ }
+]

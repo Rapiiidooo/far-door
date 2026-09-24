@@ -1,0 +1,570 @@
+{
+  "log": [
+    "start 19.4,39.0 feet 8",
+    "jumped the gap: 4.78,37.30 feet 8",
+    "hanging from the edge, feet 6.05",
+    "caught the crack at 4.92,32.62",
+    "climbed up at 8.66,31.75",
+    "reached the court floor",
+    "pulled the block off the beam",
+    "lit: left",
+    "lit: left,right",
+    "on the island 17.26,30.10",
+    "lit: left,top,right",
+    "crossed into the second world at 0.06,-1.92",
+    "briefed by the clerk",
+    "took the disc; the Wardens are coming",
+    "plates stamped with 1 throws and 4 dodges, health 4",
+    "lamp lit, barrier up",
+    "on the isles at -1.11,-2.60",
+    "jumped across to the isle of the first pylon",
+    "woke the first pylon",
+    "crossed the first bridge",
+    "woke the pylon across the gap",
+    "crossed the second bridge",
+    "woke both pylons of the pair",
+    "crossed both bridges of the pair",
+    "aboard the drifting isle",
+    "off the ferry onto the far isle",
+    "crossed the crumbling stones: gone, fall, fall",
+    "on the small isle, still glowing",
+    "woke the far pylon of the relay",
+    "crossed to Mira's camp",
+    "read Mira's journal; her ring opens",
+    "through Mira's ring into the frozen reach",
+    "in the frozen reach at -0.04,-2.57",
+    "slid and jumped the crevasse: 0.12,-47.07",
+    "pushed the block east to 3, -61",
+    "pushed the block north to 3, -73",
+    "climbed out of the pond by the block",
+    "ran the thin ice: gone, gone, sink, crack",
+    "rode the floes",
+    "on the island at 1.00,-134.84",
+    "freed the third glyph from the ice",
+    "the great ring opened onto the forest",
+    "shader programs at the first start 156, at the end 156",
+    "reached the credits and returned to the title",
+    "errors: none"
+  ],
+  "last": {
+    "mode": "title",
+    "where": "court",
+    "chapter": "frost",
+    "paused": false,
+    "menu": "main",
+    "pos": [
+      19.4,
+      39
+    ],
+    "feet": 8,
+    "state": "ground",
+    "fps": 60,
+    "speed": 0,
+    "score": 0,
+    "over": false,
+    "draws": 657,
+    "tris": 516653,
+    "programs": 156,
+    "programsAtLoad": 154,
+    "programsAtStart": 156,
+    "camYaw": 2.7935961231427133,
+    "cinematic": false,
+    "crossing": false,
+    "step": "enter",
+    "objective": "",
+    "mirrors": [
+      {
+        "id": "m1",
+        "yaw": -0.7853981633974483,
+        "locked": null
+      },
+      {
+        "id": "m2",
+        "yaw": 1.5707963267948966,
+        "locked": null
+      },
+      {
+        "id": "m3",
+        "yaw": 2.356194490192345,
+        "locked": null
+      }
+    ],
+    "lit": [],
+    "gateOpen": false,
+    "health": 4,
+    "checkpoint": "arrive",
+    "plates": [
+      {
+        "glyph": "crescent",
+        "stamped": false
+      },
+      {
+        "glyph": "waves",
+        "stamped": false
+      },
+      {
+        "glyph": "disc",
+        "stamped": false
+      }
+    ],
+    "disc": {
+      "state": "display",
+      "charged": false
+    },
+    "guards": [
+      {
+        "state": "patrol",
+        "glyph": "crescent",
+        "hp": 3,
+        "hostile": false,
+        "pos": [
+          8.6,
+          -24.6
+        ],
+        "target": null
+      },
+      {
+        "state": "patrol",
+        "glyph": "waves",
+        "hp": 3,
+        "hostile": false,
+        "pos": [
+          -9.6,
+          -24.4
+        ],
+        "target": null
+      },
+      {
+        "state": "patrol",
+        "glyph": "disc",
+        "hp": 3,
+        "hostile": false,
+        "pos": [
+          -0.6,
+          -27.6
+        ],
+        "target": null
+      }
+    ],
+    "exitOpen": false,
+    "isles": {
+      "step": null,
+      "reached": 0,
+      "on": "arrival",
+      "read": false,
+      "disc": {
+        "state": "stowed",
+        "charged": false
+      },
+      "isles": [
+        {
+          "id": "arrival",
+          "at": [
+            -0.28,
+            -1.55,
+            0.01
+          ]
+        },
+        {
+          "id": "step1",
+          "at": [
+            1.42,
+            -14.46,
+            0.4
+          ]
+        },
+        {
+          "id": "step2",
+          "at": [
+            3.64,
+            -20.97,
+            1
+          ]
+        },
+        {
+          "id": "well",
+          "at": [
+            3.98,
+            -30.63,
+            1.61
+          ]
+        },
+        {
+          "id": "gap",
+          "at": [
+            6.35,
+            -51.8,
+            2.61
+          ]
+        },
+        {
+          "id": "pair",
+          "at": [
+            10.27,
+            -71.18,
+            3.81
+          ]
+        },
+        {
+          "id": "rock",
+          "at": [
+            11.9,
+            -86.37,
+            5
+          ]
+        },
+        {
+          "id": "ledge",
+          "at": [
+            11.6,
+            -103.53,
+            6.21
+          ]
+        },
+        {
+          "id": "ferry",
+          "at": [
+            11.8,
+            -114.53,
+            6.4
+          ]
+        },
+        {
+          "id": "far",
+          "at": [
+            11.68,
+            -133.04,
+            6.81
+          ]
+        },
+        {
+          "id": "stone1",
+          "at": [
+            10.37,
+            -141.93,
+            7.1
+          ]
+        },
+        {
+          "id": "stone2",
+          "at": [
+            13.71,
+            -147.18,
+            7.4
+          ]
+        },
+        {
+          "id": "stone3",
+          "at": [
+            10.49,
+            -152.13,
+            7.7
+          ]
+        },
+        {
+          "id": "landing",
+          "at": [
+            11.64,
+            -161.73,
+            8.01
+          ]
+        },
+        {
+          "id": "midway",
+          "at": [
+            12.16,
+            -180.01,
+            8.6
+          ]
+        },
+        {
+          "id": "camp",
+          "at": [
+            11.36,
+            -202.48,
+            9.21
+          ]
+        }
+      ],
+      "wells": [
+        [
+          1.58,
+          -31.83,
+          3.14
+        ],
+        [
+          3.75,
+          -54,
+          4.07
+        ],
+        [
+          7.47,
+          -71.98,
+          5.32
+        ],
+        [
+          9.04,
+          -160.53,
+          9.53
+        ]
+      ],
+      "pylons": [
+        {
+          "id": "first",
+          "lens": [
+            5,
+            -33.83,
+            3.68
+          ],
+          "emit": [
+            5,
+            -34.88,
+            1.37
+          ],
+          "to": -46.947138363802594,
+          "on": false,
+          "left": 0
+        },
+        {
+          "id": "across",
+          "lens": [
+            8.6,
+            -68.08,
+            5.91
+          ],
+          "emit": [
+            8.6,
+            -67.03,
+            3.6
+          ],
+          "to": -56.547138363801906,
+          "on": false,
+          "left": 0
+        },
+        {
+          "id": "twinA",
+          "lens": [
+            12,
+            -73.87,
+            5.91
+          ],
+          "emit": [
+            12,
+            -74.93,
+            3.6
+          ],
+          "to": -85.17054138010359,
+          "on": false,
+          "left": 0
+        },
+        {
+          "id": "twinB",
+          "lens": [
+            12,
+            -87.12,
+            7.27
+          ],
+          "emit": [
+            12,
+            -88.17,
+            4.96
+          ],
+          "to": -98.62728827269896,
+          "on": false,
+          "left": 0
+        },
+        {
+          "id": "relay1",
+          "lens": [
+            12,
+            -165.78,
+            10.07
+          ],
+          "emit": [
+            12,
+            -166.83,
+            7.76
+          ],
+          "to": -178.61269364751283,
+          "on": false,
+          "left": 0
+        },
+        {
+          "id": "relay2",
+          "lens": [
+            12,
+            -194.54,
+            10.97
+          ],
+          "emit": [
+            12,
+            -193.48,
+            8.66
+          ],
+          "to": -181.262693647514,
+          "on": false,
+          "left": 0
+        }
+      ],
+      "note": [
+        15.18,
+        -199.85,
+        10
+      ],
+      "ring": {
+        "x": 11.36,
+        "z": -206.28,
+        "phase": "closed"
+      },
+      "ferry": {
+        "z": -114.53,
+        "a": -114.53,
+        "b": -123.44
+      },
+      "stones": [
+        {
+          "id": "stone1",
+          "phase": "still"
+        },
+        {
+          "id": "stone2",
+          "phase": "still"
+        },
+        {
+          "id": "stone3",
+          "phase": "still"
+        }
+      ],
+      "edges": [
+        [
+          0.79,
+          -9.64
+        ],
+        [
+          2.15,
+          -16.6
+        ],
+        [
+          3.72,
+          -23.21
+        ],
+        [
+          4.56,
+          -35.76
+        ],
+        [
+          7.63,
+          -58.12
+        ],
+        [
+          10.79,
+          -76.04
+        ],
+        [
+          11.86,
+          -89
+        ],
+        [
+          11.72,
+          -110.13
+        ],
+        [
+          11.78,
+          -117.82
+        ],
+        [
+          10.93,
+          -138.12
+        ],
+        [
+          11.34,
+          -143.45
+        ],
+        [
+          12.66,
+          -148.79
+        ],
+        [
+          10.73,
+          -154.11
+        ],
+        [
+          11.81,
+          -167.67
+        ],
+        [
+          12.07,
+          -182.48
+        ]
+      ]
+    },
+    "frozen": {
+      "reached": 0,
+      "section": null,
+      "block": {
+        "x": -3,
+        "z": -61,
+        "state": "rest"
+      },
+      "floes": [
+        -7,
+        7
+      ],
+      "thin": [
+        "still",
+        "still",
+        "still",
+        "still"
+      ],
+      "broken": 0,
+      "freed": false,
+      "ring": "closed",
+      "disc": {
+        "state": "stowed",
+        "charged": false
+      }
+    },
+    "credits": false,
+    "assets": {
+      "push_block": true,
+      "sun_mirror": true,
+      "hero_explorer": true,
+      "glyph_stela": true,
+      "far_gate": true,
+      "guardian_colossus": true,
+      "temple_facade": true,
+      "broken_column": true,
+      "brazier": true,
+      "basalt_spire": true,
+      "sun_disc": true,
+      "warden": true,
+      "confiscation_bin": true,
+      "customs_booth": true,
+      "queue_post": true,
+      "crystal_emitter": true,
+      "lumen_plant": true,
+      "expedition_tent": true,
+      "boulder_cluster": true,
+      "desert_agave": true,
+      "clay_urns": true,
+      "supply_crates": true,
+      "fallen_head": true,
+      "stamp_plate": true,
+      "path_lantern": true,
+      "glyph_banner": true,
+      "floating_isle": true,
+      "fern_cluster": true,
+      "glow_mushroom": true,
+      "ice_spire": true,
+      "frost_cairn": true,
+      "snow_pine": true,
+      "light_pylon": true,
+      "expedition_rope": true,
+      "wild_tree": true,
+      "ice_block": true,
+      "rubble_pile": true,
+      "ice_casing": true
+    }
+  },
+  "errors": []
+}

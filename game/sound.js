@@ -143,6 +143,13 @@ export class Sound {
         [45, 52, 57, 61, 64],
         [47, 54, 59, 63, 66],
       ],
+      // The frozen reach: open fifths and a high cold ninth, A minor.
+      frost: [
+        [45, 52, 59, 64, 71],
+        [41, 48, 57, 64, 67],
+        [43, 50, 57, 62, 69],
+        [40, 47, 55, 62, 66],
+      ],
       // Dawn over the clouds, for the ending and the credits.
       finale: [
         [48, 55, 60, 64, 67],
@@ -336,6 +343,23 @@ export class Sound {
         return this.bell(783.99, 2.6);
       case "bridge":
         return this.sweep(196, 587.3, 0.9, 0.06, "sine");
+      // Ice: a block's run across the pond and its stop, a strike that shatters, thin ice
+      // cracking and giving way, and ice closing again.
+      case "slide":
+        return this.sweep(900, 420, 0.6, 0.03, "triangle");
+      case "thud":
+        return this.burst(0.25, 260, 0.2, 0.7);
+      case "shatter":
+        this.burst(0.35, 3200, 0.14, 1.2);
+        this.bell(1318.5, 1.2);
+        return setTimeout(() => this.burst(0.5, 1800, 0.08, 0.9), 80);
+      case "crack":
+        return this.burst(0.12, 2600, 0.12, 1.6);
+      case "break":
+        this.burst(0.5, 700, 0.16, 0.8);
+        return setTimeout(() => this.burst(0.7, 300, 0.12, 0.6), 120);
+      case "freeze":
+        return this.sweep(1200, 2400, 0.8, 0.025, "sine");
       // A stone about to go: grit shaken loose, then the fall and its rubble.
       case "tremble":
         return this.burst(0.9, 520, 0.06, 0.9);

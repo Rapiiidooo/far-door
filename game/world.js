@@ -10,7 +10,8 @@
 //   grab: its top edge can be hung from or vaulted onto (level geometry only);
 //   stand: its top is ground. Irregular props are not, so a jump onto one slides off;
 //   cam: it pushes the camera in when it comes between the lens and the explorer.
-// and may be `unsafe`: ground that will not last, where the explorer must never respawn.
+// and may be `unsafe`: ground that will not last, where the explorer must never respawn,
+// or `slick`: ice, where the explorer keeps momentum.
 
 const NO_GRAB = new Set(["mirror", "stela", "fire", "prop"]);
 const NO_CAM = new Set(["mirror", "fire"]);
@@ -288,6 +289,19 @@ export class World {
   }
 
   // Ground that will not last under a point: a bridge of light, a rock too small to wait on.
+  // Ice underfoot.
+  slickAt(x, z, feet) {
+    for (const b of this.boxes)
+      if (
+        b.slick &&
+        b.solid &&
+        Math.abs(b.maxY - feet) < 0.05 &&
+        discHits(x, z, 0.2, b)
+      )
+        return true;
+    return false;
+  }
+
   unsafeAt(x, z, feet) {
     for (const b of this.boxes) {
       if (!b.unsafe || !b.solid) continue;

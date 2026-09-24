@@ -1,0 +1,116 @@
+[
+ {
+  "ok": true,
+  "mounts": null,
+  "meshes": 36,
+  "tris": 960,
+  "materials": 4,
+  "size": [
+   1.222,
+   1.292,
+   0.697
+  ],
+  "groundOffset": 0,
+  "centreOffset": [
+   0,
+   0
+  ],
+  "sides": {
+   "front": {
+    "coverage": 0.1639,
+    "edgeDensity": 0.0924
+   },
+   "right": {
+    "coverage": 0.1232,
+    "edgeDensity": 0.1116
+   },
+   "back": {
+    "coverage": 0.1044,
+    "edgeDensity": 0.113
+   },
+   "left": {
+    "coverage": 0.1005,
+    "edgeDensity": 0.1124
+   }
+  },
+  "error": null,
+  "name": "frost_cairn_a",
+  "problems": []
+ },
+ {
+  "ok": true,
+  "mounts": null,
+  "meshes": 13,
+  "tris": 914,
+  "materials": 4,
+  "size": [
+   1.121,
+   1.278,
+   0.699
+  ],
+  "groundOffset": 0,
+  "centreOffset": [
+   0,
+   0
+  ],
+  "sides": {
+   "front": {
+    "coverage": 0.1922,
+    "edgeDensity": 0.0872
+   },
+   "right": {
+    "coverage": 0.1214,
+    "edgeDensity": 0.1066
+   },
+   "back": {
+    "coverage": 0.0855,
+    "edgeDensity": 0.1382
+   },
+   "left": {
+    "coverage": 0.0772,
+    "edgeDensity": 0.1342
+   }
+  },
+  "error": null,
+  "name": "frost_cairn_b",
+  "problems": []
+ },
+ {
+  "ok": true,
+  "mounts": null,
+  "meshes": 6,
+  "tris": 708,
+  "materials": 4,
+  "size": [
+   0.913,
+   1.255,
+   0.69
+  ],
+  "groundOffset": 0,
+  "centreOffset": [
+   0,
+   0
+  ],
+  "sides": {
+   "front": {
+    "coverage": 0.2251,
+    "edgeDensity": 0.0751
+   },
+   "right": {
+    "coverage": 0.1549,
+    "edgeDensity": 0.0895
+   },
+   "back": {
+    "coverage": 0.1188,
+    "edgeDensity": 0.0972
+   },
+   "left": {
+    "coverage": 0.1117,
+    "edgeDensity": 0.0911
+   }
+  },
+  "error": null,
+  "name": "frost_cairn_c",
+  "problems": []
+ }
+]

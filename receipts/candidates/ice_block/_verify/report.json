@@ -1,0 +1,116 @@
+[
+ {
+  "ok": true,
+  "mounts": null,
+  "meshes": 98,
+  "tris": 1464,
+  "materials": 4,
+  "size": [
+   1.9,
+   1.9,
+   1.9
+  ],
+  "groundOffset": 0,
+  "centreOffset": [
+   0,
+   0
+  ],
+  "sides": {
+   "front": {
+    "coverage": 0.4064,
+    "edgeDensity": 0.0834
+   },
+   "right": {
+    "coverage": 0.4064,
+    "edgeDensity": 0.0893
+   },
+   "back": {
+    "coverage": 0.4064,
+    "edgeDensity": 0.0716
+   },
+   "left": {
+    "coverage": 0.4064,
+    "edgeDensity": 0.075
+   }
+  },
+  "error": null,
+  "name": "ice_block_a",
+  "problems": []
+ },
+ {
+  "ok": true,
+  "mounts": null,
+  "meshes": 8,
+  "tris": 1006,
+  "materials": 4,
+  "size": [
+   1.9,
+   1.892,
+   1.894
+  ],
+  "groundOffset": 0,
+  "centreOffset": [
+   0,
+   0
+  ],
+  "sides": {
+   "front": {
+    "coverage": 0.4025,
+    "edgeDensity": 0.048
+   },
+   "right": {
+    "coverage": 0.3901,
+    "edgeDensity": 0.0508
+   },
+   "back": {
+    "coverage": 0.4013,
+    "edgeDensity": 0.0508
+   },
+   "left": {
+    "coverage": 0.3905,
+    "edgeDensity": 0.0468
+   }
+  },
+  "error": null,
+  "name": "ice_block_b",
+  "problems": []
+ },
+ {
+  "ok": true,
+  "mounts": null,
+  "meshes": 8,
+  "tris": 822,
+  "materials": 4,
+  "size": [
+   1.9,
+   1.9,
+   1.9
+  ],
+  "groundOffset": 0,
+  "centreOffset": [
+   0,
+   0
+  ],
+  "sides": {
+   "front": {
+    "coverage": 0.3888,
+    "edgeDensity": 0.0538
+   },
+   "right": {
+    "coverage": 0.401,
+    "edgeDensity": 0.0463
+   },
+   "back": {
+    "coverage": 0.3886,
+    "edgeDensity": 0.0487
+   },
+   "left": {
+    "coverage": 0.4001,
+    "edgeDensity": 0.0411
+   }
+  },
+  "error": null,
+  "name": "ice_block_c",
+  "problems": []
+ }
+]

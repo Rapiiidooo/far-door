@@ -74,6 +74,14 @@ export const CHAPTERS = [
     start: "Beyond the far door",
     blurb: "Follow Mira's trail across the floating isles on bridges of light.",
   },
+  {
+    id: "frost",
+    level: 4,
+    title: "The Frozen Reach",
+    start: "Beyond Mira's ring",
+    blurb:
+      "Slide the ice, push its blocks and cross the lake to the glyph it keeps.",
+  },
 ];
 
 const saved = read(PROGRESS_KEY);

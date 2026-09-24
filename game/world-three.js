@@ -10,8 +10,8 @@ import { SunDisc, fallbackDisc } from "./disc.js";
 // The third world and the third level: a sky at dawn over a sea of golden cloud, pale isles
 // floating in it, and more rings of the network hanging in the distance. The checkpoint's far
 // door opens onto the first isle, whose ring leads back; the explorer crosses the others on
-// bridges of light (isles.js) to Mira's last camp, where the closing shot finds the explorer
-// before a ring whose address is missing a glyph.
+// bridges of light (isles.js) to Mira's last camp and her ring. Given two glyphs of three,
+// the ring opens halfway, onto the frozen reach (world-four.js).
 
 // Low and off to the side, so the vista through the door is lit across rather than glaring.
 const SUN = new THREE.Vector3(0.62, 0.2, -0.76).normalize();
@@ -286,10 +286,14 @@ export class WorldThree {
   }
 
   // --- entering and leaving ------------------------------------------------------------------
-  enter({ through = null, arrive = false } = {}) {
+  enter({ through = null, arrive = false, back = null } = {}) {
     this.active = true;
     const hero = this.hero;
-    if (through) {
+    if (back !== null) {
+      // Back out of the frozen reach: in front of Mira's ring, facing the camp.
+      const R = this.isles.ring;
+      hero.spawn(R.center.x + back, R.center.z + 1.4, R.daisTop + 0.02, 0);
+    } else if (through) {
       // Stepping through the far door: the same offset from its twin, still walking on.
       hero.pos.x = this.gateCenter.x + through.x;
       hero.pos.z = this.gateCenter.z + through.z;
@@ -465,10 +469,32 @@ export class WorldThree {
     this.composer.render();
   }
 
-  // Mira's journal read: the explorer walks to the ring whose third glyph is missing, and the
-  // camera rises away over the isles before the title and the credits.
-  finaleShot(hero, onDone) {
-    return new FinaleShot(this, hero, onDone);
+  // Mira's journal read, two glyphs lit: the ring charges, ignites and opens halfway, its
+  // membrane plain light, onto the frozen reach.
+  openRing(state) {
+    const R = this.isles.ring;
+    if (R.phase !== "closed") return;
+    R.onOpen = () =>
+      this.services.hud.subtitle(
+        "Two glyphs of three, and still it opens. Onto ice.",
+        4,
+      );
+    R.ignite(2);
+    R.open(state, [
+      { at: 0, eye: [7, -2, 13.5], look: [0, -0.6, 0] },
+      { at: 2, eye: [5.5, -2.3, 11.5], look: [0, -0.2, 0] },
+      { at: 5.4, eye: [3.2, -2.4, 9.6], look: [0, -0.4, -2] },
+      { at: 8.6, eye: [2.6, -1.8, 8.4], look: [0, -0.6, -4] },
+      { at: 9.2, eye: [2.5, -1.8, 8.2], look: [0, -0.6, -4] },
+    ]);
+  }
+
+  // The isles as the explorer left them: Mira's journal read and her ring open onto the ice.
+  solve() {
+    const R = this.isles.ring;
+    this.isles.read = true;
+    for (let i = 0; i < 3; i++) R.ignite(i);
+    R.forceOpen();
   }
 
   // Everything the isles can show during play, shown once for the shader compiler.
@@ -501,101 +527,6 @@ export class WorldThree {
     this.composer?.setSize(w, h);
     this.composer?.setPixelRatio(this.renderer.getPixelRatio());
   }
-}
-
-class FinaleShot {
-  constructor(three, hero, onDone) {
-    this.three = three;
-    this.hero = hero;
-    this.onDone = onDone;
-    this.t = 0;
-    this.letterbox = true;
-    const ring = three.isles.ring;
-    this.ring = ring.center.clone();
-    this.from = { x: hero.pos.x, z: hero.pos.z };
-    // Before the dais, a little off the centre line, looking up at the blank medallion.
-    this.to = { x: ring.center.x + 0.9, z: ring.center.z + 6.4 };
-    this.titled = false;
-  }
-
-  update(dt, camera) {
-    this.t += dt;
-    const h = this.hero;
-    const w = this.three.isles;
-    // A few steps to the ring, then still.
-    const walk = smooth(0, 2.6, this.t);
-    const x = this.from.x + (this.to.x - this.from.x) * walk,
-      z = this.from.z + (this.to.z - this.from.z) * walk;
-    const moving = this.t < 2.6;
-    h.vel.x = moving ? (x - h.pos.x) / Math.max(dt, 1e-3) : 0;
-    h.vel.z = moving ? (z - h.pos.z) / Math.max(dt, 1e-3) : 0;
-    h.pos.x = x;
-    h.pos.z = z;
-    const ground = w.groundAt(x, z);
-    if (ground > -1e3) h.feet = ground;
-    const want = moving
-      ? Math.atan2(this.to.x - this.from.x, this.to.z - this.from.z)
-      : Math.PI;
-    h.yaw +=
-      Math.atan2(Math.sin(want - h.yaw), Math.cos(want - h.yaw)) *
-      Math.min(1, dt * 5);
-    h.state = "ground";
-    // The camera: over the shoulder at the ring, round to its blank medallion, then up and away
-    // over the camp towards the far rings. Keys are relative to the ring's centre.
-    const keys = [
-      [0, [4.2, -1.6, 12.5], [0.4, -0.6, 0]],
-      [4.5, [-4.8, -2.2, 9.2], [1.2, 0.2, 0]],
-      [9, [-11, 4.5, 17], [0, 0, -12]],
-      [16, [-15, 11, 25], [4, 2, -60]],
-    ];
-    let i = 0;
-    while (i < keys.length - 2 && this.t > keys[i + 1][0]) i++;
-    const [ta, ea, la] = keys[i],
-      [tb, eb, lb] = keys[i + 1];
-    const q = smooth(ta, tb, this.t);
-    const mixv = (a, b) =>
-      V(
-        a[0] + (b[0] - a[0]) * q,
-        a[1] + (b[1] - a[1]) * q,
-        a[2] + (b[2] - a[2]) * q,
-      );
-    const eye = mixv(ea, eb).add(this.ring);
-    const look = mixv(la, lb).add(this.ring);
-    if (!this.start)
-      this.start = {
-        pos: camera.position.clone(),
-        quat: camera.quaternion.clone(),
-      };
-    const probe = this.probe || (this.probe = new THREE.PerspectiveCamera());
-    probe.position.copy(eye);
-    probe.lookAt(look);
-    const blend = smooth(0, 1.4, this.t);
-    camera.position.lerpVectors(this.start.pos, probe.position, blend);
-    camera.quaternion.slerpQuaternions(
-      this.start.quat,
-      probe.quaternion,
-      blend,
-    );
-    if (!this.titled && this.t > 8) {
-      this.titled = true;
-      const card = document.querySelector("#chapter-card");
-      card.querySelector(".kicker").textContent = "The network has more doors";
-      card.querySelector("h2").textContent = "Far Door";
-      card.querySelector(".sub").textContent = "To be continued.";
-      card.classList.add("on");
-      setTimeout(() => card.classList.remove("on"), 5200);
-    }
-    if (this.t > 13 && this.onDone) {
-      const done = this.onDone;
-      this.onDone = null;
-      done();
-    }
-  }
-}
-
-function smooth(a, b, x) {
-  const t = Math.min(1, Math.max(0, (x - a) / (b - a)));
-  return t * t * (3 - 2 * t);
 }
 
 // Until the generated isle arrives: a flat-topped stone with a hanging cone of rock.

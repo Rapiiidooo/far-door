@@ -2,13 +2,15 @@
 // key events, steering by the telemetry the game publishes (position, camera heading,
 // mirror catches, the isles' pylons), and saves a screenshot at each milestone.
 //   node scripts/playthrough.mjs [outDir] [--url=http://localhost:3002/?nolock=1]
-//   [--from=w2 | --from=w3] starts at the checkpoint or on the isles instead of the title.
+//   [--from=w2 | --from=w3 | --from=w4] starts at the checkpoint, on the isles or in the frozen
+//   reach instead of the title.
 import puppeteer from "puppeteer-core";
 import { mkdir, rm, writeFile } from "node:fs/promises";
 
 const out = process.argv[2] || "outputs/playthrough";
 const fromW2 = process.argv.includes("--from=w2");
-const fromW3 = process.argv.includes("--from=w3");
+const fromW4 = process.argv.includes("--from=w4");
+const fromW3 = fromW4 || process.argv.includes("--from=w3");
 const url =
   process.argv.find((a) => a.startsWith("--url="))?.slice(6) ||
   `http://localhost:3002/?nolock=1`;
@@ -84,6 +86,26 @@ async function go(x, z, { tol = 0.35, walk = true, timeout = 12000 } = {}) {
   const s = await state();
   throw new Error(
     `go ${x},${z} stuck at ${s.pos.map((v) => v.toFixed(2))} feet ${s.feet.toFixed(2)} ${s.state}`,
+  );
+}
+// On ice the explorer slides on after the keys are let go: steer, brake and wait until it has
+// come to rest within `tol` of the spot.
+async function settle(x, z, { tol = 0.3, timeout = 15000 } = {}) {
+  const t0 = Date.now();
+  while (Date.now() - t0 < timeout) {
+    const s = await state();
+    const { keys, d } = steer(s, x, z);
+    if (d < tol && s.speed < 0.35) {
+      await hold(new Set());
+      return s;
+    }
+    if (d < 1.5) keys.push("ShiftLeft");
+    await hold(new Set(d < tol ? [] : keys));
+    await sleep(25);
+  }
+  const s = await state();
+  throw new Error(
+    `settle ${x},${z} stuck at ${s.pos.map((v) => v.toFixed(2))} speed ${s.speed.toFixed(2)}`,
   );
 }
 async function jumpToward(x, z, ms = 800) {
@@ -247,9 +269,15 @@ try {
   if (fromW2 || fromW3) {
     // The Levels menu, unlocked by a previous run in this profile or not at all: start the
     // checkpoint or the isles through the development shortcut instead.
-    await page.goto(url + (fromW3 ? "&chapter=isles" : "&chapter=checkpoint"), {
-      waitUntil: "load",
-    });
+    await page.goto(
+      url +
+        (fromW4
+          ? "&chapter=frost"
+          : fromW3
+            ? "&chapter=isles"
+            : "&chapter=checkpoint"),
+      { waitUntil: "load" },
+    );
     await page.waitForFunction(() => window.__READY__ === true, {
       timeout: 60000,
     });
@@ -412,7 +440,8 @@ try {
     );
   }
   if (!fromW3) await checkpoint(s);
-  await isles();
+  if (!fromW4) await isles();
+  await frost();
   // Nothing compiled since the first level started: every door crossed without a stall.
   s = await state();
   note(
@@ -775,8 +804,175 @@ async function isles() {
   if (!reading) throw new Error("Mira's journal did not open");
   await shot("mira-journal");
   await tap(["KeyE"], 120);
-  s = await until((s) => s.isles.read && s.cinematic, 6000, "the finale");
-  note("read Mira's journal; the finale plays");
+  s = await until((s) => s.isles.read && s.cinematic, 8000, "the ring opens");
+  note("read Mira's journal; her ring opens");
+  await sleep(6500);
+  await shot("mira-ring");
+  s = await until(
+    (s) => !s.cinematic && s.isles.ring.phase === "open",
+    20000,
+    "the ring open",
+  );
+  // Through the ring, halfway open onto the ice.
+  const r = s.isles.ring;
+  await go(r.x, r.z + 2.6, { tol: 0.4, walk: false });
+  await turnTo(r.x, r.z - 10);
+  await hold(new Set(["KeyW"]));
+  await until((s) => s.where === "four", 6000, "through Mira's ring");
+  await hold(new Set());
+  note("through Mira's ring into the frozen reach");
+}
+
+// The frozen reach: the stream's slide and its crevasse, the blocks of the pond, the thin ice
+// and the floes of the lake, then the glyph freed from the ice and the ring onto the forest.
+async function frost() {
+  let s = await until(
+    (s) => s.where === "four" && s.frozen,
+    8000,
+    "arrive in the frozen reach",
+  );
+  note(`in the frozen reach at ${s.pos.map((v) => v.toFixed(2))}`);
+  await sleep(1800);
+  await shot("frost-arrival");
+  const F = () => state().then((s) => s.frozen);
+  // The stream: straight down the ice at a run, a jump at the crevasse's edge.
+  await go(0, -11, { tol: 0.5, walk: false });
+  await turnTo(0, -80);
+  await hold(new Set(["KeyW"]));
+  await until((s) => s.pos[1] < -43.1, 15000, "slide to the crevasse");
+  await hold(new Set(["KeyW", "Space"]));
+  await sleep(420);
+  await hold(new Set(["KeyW"]));
+  s = await until(
+    (s) => s.state === "ground" && s.pos[1] < -46.9,
+    5000,
+    "land across the crevasse",
+  );
+  await hold(new Set());
+  note(`slid and jumped the crevasse: ${s.pos.map((v) => v.toFixed(2))}`);
+  await shot("frost-crevasse");
+  // The pond: push the block east against a pillar, then north under the notch.
+  // From a stop 1.5 m off the block's face, walk into it holding the grip until it goes.
+  const push = async (x, z, dir, label) => {
+    await settle(x, z);
+    await turnTo(x + dir[0] * 10, z + dir[1] * 10);
+    await hold(new Set(["KeyE", "KeyW"]));
+    await until((s) => s.frozen.block.state === "sliding", 4000, label);
+    await hold(new Set());
+    return until((s) => s.frozen.block.state === "rest", 5000, label);
+  };
+  s = await push(-5.45, -61, [1, 0], "push the block east");
+  note(`pushed the block east to ${s.frozen.block.x}, ${s.frozen.block.z}`);
+  s = await push(3, -58.55, [0, -1], "push the block north");
+  note(`pushed the block north to ${s.frozen.block.x}, ${s.frozen.block.z}`);
+  if (
+    Math.abs(s.frozen.block.x - 3) > 0.1 ||
+    Math.abs(s.frozen.block.z + 73) > 0.1
+  )
+    throw new Error(
+      `the block missed the notch: ${JSON.stringify(s.frozen.block)}`,
+    );
+  await shot("frost-block");
+  // Up the block, then up the notch.
+  const climb = async (feet, label) => {
+    for (let i = 0; i < 4; i++) {
+      await tap(["KeyW", "Space"], 350);
+      await sleep(250);
+      let t = await state();
+      if (t.state === "hang") {
+        await tap(["KeyW"], 700);
+        await sleep(900);
+      }
+      t = await state();
+      if (t.state === "ground" && Math.abs(t.feet - feet) < 0.1) return t;
+      await sleep(400);
+    }
+    throw new Error(`${label}: ${JSON.stringify(await state()).slice(0, 200)}`);
+  };
+  await settle(3, -71.3);
+  await turnTo(3, -90);
+  await climb(1.9, "climb the block");
+  await climb(3.8, "climb out at the notch");
+  note("climbed out of the pond by the block");
+  // Down to the shore, then a run across the thin ice to the anchored floe.
+  await go(0, -90, { tol: 0.5, walk: false });
+  await go(0, -100.5, { tol: 0.5, walk: false });
+  await turnTo(0, -130);
+  await hold(new Set(["KeyW"]));
+  s = await until(
+    (s) => s.state === "ground" && s.pos[1] < -121.8 && s.feet > 0.18,
+    9000,
+    "run the thin ice to the floe",
+  );
+  await hold(new Set());
+  note(`ran the thin ice: ${(await F()).thin.join(", ")}`);
+  await shot("frost-thin-ice");
+  // The floes: aboard each as it drifts past, then onto the island.
+  const jumpWhen = async (ready, onto, label) => {
+    await until(ready, 30000, label);
+    await tap(["KeyW", "Space"], 420);
+    return until(onto, 4000, label);
+  };
+  s = await state();
+  await go(0, -124.4, { tol: 0.3 });
+  await turnTo(0, -140);
+  s = await jumpWhen(
+    (s) => Math.abs(s.frozen.floes[0] - s.pos[0]) < 1.2,
+    (s) => s.state === "ground" && s.pos[1] < -125.9,
+    "onto the first floe",
+  );
+  // Carried along x, the explorer only steps forward on the floe, never to a fixed spot.
+  const edge = async (z) => {
+    for (let t0 = Date.now(); Date.now() - t0 < 2500;) {
+      const t = await state();
+      if (t.pos[1] <= z) break;
+      await hold(new Set(["KeyW", "ShiftLeft"]));
+      await sleep(30);
+    }
+    await hold(new Set());
+  };
+  await edge(-128.4);
+  s = await jumpWhen(
+    (s) => Math.abs(s.frozen.floes[1] - s.pos[0]) < 1.2,
+    (s) => s.state === "ground" && s.pos[1] < -130.1,
+    "onto the second floe",
+  );
+  note("rode the floes");
+  await edge(-132.6);
+  s = await jumpWhen(
+    (s) => Math.abs(s.pos[0]) < 1.1,
+    (s) => s.state === "ground" && s.pos[1] < -134.5 && s.feet > 0.5,
+    "onto the island",
+  );
+  note(`on the island at ${s.pos.map((v) => v.toFixed(2))}`);
+  await shot("frost-island");
+  // The glyph: charge the disc in the prism's beam, strike the ice until it falls away.
+  await go(-2.4, -141.4, { tol: 0.4 });
+  for (let i = 0; i < 12 && !(await F()).freed; i++) {
+    s = await until(
+      (s) => s.frozen.disc?.state === "held",
+      6000,
+      "disc in hand",
+    );
+    if (!s.frozen.disc.charged) {
+      await turnTo(-5, -143);
+      await tap(["KeyR"], 80);
+      await sleep(1200);
+      continue;
+    }
+    await turnTo(0, -147.5);
+    await tap(["KeyR"], 80);
+    await sleep(1100);
+  }
+  s = await state();
+  if (!s.frozen.freed)
+    throw new Error(`the glyph is still frozen: ${s.frozen.broken}`);
+  note("freed the third glyph from the ice");
+  s = await until((s) => s.cinematic, 6000, "the great ring opens");
   await sleep(7000);
+  await shot("frost-ring-opening");
+  s = await until((s) => s.frozen.ring === "open", 20000, "the ring open");
+  note("the great ring opened onto the forest");
+  await sleep(9000);
   await shot("finale");
 }

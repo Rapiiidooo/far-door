@@ -103,6 +103,21 @@ function waves(width, amp, w) {
   return shapes;
 }
 
+// A six-pointed star with a small hole at its heart.
+function star(outer, inner, hole) {
+  const pts = [];
+  for (let k = 0; k < 12; k++) {
+    const a = Math.PI / 2 + (k * Math.PI) / 6,
+      r = k % 2 ? inner : outer;
+    pts.push(new THREE.Vector2(Math.cos(a) * r, Math.sin(a) * r));
+  }
+  const s = new THREE.Shape(pts);
+  const h = new THREE.Path();
+  h.absarc(0, 0, hole, 0, Math.PI * 2, true);
+  s.holes.push(h);
+  return s;
+}
+
 const SHAPES = {
   twin: () => [ring(0.23, 0.07, -0.21), ring(0.23, 0.07, 0.21)],
   spiral: () => [spiral(2.2, 0.02, 0.4, 0.07)],
@@ -110,6 +125,7 @@ const SHAPES = {
   crescent: () => [crescent(0.42)],
   waves: () => waves(0.84, 0.06, 0.075),
   disc: () => [ring(0.4, 0.075), disc(0.12)],
+  star: () => [star(0.44, 0.15, 0.06)],
 };
 
 export function makeGlyph(kind, size, material) {

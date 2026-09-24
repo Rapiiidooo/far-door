@@ -15,6 +15,7 @@ import { Menu } from "./menu.js";
 import { Gate } from "./gate.js";
 import { WorldTwo } from "./world-two.js";
 import { WorldThree } from "./world-three.js";
+import { WorldFour } from "./world-four.js";
 import { CAMP } from "./isles.js";
 import { isleAt } from "./world.js";
 import { Sound } from "./sound.js";
@@ -123,6 +124,8 @@ const MOVING = new Set([
   "path_lantern",
   "floating_isle",
   "light_pylon",
+  "ice_casing",
+  "glow_mushroom",
 ]);
 const ASSETS = [
   "hero_explorer",
@@ -154,6 +157,15 @@ const ASSETS = [
   "expedition_rope",
   "floating_isle",
   "light_pylon",
+  "ice_block",
+  "ice_spire",
+  "ice_casing",
+  "snow_pine",
+  "frost_cairn",
+  "wild_tree",
+  "fern_cluster",
+  "glow_mushroom",
+  "rubble_pile",
 ];
 const available = new Map();
 async function probe(name) {
@@ -192,7 +204,7 @@ const bubbles = new Bubbles();
 const follow = new FollowCamera(camera, world);
 const hero = new Hero(world, level);
 const credits = new Credits(document.querySelector("#credits"), input);
-let heroModel, animator, beams, gate, worldTwo, worldThree, story;
+let heroModel, animator, beams, gate, worldTwo, worldThree, worldFour, story;
 // The explorer wears the rig's patched materials in the court and plain copies in the other
 // worlds, which have their own light and no cascades.
 const heroLooks = new Map();
@@ -281,6 +293,10 @@ async function load() {
   worldThree = new WorldThree(renderer, assets, { sound, hud, Gate });
   await worldThree.build();
   worldTwo.exitGate.destination = worldThree;
+  loading(0.71, "Freezing the reach beyond…");
+  await frameYield();
+  worldFour = new WorldFour(renderer, assets, { sound, hud, Gate });
+  await worldFour.build();
 
   loading(0.74, "Dressing the explorer…");
   heroModel =
@@ -323,6 +339,15 @@ async function load() {
     palm: heroModel.userData.joints.rightHand ? animator.ik.right?.palm : null,
   });
   worldThree.isles.onRead = () => openNotes("mira");
+  await worldFour.wire({
+    hero,
+    heroModel,
+    follow,
+    dust,
+    state,
+    palm: heroModel.userData.joints.rightHand ? animator.ik.right?.palm : null,
+  });
+  worldFour.onFinale = () => finale();
   story = new CourtStory({ hero, level, beams, gate, hud });
   const N = COURT.NOTES;
   level.notes = {
@@ -343,12 +368,14 @@ async function load() {
     drawColliders(scene, world);
     drawColliders(worldTwo.scene, worldTwo.world);
     drawColliders(worldThree.scene, worldThree.world);
+    drawColliders(worldFour.scene, worldFour.world);
   }
   if (params.has("debug"))
     window.__FD__ = {
       THREE,
       worldTwo,
       worldThree,
+      worldFour,
       level,
       hero,
       gate,
@@ -420,6 +447,19 @@ async function precompile() {
   await compile(worldThree.composer.readBuffer, worldThree.scene);
   worldThree.render(camera, 0.016);
   worldThree.prepareForCompile(false);
+  loading(0.96, "Lighting the frozen reach…");
+  await frameYield();
+  goTo("four", { arrive: true });
+  worldFour.prepareForCompile(true);
+  await compile(worldFour.ring.target, worldFour.forest.scene, [
+    worldFour.forest.clipPlane,
+  ]);
+  camera.position.set(1, 4, -146);
+  camera.lookAt(worldFour.ring.center);
+  worldFour.ring.renderView(camera);
+  await compile(worldFour.composer.readBuffer, worldFour.scene);
+  worldFour.render(camera, 0.016);
+  worldFour.prepareForCompile(false);
   worldTwo.prepareForCompile(false);
   goTo("court");
   hero.spawn(COURT.START.x, COURT.START.z, 8, COURT.START.yaw);
@@ -435,11 +475,13 @@ function dressHero(where) {
 function goTo(where, opts = {}) {
   if (state.where === "two" && where !== "two") worldTwo.leave();
   if (state.where === "three" && where !== "three") worldThree.leave();
+  if (state.where === "four" && where !== "four") worldFour.leave();
   state.where = where;
   dressHero(where);
   if (where === "court") {
     worldTwo.active = false;
     worldThree.active = false;
+    worldFour.active = false;
     heroModel.removeFromParent();
     scene.add(heroModel);
     hero.world = world;
@@ -450,12 +492,19 @@ function goTo(where, opts = {}) {
     for (const s of level.stelae) if (s.lit) hud.light(s.glyph);
   } else if (where === "two") {
     worldThree.active = false;
+    worldFour.active = false;
     worldTwo.enter(opts);
     dust.moveTo(worldTwo.scene, 0x6a5a78);
-  } else {
+  } else if (where === "three") {
     worldTwo.active = false;
+    worldFour.active = false;
     worldThree.enter(opts);
     dust.moveTo(worldThree.scene, 0xe8dcc4);
+  } else {
+    worldTwo.active = false;
+    worldThree.active = false;
+    worldFour.enter(opts);
+    dust.moveTo(worldFour.scene, 0xeaf2f8);
   }
 }
 
@@ -468,6 +517,7 @@ function resetWorlds() {
   gate.reset();
   worldTwo.reset();
   worldThree.reset();
+  worldFour.reset();
   bubbles.clear();
   hud.setAddress(["twin", "spiral", "peak"]);
   state.cinematic = null;
@@ -504,6 +554,14 @@ function startChapter(id) {
     goTo("three", { arrive: true });
     worldThree.startStory();
     sound.setMusic("isles");
+  } else if (chapter.id === "frost") {
+    // And for the frozen reach, Mira's ring opened behind it.
+    solveCourt();
+    worldTwo.solve();
+    worldThree.solve();
+    goTo("four", { arrive: true });
+    worldFour.startStory();
+    sound.setMusic("frost");
   } else {
     goTo("court");
     if (chapter.id === "floor")
@@ -532,11 +590,7 @@ function startChapter(id) {
   state.programsAtStart ??= renderer.info.programs.length;
   lockPointer();
   // Development shortcut: ?lit=1 lights the court's address at once.
-  if (
-    params.has("lit") &&
-    chapter.id !== "checkpoint" &&
-    chapter.id !== "isles"
-  )
+  if (params.has("lit") && (chapter.id === "court" || chapter.id === "floor"))
     for (const s of level.stelae) {
       s.lit = true;
       beams.onLit(s);
@@ -574,7 +628,8 @@ function closeNotes() {
     hud.setMarkers([]);
     hud.subtitle("Two glyphs of three. Then I'll find the third.", 4.2);
     setTimeout(() => {
-      if (state.mode === "play" && state.where === "three") finale();
+      if (state.mode === "play" && state.where === "three")
+        worldThree.openRing(state);
     }, 2200);
   }
 }
@@ -715,11 +770,11 @@ function skipHelp() {
 function refreshLevels() {
   const list = document.querySelector("#level-list");
   list.innerHTML = "";
-  for (const n of [1, 2, 3]) {
+  for (const n of [1, 2, 3, 4]) {
     const starts = CHAPTERS.filter((c) => c.level === n);
     const open = starts.filter((c) => progress.reached.has(c.id));
     const card = document.createElement("div");
-    card.className = `level-card${n === 2 ? " two" : n === 3 ? " three" : ""}${open.length ? "" : " locked"}`;
+    card.className = `level-card${["", "", " two", " three", " four"][n]}${open.length ? "" : " locked"}`;
     card.innerHTML = `<p class="num">Level ${n}</p><h3>${starts[0].title}</h3><p class="blurb">${starts[0].blurb}</p>`;
     for (const c of starts) {
       const b = document.createElement("button");
@@ -736,9 +791,11 @@ function refreshLevels() {
       p.textContent =
         n === 2
           ? "Open the first far door to reach it."
-          : "Open the far door beyond the checkpoint to reach it.";
+          : n === 3
+            ? "Open the far door beyond the checkpoint to reach it."
+            : "Follow Mira through her ring on the isles to reach it.";
       card.appendChild(p);
-    } else if (n === 3 && progress.finished) {
+    } else if (n === 4 && progress.finished) {
       const p = document.createElement("p");
       p.className = "state";
       p.textContent = "Completed.";
@@ -847,7 +904,31 @@ function updateCrossing(dt) {
     // Whatever the last world was saying stays behind with it.
     hud.clearSubtitle();
     hud.clearChapter();
-    if (c.to === "two" && c.opts.back) {
+    if (c.to === "three" && c.opts.back) {
+      // Back out of Mira's ring's twin: the camp on the isles, the ring still open.
+      goTo("three", { back: c.opts.x || 0 });
+      follow.snap(hero, false);
+      state.chapter = "isles";
+      sound.setMusic("isles");
+    } else if (c.to === "four") {
+      const R = worldThree.isles.ring;
+      goTo("four", {
+        through: {
+          x: hero.pos.x - R.center.x,
+          z: hero.pos.z - R.center.z,
+          feet: hero.feet - R.daisTop,
+        },
+      });
+      state.chapter = "frost";
+      worldFour.startStory();
+      sound.setMusic("frost");
+      if (reach("frost"))
+        setTimeout(
+          () =>
+            hud.chapter("Level 4", "The Frozen Reach", "Beyond Mira's ring"),
+          900,
+        );
+    } else if (c.to === "two" && c.opts.back) {
       // Back out of the far door from the isles: the checkpoint as it was left.
       goTo("two", { back: c.opts.x || 0 });
       follow.snap(hero, false);
@@ -906,12 +987,12 @@ function updateCrossing(dt) {
   if (c.t > 1.15) state.crossing = null;
 }
 
-// Mira's journal read: the explorer goes to the ring, the camera rises over the isles, the
-// title comes up, then the credits roll back to the menu.
+// The great ring open onto the forest: the explorer steps up to it, the camera closes in on
+// the world beyond, the title comes up, then the credits roll back to the menu.
 function finale() {
   finishGame();
   sound.setMusic("finale");
-  state.cinematic = worldThree.finaleShot(hero, () => {
+  state.cinematic = worldFour.finaleShot(hero, () => {
     state.mode = "credits";
     hud.hide();
     document.exitPointerLock?.();
@@ -919,7 +1000,7 @@ function finale() {
     credits.play(() => toTitle());
   });
   setTimeout(() => {
-    if (state.cinematic && state.where === "three")
+    if (state.cinematic && state.where === "four")
       hud.subtitle("Their trail goes on, through door after door.", 4.5);
   }, 5200);
 }
@@ -976,7 +1057,7 @@ function frame(now) {
       if (!state.paused) step(dt);
     }
   } else if (state.mode === "credits") {
-    worldThree.ambient(dt);
+    worldFour.ambient(dt);
     if (state.cinematic) {
       state.cinematic.update(dt, camera);
       if (state.cinematic.done) state.cinematic = null;
@@ -1000,6 +1081,7 @@ function frame(now) {
 function render(dt) {
   if (state.where === "two") worldTwo.render(camera, dt);
   else if (state.where === "three") worldThree.render(camera, dt);
+  else if (state.where === "four") worldFour.render(camera, dt);
   else {
     gate.renderPortal(camera);
     rig.render(camera, dt);
@@ -1057,6 +1139,14 @@ function step(dt) {
     });
     if (!state.crossing && worldThree.returnCrossed(hero))
       cross("two", { back: true, x: hero.pos.x - worldThree.gateCenter.x });
+    if (!state.crossing && worldThree.isles.ring.crossed(hero)) cross("four");
+  } else if (state.where === "four") {
+    worldFour.update(dt, hero, state, {
+      throw: !blocked && input.pressed("throw"),
+      camera,
+    });
+    if (!state.crossing && worldFour.returnCrossed(hero))
+      cross("three", { back: true, x: hero.pos.x - worldFour.gateCenter.x });
   }
   updateCrossing(dt);
   bubbles.update(dt, camera);
@@ -1137,7 +1227,14 @@ function onHeroEvent(e) {
     const b = hero.grip?.ref;
     if (b) dust.burst(b.x, 0, b.z, 1.1, 16);
   }
-  if (e === "strain" && !state.strainHinted) {
+  if (e === "strain" && state.where === "four" && !state.iceStrainHinted) {
+    state.iceStrainHinted = true;
+    hud.hint(
+      "Ice",
+      "A block of ice cannot be pulled, and it will not slide off the ice. Push it from another side.",
+      7,
+    );
+  } else if (e === "strain" && !state.strainHinted) {
     state.strainHinted = true;
     hud.hint(
       "Blocks",
@@ -1147,11 +1244,15 @@ function onHeroEvent(e) {
   }
   if (e === "respawn")
     hud.blackout(
-      hero.lastFall !== "deep"
-        ? "Too far to fall."
-        : state.where === "three"
-          ? "The clouds close over the fall."
-          : "The dark swallows the fall.",
+      hero.lastFall === "water"
+        ? "The cold water throws you back."
+        : hero.lastFall !== "deep"
+          ? "Too far to fall."
+          : state.where === "three"
+            ? "The clouds close over the fall."
+            : state.where === "four"
+              ? "The ice swallows the fall."
+              : "The dark swallows the fall.",
     );
   sound.play(e);
 }
@@ -1205,6 +1306,7 @@ function publish() {
     })),
     exitOpen: !!worldTwo?.exitGate?.isOpen,
     isles: islesTelemetry(),
+    frozen: frozenTelemetry(),
     credits: credits.running,
     assets: Object.fromEntries(available),
   };
@@ -1242,6 +1344,13 @@ function islesTelemetry() {
       left: +p.bridge.left.toFixed(2),
     })),
     note: I.notePos ? xz(I.notePos) : null,
+    ring: I.ring
+      ? {
+          x: +I.ring.center.x.toFixed(2),
+          z: +I.ring.center.z.toFixed(2),
+          phase: I.ring.phase,
+        }
+      : null,
     ferry: I.isle("ferry")?.run
       ? {
           z: +I.isle("ferry").collider.z.toFixed(2),
@@ -1279,6 +1388,26 @@ function fitCamera() {
   camera.updateProjectionMatrix();
 }
 
+// What the play-through steers by in the frozen reach.
+function frozenTelemetry() {
+  const F = worldFour?.frozen;
+  if (!F) return null;
+  const r = (v) => +v.toFixed(2);
+  return {
+    reached: F.reached,
+    section: F.guideKey,
+    block: F.blocks.map((b) => ({ x: r(b.x), z: r(b.z), state: b.state }))[0],
+    floes: F.floes.map((f) => r(f.x)),
+    thin: F.thin.map((t) => t.phase),
+    broken: F.broken,
+    freed: F.freed,
+    ring: worldFour.ring.phase,
+    disc: worldFour.disc
+      ? { state: worldFour.disc.state, charged: worldFour.disc.charged }
+      : null,
+  };
+}
+
 function resize() {
   renderer.setPixelRatio(pixelRatio());
   renderer.setSize(innerWidth, innerHeight);
@@ -1287,6 +1416,7 @@ function resize() {
   gate?.resize();
   worldTwo?.resize(innerWidth, innerHeight);
   worldThree?.resize(innerWidth, innerHeight);
+  worldFour?.resize(innerWidth, innerHeight);
 }
 addEventListener("resize", resize);
 input.onUnlock = () => {

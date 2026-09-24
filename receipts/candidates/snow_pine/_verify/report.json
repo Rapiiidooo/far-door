@@ -1,0 +1,116 @@
+[
+ {
+  "ok": true,
+  "mounts": null,
+  "meshes": 3,
+  "tris": 1208,
+  "materials": 3,
+  "size": [
+   4.15,
+   7.006,
+   4.079
+  ],
+  "groundOffset": 0,
+  "centreOffset": [
+   0,
+   0
+  ],
+  "sides": {
+   "front": {
+    "coverage": 0.1271,
+    "edgeDensity": 0.1147
+   },
+   "right": {
+    "coverage": 0.1194,
+    "edgeDensity": 0.1105
+   },
+   "back": {
+    "coverage": 0.0906,
+    "edgeDensity": 0.1271
+   },
+   "left": {
+    "coverage": 0.1009,
+    "edgeDensity": 0.1306
+   }
+  },
+  "error": null,
+  "name": "snow_pine_a",
+  "problems": []
+ },
+ {
+  "ok": true,
+  "mounts": null,
+  "meshes": 3,
+  "tris": 2466,
+  "materials": 3,
+  "size": [
+   4.366,
+   7,
+   4.366
+  ],
+  "groundOffset": 0,
+  "centreOffset": [
+   0,
+   0
+  ],
+  "sides": {
+   "front": {
+    "coverage": 0.1229,
+    "edgeDensity": 0.1497
+   },
+   "right": {
+    "coverage": 0.1174,
+    "edgeDensity": 0.1328
+   },
+   "back": {
+    "coverage": 0.1123,
+    "edgeDensity": 0.1376
+   },
+   "left": {
+    "coverage": 0.1156,
+    "edgeDensity": 0.1575
+   }
+  },
+  "error": null,
+  "name": "snow_pine_b",
+  "problems": []
+ },
+ {
+  "ok": true,
+  "mounts": null,
+  "meshes": 3,
+  "tris": 3138,
+  "materials": 3,
+  "size": [
+   3.948,
+   7,
+   3.784
+  ],
+  "groundOffset": 0,
+  "centreOffset": [
+   0,
+   0
+  ],
+  "sides": {
+   "front": {
+    "coverage": 0.1149,
+    "edgeDensity": 0.2112
+   },
+   "right": {
+    "coverage": 0.1168,
+    "edgeDensity": 0.1752
+   },
+   "back": {
+    "coverage": 0.1123,
+    "edgeDensity": 0.2161
+   },
+   "left": {
+    "coverage": 0.1082,
+    "edgeDensity": 0.2567
+   }
+  },
+  "error": null,
+  "name": "snow_pine_c",
+  "problems": []
+ }
+]

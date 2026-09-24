@@ -49,7 +49,16 @@ The owner then found level 3 too short and too easy, and asked for more length a
 - **Tighter bridges:** 15, 12, 10 and 10 s (20, 16, 12 and 12 before). The camp is now 203 m out instead of 106, and Mira's journal mentions the ferry and the stones.
 - **The favicon:** `game/favicon.svg` draws the ring, its light and the three medallions; `apple-touch-icon.png` is rendered from it.
 
-The latest evidence is in [receipts/verification-isles-challenges](../receipts/verification-isles-challenges/README.md), [receipts/verification-jam](../receipts/verification-jam/README.md), [receipts/verification-hosting](../receipts/verification-hosting/README.md) and [receipts/verification-level-3](../receipts/verification-level-3/README.md); the earlier rounds are in [receipts/verification-rework](../receipts/verification-rework/README.md). Nothing after the first rework has been played by hand yet, and no physical phone has played the touch controls.
+The owner then asked for more detail everywhere, a new planet like a wild forest glimpsed on the "to be continued", and a level on ice, pushed and deployed once the play works:
+
+- **Mira's ring:** reading her journal lights two glyphs of three, and the ring charges, ignites and opens halfway, its membrane plain light, onto the frozen reach. Walking back through its twin returns to her camp. Her last entry says as much.
+- **Level 4, the frozen reach** (`frozen.js`, `world-four.js`): a twilight world of ice under ribbons of aurora, with falling snow. A frozen stream where the explorer slides (ice is `slick`: speed builds slowly and carries on) ends at a crevasse to jump. A frozen pond holds a block of ice that slides until something stops it, never pulled: pushed east against a spire, then north, it stops under the one low notch in the plateau's wall, where the explorer climbs out. A stuck block shatters under the disc and forms again at its start. Thin ice on the lake cracks a second after landing and breaks, and two floes drift across the channel half a round apart. On the island a prism charges the disc, and three charged strikes free a stela from three layers of ice that heal if left alone; its glyph, a six-pointed star, completes the address.
+- **The forest** (`forest.js`): the great ring on the island opens onto a wild forest of huge trees, ferns and glowing mushrooms under shafts of light, drawn only into the ring's portal. The closing shot walks the explorer to it and closes in on that view before "To be continued" and the credits.
+- **Detail:** fallen masonry and agaves in the court, more lumen plants along the checkpoint's valley, and the expedition's banners and crates and the builders' rubble on the new isles.
+- **Assets:** a fifth wave through the recipe, one agent per object writing three candidates and picking by eye in the game: `ice_block`, `ice_spire`, `ice_casing`, `snow_pine`, `frost_cairn`, `wild_tree`, `fern_cluster`, `glow_mushroom` and `rubble_pile`.
+- **A fix met on the way:** the explorer's last safe spot was throttled by a timer that every climb and grab reset, so after a climb no spot was remembered for as long as the explorer had played before it, and a fall could send them back a whole section. It now runs on a clock that never resets.
+
+The latest evidence is in [receipts/verification-frozen-reach](../receipts/verification-frozen-reach/README.md), [receipts/verification-isles-challenges](../receipts/verification-isles-challenges/README.md), [receipts/verification-jam](../receipts/verification-jam/README.md), [receipts/verification-hosting](../receipts/verification-hosting/README.md) and [receipts/verification-level-3](../receipts/verification-level-3/README.md); the earlier rounds are in [receipts/verification-rework](../receipts/verification-rework/README.md). Nothing after the first rework has been played by hand yet, and no physical phone has played the touch controls.
 
 ## Layout
 
@@ -59,10 +68,11 @@ The latest evidence is in [receipts/verification-isles-challenges](../receipts/v
 - **Movement:** `hero.js` (traversal and combat states), `hero-anim.js` (springs, gait, overlays, arm IK), `follow-camera.js`.
 - **The court:** `court.js` (map, props and their fitted shapes, ropes, starts), `level.js`, `cliffs.js`, `terrain.js`, `beams.js`, and `gate.js`, which holds the gate, its set piece, its portal and its colliders.
 - **Level 2:** `world-two.js` (valley, ridges, lanterns, both gates, the disc) and `checkpoint.js` (booth, wall, plates, Wardens, clerk, phases, guide). The Warden AI is in `wardens.js`, the pooled stamp ink and rings in `fx.js`, the speech bubbles in `bubbles.js`.
-- **Level 3:** `world-three.js` (sky, cloud sea, distant isles, the arrival ring, Mira's disc, the closing shot) and `isles.js` (the isles and their measured caps, the ferry and the crumbling stones, crystals, pylons, bridges, ropes, Mira's camp and ring, the guide).
+- **Level 4:** `world-four.js` (aurora sky, snow, the arrival twin, the great ring, the closing shot) and `frozen.js` (ground, ice and cliffs, the pond's sliding block, thin ice, floes, the prism, the stela and its casing, the guide); `forest.js` is the world seen through the great ring.
+- **Level 3:** `world-three.js` (sky, cloud sea, distant isles, the arrival ring, Mira's disc, her ring's opening) and `isles.js` (the isles and their measured caps, the ferry and the crumbling stones, crystals, pylons, bridges, ropes, Mira's camp and ring, the guide).
 - **Glyphs:** `glyphs.js` builds them in 3D; `glyph-icons.js` draws them for the HUD and the stamp ink.
 
-Development URL parameters: `?nolock=1` plays without pointer lock, `?chapter=court|floor|checkpoint|isles` starts a level, `?w2=1` is the checkpoint, `?at=x,z,feet[,yawDeg]` starts elsewhere, `?lit=1` lights the court's address, `?barrier=1` raises the checkpoint barrier, `?cam=x,y,z,tx,ty,tz` holds the camera still, `?colliders=1` draws every collider, and `?debug=1` exposes the game on `window.__FD__`.
+Development URL parameters: `?nolock=1` plays without pointer lock, `?chapter=court|floor|checkpoint|isles|frost` starts a level, `?w2=1` is the checkpoint, `?at=x,z,feet[,yawDeg]` starts elsewhere, `?lit=1` lights the court's address, `?barrier=1` raises the checkpoint barrier, `?cam=x,y,z,tx,ty,tz` holds the camera still, `?colliders=1` draws every collider, and `?debug=1` exposes the game on `window.__FD__`.
 
 ## Traps met on the way
 
@@ -77,6 +87,8 @@ Development URL parameters: `?nolock=1` plays without pointer lock, `?chapter=co
 - The r186 cascaded-shadow chunk never fills `material.dfg`, so `main.js` patches it, or every fully metallic surface renders black. Mirror faces keep their flat polished material.
 - Ground is found under the explorer's footprint, so a body can stand with its centre just past a lip. Anything that looks for the ledge under the explorer must also look under the heels.
 - Under SwiftShader, ANGLE builds pipelines at the first draw: `compileAsync` returns at once and the first frame pays, about 4 s for the court on this workstation.
+- `hero.t` restarts with each state: anything that must count real time (the safe-spot throttle) needs `hero.clock`.
+- On ice the explorer slides on after the keys are released: scripted steering must brake and wait for rest (`settle` in the play-through), and on a drifting floe it must step relative to the floe, never towards a fixed spot.
 - A moving isle moves its cap, its boulders, its bounding box and its mesh together, after the explorer's physics, and carries the explorer by the same step only when grounded on it; it is `unsafe`, so no respawn lands on it.
 - Any full-screen layer over the game must let touches through (`pointer-events: none`), or it swallows the stick or the tap that skips a shot. Automated checks that tap elsewhere will not notice: repeat the gate's own gesture.
 
