@@ -21,16 +21,16 @@ On 25 September 2026 the owner asked for a last level through the forest to the 
 
 ## The public URL
 
-Commit `54eccbb` was deployed to <https://fardoor.rapidoai.dev/> as release `20260924-54eccbbd18e0`; the served files checked match the commit. The jam gate, as published:
+Commit `54eccbb` was deployed first, as release `20260924-54eccbbd18e0`, and passed the jam gate against the public URL (ready in 5.7 s). The fish and mantas were then rebuilt from primitives, and commit `0408bd5` replaced it as release `20260924-0408bd54aaec`; the served files checked match the commit. The jam gate, as published:
 
 ```text
 === 404 JAM VERDICT ===
 url             https://fardoor.rapidoai.dev/
-utc             2026-09-24T23:43:11.201Z
-commit          54eccbbd18e080d2d5f5b4322e16f6cff4d5e197
+utc             2026-09-24T23:47:20.151Z
+commit          0408bd54aaec006d62513ce2ea5ba1fd3759c4c8
 viewport        390x844 @3x phone, real touch, Android Chrome UA
 network         4G: 4 Mbps down, 1 Mbps up, 60 ms latency, CPU 2x slower
-ready           5.7 s   budget 20 s   PASS
+ready           4.7 s   budget 20 s   PASS
 weight          3.7 MB   budget 10 MB   PASS
 started         yes (tap on #startb)
 moved           3.2 m   needs 1 m   PASS
@@ -45,7 +45,7 @@ RESULT: PASS
 === END ===
 ```
 
-With the software renderer forced it was ready in 10.0 s (10.1 s before this round) and passed too ([phone verdict](gate-live/phone-verdict.json), [software verdict](gate-live/software-verdict.json), [frame in motion](gate-live/phone-moving.png)).
+With the software renderer forced it was ready in 9.9 s (10.1 s before this round) and passed too ([phone verdict](gate-live/phone-verdict.json), [software verdict](gate-live/software-verdict.json), [frame in motion](gate-live/phone-moving.png)).
 
 ## Limits
 
