@@ -21,16 +21,16 @@ On 25 September 2026 the owner asked for a last level through the forest to the 
 
 ## The public URL
 
-Commit `54eccbb` was deployed first, as release `20260924-54eccbbd18e0`, and passed the jam gate against the public URL (ready in 5.7 s). The fish and mantas were then rebuilt from primitives, and commit `0408bd5` replaced it as release `20260924-0408bd54aaec`; the served files checked match the commit. The jam gate, as published:
+Three releases went out in turn, each checked against the public URL with the jam gate: commit `54eccbb` (release `20260924-54eccbbd18e0`, ready in 5.7 s), then `0408bd5` once the fish and mantas were built from primitives (`20260924-0408bd54aaec`, 4.7 s), then `71fb8e4` once the sea's objects became recipe assets (`20260925-71fb8e431320`). The served files checked match the last commit. The jam gate on it, as published:
 
 ```text
 === 404 JAM VERDICT ===
 url             https://fardoor.rapidoai.dev/
-utc             2026-09-24T23:47:20.151Z
-commit          0408bd54aaec006d62513ce2ea5ba1fd3759c4c8
+utc             2026-09-25T06:08:57.165Z
+commit          71fb8e4313209c50edd2eaca31ac822de7c100a3
 viewport        390x844 @3x phone, real touch, Android Chrome UA
 network         4G: 4 Mbps down, 1 Mbps up, 60 ms latency, CPU 2x slower
-ready           4.7 s   budget 20 s   PASS
+ready           4.8 s   budget 20 s   PASS
 weight          3.7 MB   budget 10 MB   PASS
 started         yes (tap on #startb)
 moved           3.2 m   needs 1 m   PASS
@@ -45,8 +45,8 @@ RESULT: PASS
 === END ===
 ```
 
-With the software renderer forced it was ready in 9.9 s (10.1 s before this round) and passed too ([phone verdict](gate-live/phone-verdict.json), [software verdict](gate-live/software-verdict.json), [frame in motion](gate-live/phone-moving.png)).
+With the software renderer forced it was ready in 10.1 s (10.1 s before this round) and passed too ([phone verdict](gate-live/phone-verdict.json), [software verdict](gate-live/software-verdict.json), [frame in motion](gate-live/phone-moving.png)).
 
 ## Limits
 
-Nobody has watched the new ending by hand or heard its music yet. The portrait frames come from a desktop GPU at a phone's size: during the ending a phone draws three worlds a frame (the frozen reach, the forest and the sea) and may drop frames there. The level the owner first described, with poisonous animals, traps and guards, was not built.
+Nobody has watched the new ending by hand or heard its music yet. The portrait frames come from a desktop GPU at a phone's size: during the ending a phone draws three worlds a frame (the frozen reach, the forest and the sea) and may drop frames there. The level the owner first described, with poisonous animals, traps and guards, was not built. The eighth wave has one candidate per brief where the others had three.

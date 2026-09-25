@@ -1,10 +1,10 @@
 === 404 JAM VERDICT ===
 url             https://fardoor.rapidoai.dev/
-utc             2026-09-24T23:47:20.151Z
-commit          0408bd54aaec006d62513ce2ea5ba1fd3759c4c8
+utc             2026-09-25T06:08:57.165Z
+commit          71fb8e4313209c50edd2eaca31ac822de7c100a3
 viewport        390x844 @3x phone, real touch, Android Chrome UA
 network         4G: 4 Mbps down, 1 Mbps up, 60 ms latency, CPU 2x slower
-ready           4.7 s   budget 20 s   PASS
+ready           4.8 s   budget 20 s   PASS
 weight          3.7 MB   budget 10 MB   PASS
 started         yes (tap on #startb)
 moved           3.2 m   needs 1 m   PASS
