@@ -1,0 +1,154 @@
+[
+ {
+  "ok": true,
+  "mounts": null,
+  "meshes": 7,
+  "tris": 1007,
+  "materials": 3,
+  "size": [
+   1.015,
+   0.135,
+   1.264
+  ],
+  "groundOffset": 0,
+  "centreOffset": [
+   0,
+   0
+  ],
+  "sides": {
+   "front": {
+    "coverage": 0.1122,
+    "edgeDensity": 0.0521
+   },
+   "right": {
+    "coverage": 0.086,
+    "edgeDensity": 0.0517
+   },
+   "back": {
+    "coverage": 0.0646,
+    "edgeDensity": 0.137
+   },
+   "left": {
+    "coverage": 0.0807,
+    "edgeDensity": 0.1005
+   }
+  },
+  "error": null,
+  "name": "manta_ray_a",
+  "problems": []
+ },
+ {
+  "ok": true,
+  "mounts": null,
+  "meshes": 11,
+  "tris": 830,
+  "materials": 3,
+  "size": [
+   0.999,
+   0.088,
+   1.009
+  ],
+  "groundOffset": 0,
+  "centreOffset": [
+   0,
+   0
+  ],
+  "sides": {
+   "front": {
+    "coverage": 0.0754,
+    "edgeDensity": 0.0686
+   },
+   "right": {
+    "coverage": 0.0649,
+    "edgeDensity": 0.0769
+   },
+   "back": {
+    "coverage": 0.0525,
+    "edgeDensity": 0.1293
+   },
+   "left": {
+    "coverage": 0.0637,
+    "edgeDensity": 0.102
+   }
+  },
+  "error": null,
+  "name": "manta_ray_b",
+  "problems": []
+ },
+ {
+  "ok": true,
+  "mounts": null,
+  "meshes": 15,
+  "tris": 407,
+  "materials": 4,
+  "size": [
+   0.21,
+   0.75,
+   1
+  ],
+  "groundOffset": 0,
+  "centreOffset": [
+   0,
+   0
+  ],
+  "sides": {
+   "front": {
+    "coverage": 0.0327,
+    "edgeDensity": 0.1548
+   },
+   "right": {
+    "coverage": 0.1615,
+    "edgeDensity": 0.0852
+   },
+   "back": {
+    "coverage": 0.039,
+    "edgeDensity": 0.1743
+   },
+   "left": {
+    "coverage": 0.1676,
+    "edgeDensity": 0.0892
+   }
+  },
+  "error": null,
+  "name": "reef_fish_a",
+  "problems": []
+ },
+ {
+  "ok": true,
+  "mounts": null,
+  "meshes": 15,
+  "tris": 421,
+  "materials": 4,
+  "size": [
+   0.207,
+   0.68,
+   1.192
+  ],
+  "groundOffset": 0,
+  "centreOffset": [
+   0,
+   0
+  ],
+  "sides": {
+   "front": {
+    "coverage": 0.0324,
+    "edgeDensity": 0.1762
+   },
+   "right": {
+    "coverage": 0.151,
+    "edgeDensity": 0.0806
+   },
+   "back": {
+    "coverage": 0.0347,
+    "edgeDensity": 0.1382
+   },
+   "left": {
+    "coverage": 0.1524,
+    "edgeDensity": 0.0907
+   }
+  },
+  "error": null,
+  "name": "reef_fish_b",
+  "problems": []
+ }
+]

@@ -792,7 +792,7 @@ class FinaleShot {
       this.titled = true;
       const card = document.querySelector("#chapter-card");
       card.querySelector(".kicker").textContent = "The network has more doors";
-      card.querySelector("h2").textContent = "Far Door";
+      card.querySelector("h2").textContent = "Farseek";
       card.querySelector(".sub").textContent = "To be continued.";
       card.classList.add("on");
       setTimeout(() => card.classList.remove("on"), 5600);

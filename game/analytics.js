@@ -31,7 +31,7 @@ if (location.hostname === domain && !navigator.webdriver && !optedOut()) {
       website,
       hostname: domain,
       url: location.pathname,
-      title: "Far Door",
+      title: "Farseek",
       referrer,
       screen: payload.screen,
       language: payload.language,

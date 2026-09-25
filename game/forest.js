@@ -117,7 +117,10 @@ export class ForestView {
     this.buildGround();
     this.buildRanges();
     const rand = seeded(11);
-    await this.instance("wild_tree", [...TREES, ...FAR_TREES]);
+    await this.instance("wild_tree", [...TREES, ...FAR_TREES], {
+      root: 2.2,
+      sink: 0.35,
+    });
     const ferns = [];
     for (let i = 0; i < FERNS; i++) {
       const a = rand() * Math.PI * 2,
@@ -135,7 +138,7 @@ export class ForestView {
       const x = flightX(z) + (i % 2 ? 1 : -1) * (3 + way() * 18);
       ferns.push([x, z, way() * 6.3, 0.9 + way() * 0.9]);
     }
-    await this.instance("fern_cluster", ferns);
+    await this.instance("fern_cluster", ferns, { root: 0.6 });
     await this.buildMeadow();
     const shrooms = [];
     for (let i = 0; i < MUSHROOMS; i++) {
@@ -151,6 +154,7 @@ export class ForestView {
     await this.instance("glow_mushroom", shrooms, {
       glow: 0xc3f25a,
       intensity: 1.8,
+      root: 0.4,
     });
     await this.instance(
       "boulder_cluster",
@@ -161,7 +165,7 @@ export class ForestView {
         [9, -70, 0.4, 1.4],
         [-10, -92, 2.8, 1.5],
       ],
-      { moss: 0x4f7a3a },
+      { moss: 0x4f7a3a, root: 1.2 },
     );
     await this.buildGiant();
     await this.buildCastle();
@@ -200,7 +204,11 @@ export class ForestView {
       const inst = new THREE.InstancedMesh(m.geometry, material, spots.length);
       spots.forEach(([x, z, yaw, k], i) => {
         place.compose(
-          V(x, this.heightAt(x, z), z),
+          V(
+            x,
+            this.groundUnder(x, z, (opts.root ?? 0) * k) - (opts.sink ?? 0) * k,
+            z,
+          ),
           q.setFromAxisAngle(up, yaw),
           V(k, k, k),
         );
@@ -243,10 +251,10 @@ export class ForestView {
     );
   }
 
-  async put(name, x, z, yaw, k, opts = {}, sink = 0) {
+  async put(name, x, z, yaw, k, opts = {}, sink = 0, root = 0) {
     const o = await this.assets.make(name, opts);
     if (!o) return null;
-    o.position.set(x, this.heightAt(x, z) - sink, z);
+    o.position.set(x, this.groundUnder(x, z, root * k) - sink, z);
     o.rotation.y = yaw;
     o.scale.multiplyScalar(k);
     this.scene.add(o);
@@ -266,6 +274,35 @@ export class ForestView {
       }
     }
     return h;
+  }
+
+  // The lowest ground as drawn under a footprint of radius r, for trunks and rocks: set there,
+  // one on a slope is buried on its uphill side instead of standing clear of the downhill one.
+  groundUnder(x, z, r) {
+    let h = this.drawnAt(x, z);
+    for (let i = 0; r > 0 && i < 8; i++) {
+      const a = (i / 8) * Math.PI * 2;
+      h = Math.min(h, this.drawnAt(x + Math.cos(a) * r, z + Math.sin(a) * r));
+    }
+    return h;
+  }
+
+  // The ground as drawn. The far country's coarse floor (cells of about 7 m) runs under the
+  // true heights over every rise, so there the lowest corner of the cell counts too.
+  drawnAt(x, z) {
+    const h = this.heightAt(x, z);
+    if (Math.abs(x) < 88 && z > -128) return h;
+    const cw = 760 / 110,
+      cd = 620 / 90;
+    const gx = Math.floor((x + 380) / cw) * cw - 380,
+      gz = Math.floor((z + 560) / cd) * cd - 560;
+    return Math.min(
+      h,
+      this.heightAt(gx, gz),
+      this.heightAt(gx + cw, gz),
+      this.heightAt(gx, gz + cd),
+      this.heightAt(gx + cw, gz + cd),
+    );
   }
 
   rolling(x, z) {
@@ -396,6 +433,7 @@ export class ForestView {
       GIANT.scale,
       { keepHierarchy: true },
       GIANT.sink,
+      6,
     );
     o?.userData.parts?.glow?.traverse((m) => {
       if (!m.isMesh) return;

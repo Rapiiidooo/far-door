@@ -1,0 +1,72 @@
+{
+ "probe": {
+  "minClearance": 3.29,
+  "at": 0.0375,
+  "length": 270.2,
+  "gate": [
+   -34.5,
+   71.82,
+   -263
+  ],
+  "radius": 3.5
+ },
+ "before": 217,
+ "after": 217,
+ "fps": [
+  {
+   "t": 24,
+   "fps": 60,
+   "mode": "play",
+   "programs": 217,
+   "calls": 572,
+   "tris": 1129286,
+   "last": "closed"
+  },
+  {
+   "t": 29,
+   "fps": 60,
+   "mode": "play",
+   "programs": 217,
+   "calls": 532,
+   "tris": 908102,
+   "last": "closed"
+  },
+  {
+   "t": 43,
+   "fps": 60,
+   "mode": "play",
+   "programs": 217,
+   "calls": 608,
+   "tris": 1217166,
+   "last": "open"
+  },
+  {
+   "t": 47,
+   "fps": 60,
+   "mode": "play",
+   "programs": 217,
+   "calls": 601,
+   "tris": 1212378,
+   "last": "open"
+  },
+  {
+   "t": 50,
+   "fps": 60,
+   "mode": "play",
+   "programs": 217,
+   "calls": 601,
+   "tris": 1212378,
+   "last": "open"
+  },
+  {
+   "t": 58,
+   "fps": 60,
+   "mode": "credits",
+   "programs": 217,
+   "calls": 596,
+   "tris": 1186814,
+   "last": "open"
+  }
+ ],
+ "errors": []
+}

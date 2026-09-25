@@ -276,3 +276,43 @@ A frond of giant kelp one metre tall and rooted at y = 0, which the game stretch
 ## sea_coral
 
 A head of coral about 1.4 m across and 0.9 m tall: a mound of faceted boulders of brain coral with fingers of branching coral leaning out between them, in one pale colour the game tints for each head. Budget: at most 600 triangles.
+
+# Ninth wave
+
+Handed out on 25 September 2026, when the owner asked for the city under the sea as ruins, better fish and rays, and a better explorer. Same contract, style lock and fallback as above. The ruins and the creatures were built by two agents working in parallel, the explorer's third pass by hand; see [ruins/](ruins/README.md), [sea-creatures/](sea-creatures/README.md) and [hero_explorer_v3/](hero_explorer_v3/README.md).
+
+## ruin_temple
+
+The temple of the city under the sea as a ruin, about 50 m across: the same round island of three steps, chipped; sixteen columns at 13 m, about half snapped at different heights, drums fallen on the steps; the round sanctum breached on one side; the copper dome broken open with a jagged edge; the lantern fallen; one crystal still glowing on a plinth in the sanctum, declared as `userData.parts.glow`; coral crusts. At most 9,000 triangles.
+
+## ruin_rings
+
+The city's three ring walls as ruins, with the radii and heights of `sea_rings` (32 to 42, 56 to 68 and 86 to 98 m; 5, 5.5 and 6 m high): broken into arcs with breaches and jagged tops, fallen blocks, four causeways with collapsed spans and lone piers, a clear breach along +Z for the camera's way down, and thin lines of cyan light surviving on some arcs (`userData.parts.glow`). At most 22,000 triangles.
+
+## ruin_house
+
+A roofless house of the drowned city, about 4.5 m square: four walls of different heights with jagged tops, an empty doorway on the front and empty windows, one corner collapsed into a heap of blocks, and a copper roof beam fallen inside. At most 800 triangles.
+
+## ruin_tower
+
+A tower of the drowned city snapped off at a slant, 14 to 20 m tall: a jagged top, dark window holes, drums and blocks fallen at its foot, coral crust near the base and a small glowing crystal shard lying there (`userData.parts.glow`). At most 1,200 triangles.
+
+## ruin_column
+
+A fluted column about 6 m tall on a square plinth, snapped with a jagged top, two drums fallen beside it. At most 800 triangles.
+
+## ruin_arch
+
+A half-fallen arched gateway about 10 m wide and 9 m tall: one pier standing with the springing of its arch, the other broken lower, voussoirs fallen at their feet. At most 1,500 triangles.
+
+## reef_fish (second reading)
+
+A tropical reef fish about a metre long, nose to +Z, to replace the eighth wave's: a smooth, deep, laterally compressed body, a forked tail, a tall swept dorsal fin and an anal fin, small pectoral fins, eyes with a pale ring and a dark pupil, a small mouth and two or three contrasting bands in their own material. The body stays pale so the game can tint each fish; the tail lies towards -Z for the vertex shader that beats it. 250 to 450 triangles.
+
+## manta_ray (second reading)
+
+A manta ray a metre across, nose to +Z, wings along ±X with the tips at about 0.5 m for the shader that flaps them: a true manta planform with curved leading edges and pointed, swept tips, a dark slate top and a pale belly, cephalic fins rolled forward, eyes on the sides of the head and a whip tail. 500 to 1,200 triangles.
+
+## hero_explorer (third pass)
+
+The explorer of the second pass, candidate B, with the same joints, pivots, palms and grip so the animation and the hand placement carry over: a face showing above the scarf (eyes, brows, a nose, a mouth, ears and a jaw) under hair with a short tail; the goggles hanging at the throat; a backpack with a flap, back straps and a bedroll, carrying the rope coil; a canteen at the left hip; thigh pockets, knee patches and laced boots. No franchise's signature look: no fedora and whip, no long braid with twin holsters.

@@ -1,0 +1,165 @@
+{
+  "results": [
+    {
+      "name": "papyrus waits in its world",
+      "ok": true,
+      "detail": "26.25, 0, 16.35"
+    },
+    {
+      "name": "papyrus: the prompt offers it",
+      "ok": true,
+      "detail": "E Pick up the papyrus"
+    },
+    {
+      "name": "papyrus: taken, with its card",
+      "ok": true,
+      "detail": "RELIC FOUND · 1 OF 5 THE FIRST PAPYRUS The first expedition's survey of the court, rolled and tied, the mirrors drawn in."
+    },
+    {
+      "name": "papyrus: counted and gone from the world",
+      "ok": true,
+      "detail": "papyrus"
+    },
+    {
+      "name": "papyrus: no shader compiled by taking it",
+      "ok": true,
+      "detail": "219 -> 219"
+    },
+    {
+      "name": "radio waits in its world",
+      "ok": true,
+      "detail": "-10.3, 0, -36.4"
+    },
+    {
+      "name": "radio: the prompt offers it",
+      "ok": true,
+      "detail": "E Take the radio"
+    },
+    {
+      "name": "radio: taken, with its card",
+      "ok": true,
+      "detail": "RELIC FOUND · 2 OF 5 THE FIELD RADIO Confiscated at the window and dropped by the spire. It still hisses, tuned to home."
+    },
+    {
+      "name": "radio: counted and gone from the world",
+      "ok": true,
+      "detail": "papyrus,radio"
+    },
+    {
+      "name": "radio: no shader compiled by taking it",
+      "ok": true,
+      "detail": "217 -> 217"
+    },
+    {
+      "name": "page waits in its world",
+      "ok": true,
+      "detail": "14.7, 6.09, -102.93"
+    },
+    {
+      "name": "page: the prompt offers it",
+      "ok": true,
+      "detail": "E Pick up the page"
+    },
+    {
+      "name": "page: taken, with its card",
+      "ok": true,
+      "detail": "RELIC FOUND · 3 OF 5 MIRA'S LOST PAGE Torn from her journal: the isles drawn at first light, drifting together."
+    },
+    {
+      "name": "page: counted and gone from the world",
+      "ok": true,
+      "detail": "papyrus,radio,page"
+    },
+    {
+      "name": "page: no shader compiled by taking it",
+      "ok": true,
+      "detail": "217 -> 217"
+    },
+    {
+      "name": "scarf waits in its world",
+      "ok": true,
+      "detail": "-6.4, 3.8, -78.6"
+    },
+    {
+      "name": "scarf: the prompt offers it",
+      "ok": true,
+      "detail": "E Take Mira's scarf"
+    },
+    {
+      "name": "scarf: taken, with its card",
+      "ok": true,
+      "detail": "RELIC FOUND · 4 OF 5 MIRA'S SCARF Left on a stone above the pond. The frost has not yet taken the red."
+    },
+    {
+      "name": "scarf: counted and gone from the world",
+      "ok": true,
+      "detail": "papyrus,radio,page,scarf"
+    },
+    {
+      "name": "scarf: no shader compiled by taking it",
+      "ok": true,
+      "detail": "217 -> 217"
+    },
+    {
+      "name": "lantern waits in its world",
+      "ok": true,
+      "detail": "-10.4, 0.6, -160.6"
+    },
+    {
+      "name": "lantern: the prompt offers it",
+      "ok": true,
+      "detail": "E Take Mira's lantern"
+    },
+    {
+      "name": "lantern: taken, with its card",
+      "ok": true,
+      "detail": "RELIC FOUND · 5 OF 5 MIRA'S LANTERN Still burning low in the lee of the island. She meant to come back for it."
+    },
+    {
+      "name": "lantern: counted and gone from the world",
+      "ok": true,
+      "detail": "papyrus,radio,page,scarf,lantern"
+    },
+    {
+      "name": "lantern: no shader compiled by taking it",
+      "ok": true,
+      "detail": "217 -> 217"
+    },
+    {
+      "name": "the title counts the relics after a reload",
+      "ok": true,
+      "detail": "Relics · 5 of 5"
+    },
+    {
+      "name": "the Relics screen lists all five by name",
+      "ok": true,
+      "detail": "The first papyrus / The field radio / Mira's lost page / Mira's scarf / Mira's lantern"
+    },
+    {
+      "name": "no relic waits in any world after the reload",
+      "ok": true,
+      "detail": "0"
+    },
+    {
+      "name": "forgetting the progress puts every relic back",
+      "ok": true,
+      "detail": "0 found, 5 waiting"
+    },
+    {
+      "name": "the title's count is cleared",
+      "ok": true,
+      "detail": "Relics"
+    },
+    {
+      "name": "the Relics screen shows five still hidden",
+      "ok": true,
+      "detail": "5"
+    },
+    {
+      "name": "no page or console error",
+      "ok": true,
+      "detail": ""
+    }
+  ],
+  "errors": []
+}

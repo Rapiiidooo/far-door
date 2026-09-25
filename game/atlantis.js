@@ -3,21 +3,17 @@ import { mergeGeometries } from "three/addons/utils/BufferGeometryUtils.js";
 
 // The sixth world, only glimpsed: through the last door, at the castle's gate, a city under the
 // sea. Its door opens in open water at the origin, facing +z, thirty metres over a plain of pale
-// sand; ahead and below, the city rises in three rings round a domed temple, crystals lit on its
-// towers, while shoals turn in the blue, mantas glide over it, kelp sways and light falls in
-// shafts from the surface. It is drawn into the door's portal and nowhere else. The buildings,
-// the creatures and the plants are recipe assets (the sea wave in receipts/candidates/sea/);
-// the sand, the water and the light are drawn here.
+// sand; ahead and below lie the ruins of a city in three broken rings round a temple whose dome
+// has caved in, where crystals still glow, the builders' guardians lean drowned at the mouth of
+// its avenue, shoals turn in the blue, mantas glide over it, kelp sways and light falls in
+// shafts from the surface. It is drawn into the door's portal and nowhere else. The ruins, the
+// creatures and the plants are recipe assets (receipts/candidates/ruins/, sea-creatures/ and
+// sea/, and pieces of the sunken court washed by the sea); the sand, the water and the light
+// are drawn here.
 
 const V = (x, y, z) => new THREE.Vector3(x, y, z);
 export const CITY = V(0, 0, -125);
-// The rings of the city about the temple's island: [inner radius, outer radius, height, houses,
-// towers]. The gaps between them are the old canals, spanned by four bridges.
-const RINGS = [
-  [32, 42, 4, 26, 6],
-  [56, 68, 4.5, 38, 8],
-  [86, 98, 5, 54, 12],
-];
+// The old canals between the city's rings, [inner radius, outer radius].
 const GAPS = [
   [24, 32],
   [42, 56],
@@ -50,6 +46,8 @@ const VENTS = [
 ];
 // The water's colour at the horizon, in linear light: the fog and the sky meet in it.
 const WATER = [0.012, 0.11, 0.17];
+// What long ages under the sea do to stone and clay: a wash towards the water's green.
+const WASH = new THREE.Color(0x7f9e97);
 
 export class AtlantisView {
   constructor(assets) {
@@ -79,6 +77,7 @@ export class AtlantisView {
     const rand = seeded(29);
     this.buildFloor();
     await this.buildCity(rand);
+    await this.buildGlow(rand);
     await this.buildKelp(rand);
     await this.buildCoral(rand);
     await this.buildShoals(rand);
@@ -151,8 +150,8 @@ export class AtlantisView {
     this.scene.add(new THREE.Mesh(geo, caustic(mat, this.u)));
   }
 
-  // Copies of a recipe asset at many placements, [x, y, z, width, height, depth, yaw] from
-  // `origin`, one draw call per material: each merged mesh of the asset becomes an
+  // Copies of a recipe asset at many placements, [x, y, z, width, height, depth, yaw, tilt,
+  // roll] from `origin`, one draw call per material: each merged mesh of the asset becomes an
   // InstancedMesh, and `look` gives its material its part in the sea.
   async instances(name, list, look, origin = CITY) {
     const o = await this.assets?.make(name, { surfaces: false });
@@ -160,7 +159,7 @@ export class AtlantisView {
     o.updateMatrixWorld(true);
     const m = new THREE.Matrix4(),
       q = new THREE.Quaternion(),
-      up = V(0, 1, 0),
+      turn = new THREE.Euler(),
       at = V(0, 0, 0),
       k = V(1, 1, 1);
     const made = [];
@@ -171,11 +170,12 @@ export class AtlantisView {
         look(mesh.material.clone()),
         list.length,
       );
-      list.forEach(([x, y, z, w, h, d, yaw], i) => {
+      list.forEach(([x, y, z, w, h, d, yaw, tilt = 0, roll = 0], i) => {
         at.set(origin.x + x, y, origin.z + z);
+        turn.set(tilt, yaw, roll, "YXZ");
         inst.setMatrixAt(
           i,
-          m.compose(at, q.setFromAxisAngle(up, yaw), k.set(w, h, d)),
+          m.compose(at, q.setFromEuler(turn), k.set(w, h, d)),
         );
       });
       inst.computeBoundingSphere();
@@ -193,51 +193,183 @@ export class AtlantisView {
     return material;
   }
 
-  // The city: its rings of wall and bridges and its temple, houses round the rings with none
-  // on the avenue from the door, towers taller towards the temple and two obelisks at the
-  // avenue's mouth.
+  // What the sea has had for ages: its colour washed towards the water's and caustic light on
+  // it; a glow is kept, or turned to `glow` when given.
+  sunken(material, glow) {
+    if (material.emissiveIntensity > 1) {
+      if (glow !== undefined) {
+        material.emissive.set(glow);
+        material.emissiveIntensity = 2.2;
+      }
+      return this.stone(material);
+    }
+    material.color.lerp(WASH, 0.4);
+    return caustic(material, this.u);
+  }
+
+  // The ruined city: its broken rings and caved-in temple; houses and towers in ruins on the
+  // sand between the rings and outside them, none on the avenue from the door or on the
+  // bridges' lines; columns round the temple and along the avenue, arches where it crosses the
+  // rings; and pieces of the builders' court lying drowned among them.
   async buildCity(rand) {
+    const look = (m) => this.stone(m),
+      sunk = (m) => this.sunken(m);
+    const Y = -0.4;
+    const clear = (a, w) =>
+      Math.abs(wrap(a)) < w ||
+      [1, 2, 3].some((k) => Math.abs(wrap(a - (k * Math.PI) / 2)) < 0.07);
+    const at = (a, r) => [Math.sin(a) * r, Math.cos(a) * r];
     const houses = [],
-      towers = [];
-    RINGS.forEach(([ri, ro, h, count, spires], k) => {
+      towers = [],
+      columns = [],
+      pieces = [],
+      rubble = [],
+      urns = [];
+    for (const [from, to, count, spires] of [
+      [44, 54, 16, 4],
+      [70, 84, 24, 6],
+      [102, 124, 22, 5],
+    ]) {
       for (let i = 0; i < count; i++) {
-        const a = ((i + rand() * 0.6) / count) * Math.PI * 2;
-        if (Math.abs(wrap(a)) < 0.12) continue;
-        const r = ri + 2.5 + rand() * (ro - ri - 5);
+        const a = ((i + rand() * 0.7) / count) * Math.PI * 2;
+        if (clear(a, 0.16)) continue;
+        const [x, z] = at(a, from + rand() * (to - from));
+        const s = 0.8 + rand() * 0.45;
         houses.push([
-          Math.sin(a) * r,
-          h,
-          Math.cos(a) * r,
-          0.75 + rand() * 0.75,
-          0.6 + rand() * 0.9,
-          0.75 + rand() * 0.55,
-          a,
+          x,
+          Y,
+          z,
+          s,
+          s * (0.75 + rand() * 0.4),
+          s,
+          a + (rand() - 0.5) * 0.4,
         ]);
       }
       for (let j = 0; j < spires; j++) {
-        const a = ((j + 0.5) / spires) * Math.PI * 2;
-        if (Math.abs(wrap(a)) < 0.3) continue;
-        const r = (ri + ro) / 2,
-          R = 1.8 + rand() * 0.8;
-        const H = [24, 19, 15][k] + rand() * 5;
-        towers.push([Math.sin(a) * r, h, Math.cos(a) * r, R, H / 20, R, 0]);
+        const a = ((j + 0.3 + rand() * 0.4) / spires) * Math.PI * 2;
+        if (clear(a, 0.3)) continue;
+        const [x, z] = at(a, (from + to) / 2);
+        const s = 0.9 + rand() * 0.45;
+        towers.push([x, Y, z, s, s * (0.85 + rand() * 0.4), s, rand() * 6.3]);
       }
-    });
-    for (const side of [-1, 1])
-      towers.push([
-        Math.sin(side * 0.15) * 92,
-        5,
-        Math.cos(side * 0.15) * 92,
+    }
+    for (let i = 0; i < 10; i++) {
+      const a = ((i + 0.5) / 10) * Math.PI * 2;
+      if (clear(a, 0.2)) continue;
+      const [x, z] = at(a, 28);
+      columns.push([x, Y, z, 1, 0.8 + rand() * 0.5, 1, rand() * 6.3]);
+    }
+    for (const z of [28, 47, 51, 73, 80])
+      for (const x of [-7.5, 7.5])
+        if (rand() > 0.2)
+          columns.push([x, Y, z, 1.1, 0.7 + rand() * 0.6, 1.1, rand() * 6.3]);
+    const arches = [
+      [0, Y, 92, 1, 1, 1, 0],
+      [0, Y, 37, 0.9, 0.9, 0.9, 0.05],
+      ...[1, 2, 3]
+        .map((k) => [
+          ...at((k * Math.PI) / 2, 101),
+          Y,
+          1,
+          1,
+          1,
+          (k * Math.PI) / 2,
+        ])
+        .map(([x, z, y, ...rest]) => [x, y, z, ...rest]),
+    ];
+    for (let i = 0; i < 8; i++) {
+      const a = rand() * Math.PI * 2;
+      if (clear(a, 0.2)) continue;
+      const [x, z] = at(a, [48, 76, 110][i % 3] + (rand() - 0.5) * 6);
+      pieces.push([
+        x,
+        Y - 0.3,
+        z,
         1.3,
-        0.85,
         1.3,
-        0,
+        1.3,
+        rand() * 6.3,
+        (rand() - 0.5) * 0.5,
+        1.2 + rand() * 0.3,
       ]);
-    const look = (m) => this.stone(m);
-    await this.instances("sea_rings", [[0, -1, 0, 1, 1, 1, 0]], look);
-    await this.instances("sea_temple", [[0, -0.6, 0, 1, 1, 1, 0]], look);
-    await this.instances("sea_house", houses, look);
-    await this.instances("sea_tower", towers, look);
+    }
+    for (let i = 0; i < 24; i++) {
+      const a = rand() * Math.PI * 2;
+      const [x, z] = at(
+        a,
+        [44, 55, 70, 85, 100, 30][i % 6] + (rand() - 0.5) * 2,
+      );
+      const s = 1.5 + rand() * 0.8;
+      rubble.push([x, Y, z, s, s * (0.7 + rand() * 0.5), s, rand() * 6.3]);
+    }
+    for (let i = 0; i < 14; i++) {
+      const a = rand() * Math.PI * 2;
+      if (clear(a, 0.15)) continue;
+      const [x, z] = at(a, i < 6 ? 25.5 + rand() * 4 : 45 + rand() * 38);
+      const s = 1 + rand() * 0.4;
+      urns.push([x, Y, z, s, s, s, rand() * 6.3, 0, rand() < 0.3 ? 1.4 : 0]);
+    }
+    await this.instances("ruin_rings", [[0, -1, 0, 1, 1, 1, 0]], look);
+    await this.instances("ruin_temple", [[0, -0.6, 0, 1, 1, 1, 0]], look);
+    await this.instances("ruin_house", houses, look);
+    await this.instances("ruin_tower", towers, look);
+    await this.instances("ruin_column", columns, look);
+    await this.instances("ruin_arch", arches, look);
+    // The builders' guardians, drowned and leaning, at the avenue's mouth, and two of their
+    // heads fallen into the canals.
+    await this.instances(
+      "guardian_colossus",
+      [
+        [-15, Y - 1.6, 106, 1.5, 1.5, 1.5, 0.12, 0.05, 0.13],
+        [15, Y - 2.2, 108, 1.5, 1.5, 1.5, -0.1, -0.11, -0.04],
+      ],
+      sunk,
+    );
+    await this.instances(
+      "fallen_head",
+      [
+        [...at(0.55, 49), Y - 0.4, 2, 2, 2, 2.1, 0.25, 0.1],
+        [...at(-0.95, 77), Y - 0.3, 2.2, 2.2, 2.2, -0.8, -0.2, 0.3],
+      ].map(([x, z, y, ...rest]) => [x, y, z, ...rest]),
+      sunk,
+    );
+    await this.instances("broken_column", pieces, sunk);
+    await this.instances("rubble_pile", rubble, sunk);
+    await this.instances("clay_urns", urns, sunk);
+  }
+
+  // Life on the ruins: anemones glowing cyan and violet, and lumen plants with lit pods, on the
+  // sand below the door and among the ruins.
+  async buildGlow(rand) {
+    const spots = (n, near) =>
+      Array.from({ length: n }, (_, i) => {
+        let x, z;
+        if (i < near) {
+          x = (rand() * 2 - 1) * 40;
+          z = -6 - rand() * 26;
+        } else {
+          const a = rand() * Math.PI * 2,
+            r = [26, 50, 78, 108][i % 4] + (rand() - 0.5) * 6;
+          x = CITY.x + Math.sin(a) * r;
+          z = CITY.z + Math.cos(a) * r;
+        }
+        const s = 1.2 + rand() * 0.9;
+        return [x, this.floorAt(x, z), z, s, s, s, rand() * 6.3];
+      });
+    const O = V(0, 0, 0);
+    await this.instances(
+      "glow_mushroom",
+      spots(18, 8),
+      (m) => this.sunken(m, 0x46e6ff),
+      O,
+    );
+    await this.instances(
+      "glow_mushroom",
+      spots(16, 6),
+      (m) => this.sunken(m, 0xc35cff),
+      O,
+    );
+    await this.instances("lumen_plant", spots(16, 6), (m) => this.sunken(m), O);
   }
 
   // Kelp in two stands either side of the way down, and round the outer ring.

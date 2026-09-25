@@ -1,0 +1,230 @@
+[
+ {
+  "ok": true,
+  "mounts": null,
+  "meshes": 23,
+  "tris": 728,
+  "materials": 4,
+  "size": [
+   10.6,
+   9.322,
+   4.008
+  ],
+  "groundOffset": 0,
+  "centreOffset": [
+   0,
+   0.167
+  ],
+  "sides": {
+   "front": {
+    "coverage": 0.1047,
+    "edgeDensity": 0.1299
+   },
+   "right": {
+    "coverage": 0.0752,
+    "edgeDensity": 0.138
+   },
+   "back": {
+    "coverage": 0.1061,
+    "edgeDensity": 0.137
+   },
+   "left": {
+    "coverage": 0.074,
+    "edgeDensity": 0.1342
+   }
+  },
+  "error": null,
+  "name": "ruin_arch_a",
+  "problems": []
+ },
+ {
+  "ok": true,
+  "mounts": null,
+  "meshes": 11,
+  "tris": 352,
+  "materials": 4,
+  "size": [
+   3.449,
+   5.561,
+   2.264
+  ],
+  "groundOffset": -0.061,
+  "centreOffset": [
+   0.003,
+   -0.005
+  ],
+  "sides": {
+   "front": {
+    "coverage": 0.1211,
+    "edgeDensity": 0.1093
+   },
+   "right": {
+    "coverage": 0.1074,
+    "edgeDensity": 0.1102
+   },
+   "back": {
+    "coverage": 0.1219,
+    "edgeDensity": 0.078
+   },
+   "left": {
+    "coverage": 0.1083,
+    "edgeDensity": 0.086
+   }
+  },
+  "error": null,
+  "name": "ruin_column_a",
+  "problems": []
+ },
+ {
+  "ok": true,
+  "mounts": null,
+  "meshes": 36,
+  "tris": 712,
+  "materials": 5,
+  "size": [
+   4.51,
+   4.525,
+   5.195
+  ],
+  "groundOffset": 0,
+  "centreOffset": [
+   0.085,
+   -0.018
+  ],
+  "sides": {
+   "front": {
+    "coverage": 0.2301,
+    "edgeDensity": 0.0647
+   },
+   "right": {
+    "coverage": 0.286,
+    "edgeDensity": 0.0714
+   },
+   "back": {
+    "coverage": 0.2617,
+    "edgeDensity": 0.093
+   },
+   "left": {
+    "coverage": 0.2721,
+    "edgeDensity": 0.0606
+   }
+  },
+  "error": null,
+  "name": "ruin_house_a",
+  "problems": []
+ },
+ {
+  "ok": true,
+  "mounts": null,
+  "meshes": 179,
+  "tris": 6616,
+  "materials": 5,
+  "size": [
+   195.986,
+   5.837,
+   194.277
+  ],
+  "groundOffset": -0.03,
+  "centreOffset": [
+   0,
+   -0.977
+  ],
+  "sides": {
+   "front": {
+    "coverage": 0.0602,
+    "edgeDensity": 0.3565
+   },
+   "right": {
+    "coverage": 0.0648,
+    "edgeDensity": 0.3559
+   },
+   "back": {
+    "coverage": 0.0669,
+    "edgeDensity": 0.3801
+   },
+   "left": {
+    "coverage": 0.0662,
+    "edgeDensity": 0.3703
+   }
+  },
+  "error": null,
+  "name": "ruin_rings_a",
+  "problems": []
+ },
+ {
+  "ok": true,
+  "mounts": null,
+  "meshes": 81,
+  "tris": 4156,
+  "materials": 6,
+  "size": [
+   49.6,
+   35.2,
+   50.893
+  ],
+  "groundOffset": 0,
+  "centreOffset": [
+   0,
+   0.646
+  ],
+  "sides": {
+   "front": {
+    "coverage": 0.1884,
+    "edgeDensity": 0.1269
+   },
+   "right": {
+    "coverage": 0.2016,
+    "edgeDensity": 0.1166
+   },
+   "back": {
+    "coverage": 0.2019,
+    "edgeDensity": 0.1171
+   },
+   "left": {
+    "coverage": 0.1957,
+    "edgeDensity": 0.1322
+   }
+  },
+  "error": null,
+  "name": "ruin_temple_a",
+  "problems": []
+ },
+ {
+  "ok": true,
+  "mounts": null,
+  "meshes": 19,
+  "tris": 460,
+  "materials": 6,
+  "size": [
+   6.019,
+   16.42,
+   5.963
+  ],
+  "groundOffset": -0.17,
+  "centreOffset": [
+   0,
+   -0.003
+  ],
+  "sides": {
+   "front": {
+    "coverage": 0.103,
+    "edgeDensity": 0.1034
+   },
+   "right": {
+    "coverage": 0.098,
+    "edgeDensity": 0.0869
+   },
+   "back": {
+    "coverage": 0.1034,
+    "edgeDensity": 0.077
+   },
+   "left": {
+    "coverage": 0.096,
+    "edgeDensity": 0.0933
+   }
+  },
+  "error": null,
+  "name": "ruin_tower_a",
+  "problems": []
+ }
+]

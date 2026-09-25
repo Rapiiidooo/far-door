@@ -1,8 +1,8 @@
-# Far Door: the locked style
+# Farseek: the locked style
 
 > Sun-baked sandstone ruins of an invented cliff-carving civilisation, cut as bold chamfered masses with stepped profiles and deep incised grooves, weathered but crisp, where the only cool colour anywhere is the turquoise light of ancient technology set into lenses, channels and the gate.
 
-Working title: Far Door. Every tomb holds the address of a gate; an explorer redirects sunlight with bronze mirrors to light the address glyphs, and the gate opens a live window onto another world.
+Title: Farseek (first called Far Door). Every tomb holds the address of a gate; an explorer redirects sunlight with bronze mirrors to light the address glyphs, and the gate opens a live window onto another world.
 
 ## Palette
 
