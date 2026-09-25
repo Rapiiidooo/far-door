@@ -628,6 +628,10 @@ export class WorldFour {
   }
 }
 
+// The slow turn about the drowned city under the credits: radians a second, its radius over
+// the second ring (clear of the towers between the rings), and how far it rises and sinks.
+const ORBIT = { rate: 0.016, radius: 62, rise: 1 };
+
 // The closing shot's timetable, in seconds from its start.
 const SHOT = {
   // Through the great ring and away over the forest, to wait before the last door.
@@ -716,12 +720,27 @@ class FinaleShot {
       B = this.beyond,
       s = t - SHOT.sea;
     const k = smooth(0, SHOT.end - SHOT.sea, s);
-    const drift = Math.min(s, 120) * 0.15;
     B.position
       .copy(A.gateCenter)
       .add(V(0.1, -0.6, 1.2))
-      .lerp(A.glideEnd, k)
-      .add(V(0, 0, -drift));
+      .lerp(A.glideEnd, k);
+    // Under the credits the view never stops: it turns slowly about the ruins, drawing in over
+    // the second ring and rising and sinking a little, easing in from where the glide ends.
+    const u = Math.max(0, s - (SHOT.end - SHOT.sea));
+    if (u > 0) {
+      const ease = 1 - Math.exp(-u / 5);
+      const turn = ORBIT.rate * (u - 5 * ease);
+      const from0 = Math.hypot(
+        A.glideEnd.x - A.temple.x,
+        A.glideEnd.z - A.temple.z,
+      );
+      const r = from0 + (ORBIT.radius - from0) * smooth(0, 16, u);
+      B.position.set(
+        A.temple.x + Math.sin(turn) * r,
+        A.glideEnd.y + Math.sin(u * 0.2) * ORBIT.rise * ease,
+        A.temple.z + Math.cos(turn) * r,
+      );
+    }
     const from = A.gateCenter.clone().add(V(0, -3.4, -20));
     B.lookAt(this.look.copy(from).lerp(A.temple, k));
     last.viewPose = B;

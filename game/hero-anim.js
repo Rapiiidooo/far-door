@@ -121,6 +121,8 @@ export class HeroAnimator {
       palm: holder.worldToLocal(palmWorld.clone()),
       // The palm faces the thigh at rest: inwards, towards the body's centre line.
       normal: new THREE.Vector3(-s, 0, 0),
+      // From the wrist through the palm towards the fingers, in the hand's frame.
+      fingers: holder.worldToLocal(palmWorld.clone()).normalize(),
       weight: 0,
     };
   }
@@ -285,14 +287,16 @@ export class HeroAnimator {
       if (st === "hang" || !this.climbHold)
         this.climbHold = { x: hand.x, z: hand.z };
       const h = st === "climb" ? this.climbHold : hand;
+      // Each palm flat on the top just behind the lip, its fingers reaching over the stone.
       const g = pair(
         h.x - n.x * 0.03,
-        top - 0.015,
+        top + LIP,
         h.z - n.z * 0.03,
         0.2,
         { side: 0.7, x: n.x * 0.6, y: -0.3, z: n.z * 0.6 },
         V(0, -1, 0),
       );
+      g.left.fingers = g.right.fingers = V(-n.x, 0, -n.z);
       // Shimmying, the leading hand reaches ahead and the other follows.
       if (st === "hang" && hero.shimmy) {
         const lead = hero.shimmy > 0 ? g.left : g.right;
@@ -384,6 +388,8 @@ export class HeroAnimator {
 // target and pole, at the angle the arm's lengths allow, then swing the forearm onto the
 // target, then turn the hand so its palm faces `normal`. `weight` blends from the pose.
 const _v = [0, 1, 2, 3, 4, 5, 6].map(() => new THREE.Vector3());
+// Hanging, the palm's face rests this far over the lip's top.
+export const LIP = 0.004;
 const _q = [0, 1, 2].map(() => new THREE.Quaternion());
 function swing(joint, from, to, weight) {
   const q = _q[0].setFromUnitVectors(from, to);
@@ -395,13 +401,24 @@ function swing(joint, from, to, weight) {
 }
 
 function solveArm(arm, goal, weight) {
+  // Given the fingers' way as well as the palm's, the hand's whole turn is known before the
+  // arm moves: the wrist is then brought to where the palm lands on the goal once the hand
+  // takes that turn. Otherwise the palm itself is brought there and turned after.
+  const turned = arm.hand && goal.fingers ? handTurn(arm, goal) : null;
+  const holder = arm.hand || arm.lower;
+  const end = () =>
+    turned
+      ? arm.hand.getWorldPosition(_v[2])
+      : holder.localToWorld(_v[2].copy(arm.palm));
+  const at = turned
+    ? _v[6].copy(goal.at).sub(arm.palm.clone().applyQuaternion(turned))
+    : _v[6].copy(goal.at);
   const S = arm.upper.getWorldPosition(_v[0]);
   const E = arm.lower.getWorldPosition(_v[1]);
-  const holder = arm.hand || arm.lower;
-  const P = holder.localToWorld(_v[2].copy(arm.palm));
+  const P = end();
   const a = S.distanceTo(E),
     b = E.distanceTo(P);
-  const toT = _v[3].copy(goal.at).sub(S);
+  const toT = _v[3].copy(at).sub(S);
   const d = THREE.MathUtils.clamp(
     toT.length(),
     Math.abs(a - b) + 1e-3,
@@ -427,15 +444,40 @@ function solveArm(arm, goal, weight) {
     elbow.clone().sub(S).normalize(),
     weight,
   );
-  const E2 = arm.lower.getWorldPosition(_v[1]);
-  const P2 = holder.localToWorld(_v[2].copy(arm.palm));
-  const target = _v[6].copy(S).addScaledVector(dir, d);
+  const E2 = arm.lower.getWorldPosition(_v[1]).clone();
+  const P2 = end().clone();
+  const target = S.clone().addScaledVector(dir, d);
   swing(arm.lower, P2.sub(E2).normalize(), target.sub(E2).normalize(), weight);
-  if (arm.hand && goal.normal) {
+  if (turned) {
+    const parent = arm.hand.parent.getWorldQuaternion(_q[2]);
+    const now = arm.hand.getWorldQuaternion(new THREE.Quaternion());
+    arm.hand.quaternion.copy(
+      parent.invert().multiply(now.slerp(turned, weight)),
+    );
+    arm.hand.updateMatrixWorld(true);
+  } else if (arm.hand && goal.normal) {
     const q = arm.hand.getWorldQuaternion(_q[0]);
     const now = arm.normal.clone().applyQuaternion(q);
     swing(arm.hand, now, goal.normal.clone().normalize(), weight);
   }
+}
+
+// The hand's turn in the world that sets its palm facing `goal.normal` and its fingers along
+// `goal.fingers`: the rest frame of palm and fingers carried onto the wanted one.
+function handTurn(arm, goal) {
+  const frame = (n, f) => {
+    const fn = f.clone().addScaledVector(n, -f.dot(n)).normalize();
+    return new THREE.Matrix4().makeBasis(
+      n,
+      fn,
+      new THREE.Vector3().crossVectors(n, fn),
+    );
+  };
+  const rest = frame(arm.normal.clone().normalize(), arm.fingers);
+  const want = frame(goal.normal.clone().normalize(), goal.fingers);
+  return new THREE.Quaternion().setFromRotationMatrix(
+    want.multiply(rest.transpose()),
+  );
 }
 
 function set(pose, name, x = 0, y = 0, z = 0) {
@@ -641,11 +683,13 @@ const POSES = {
     set(pose, "rightLowerArm", -0.12 - 0.3 * Math.max(0, reach));
     set(pose, "spine", -0.08);
     set(pose, "head", -0.32, 0.25 * sh);
-    const sway = sh ? Math.sin(t * 8.5) * 0.18 : Math.sin(t * 1.3) * 0.05;
-    set(pose, "leftUpperLeg", 0.02 + sway, 0, 0.05);
-    set(pose, "rightUpperLeg", -0.05 - sway, 0, -0.05);
-    set(pose, "leftLowerLeg", 0.3 + Math.max(0, sway));
-    set(pose, "rightLowerLeg", 0.22 + Math.max(0, -sway));
+    // The legs hang a little back with the knees bent, so the boots keep off the wall as
+    // they sway.
+    const sway = sh ? Math.sin(t * 8.5) * 0.12 : Math.sin(t * 1.3) * 0.04;
+    set(pose, "leftUpperLeg", 0.16 + sway, 0, 0.05);
+    set(pose, "rightUpperLeg", 0.1 - sway, 0, -0.05);
+    set(pose, "leftLowerLeg", 0.5 + Math.max(0, sway));
+    set(pose, "rightLowerLeg", 0.4 + Math.max(0, -sway));
     root.roll = sh * 0.05 * reach;
   },
 

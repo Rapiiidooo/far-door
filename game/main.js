@@ -5,7 +5,7 @@ import { ASSET } from "./assetlib.js";
 import { World } from "./world.js";
 import { Level } from "./level.js";
 import { Hero } from "./hero.js";
-import { HeroAnimator, placeholderHero } from "./hero-anim.js";
+import { HeroAnimator, placeholderHero, LIP } from "./hero-anim.js";
 import { FollowCamera } from "./follow-camera.js";
 import { Input } from "./input.js";
 import { TouchControls } from "./touch.js";
@@ -359,9 +359,9 @@ async function load() {
     hero.hands = heroModel.userData.grip.hands;
   scene.add(heroModel);
   animator = new HeroAnimator(heroModel);
-  // Hang at the depth where the palms, not the fingertips, meet the lip.
+  // Hang at the depth where the palms, not the fingertips, rest on the lip.
   const reach = animator.hangReach(0.3);
-  if (reach) hero.hands = reach + 0.015;
+  if (reach) hero.hands = reach - LIP;
   await worldTwo.wire({
     hero,
     heroModel,
