@@ -1,0 +1,306 @@
+[
+ {
+  "ok": true,
+  "mounts": null,
+  "meshes": 8,
+  "tris": 396,
+  "materials": 2,
+  "size": [
+   1,
+   0.18,
+   1.375
+  ],
+  "groundOffset": 0,
+  "centreOffset": [
+   0,
+   -0.002
+  ],
+  "sides": {
+   "front": {
+    "coverage": 0.0837,
+    "edgeDensity": 0.0518
+   },
+   "right": {
+    "coverage": 0.0637,
+    "edgeDensity": 0.0598
+   },
+   "back": {
+    "coverage": 0.0517,
+    "edgeDensity": 0.0953
+   },
+   "left": {
+    "coverage": 0.0637,
+    "edgeDensity": 0.0926
+   }
+  },
+  "error": null,
+  "name": "manta_ray_a",
+  "problems": []
+ },
+ {
+  "ok": true,
+  "mounts": null,
+  "meshes": 5,
+  "tris": 168,
+  "materials": 2,
+  "size": [
+   0.16,
+   0.47,
+   1.07
+  ],
+  "groundOffset": 0,
+  "centreOffset": [
+   0,
+   -0.035
+  ],
+  "sides": {
+   "front": {
+    "coverage": 0.0392,
+    "edgeDensity": 0.1594
+   },
+   "right": {
+    "coverage": 0.1486,
+    "edgeDensity": 0.0758
+   },
+   "back": {
+    "coverage": 0.0347,
+    "edgeDensity": 0.1503
+   },
+   "left": {
+    "coverage": 0.1486,
+    "edgeDensity": 0.0629
+   }
+  },
+  "error": null,
+  "name": "reef_fish_a",
+  "problems": []
+ },
+ {
+  "ok": true,
+  "mounts": null,
+  "meshes": 7,
+  "tris": 336,
+  "materials": 1,
+  "size": [
+   1.386,
+   0.87,
+   0.97
+  ],
+  "groundOffset": 0,
+  "centreOffset": [
+   0.027,
+   0.025
+  ],
+  "sides": {
+   "front": {
+    "coverage": 0.1645,
+    "edgeDensity": 0.1139
+   },
+   "right": {
+    "coverage": 0.1556,
+    "edgeDensity": 0.0899
+   },
+   "back": {
+    "coverage": 0.1695,
+    "edgeDensity": 0.1056
+   },
+   "left": {
+    "coverage": 0.1509,
+    "edgeDensity": 0.1106
+   }
+  },
+  "error": null,
+  "name": "sea_coral_a",
+  "problems": []
+ },
+ {
+  "ok": true,
+  "mounts": null,
+  "meshes": 16,
+  "tris": 388,
+  "materials": 5,
+  "size": [
+   4.3,
+   7.41,
+   4.6
+  ],
+  "groundOffset": 0,
+  "centreOffset": [
+   0,
+   0.15
+  ],
+  "sides": {
+   "front": {
+    "coverage": 0.2663,
+    "edgeDensity": 0.0604
+   },
+   "right": {
+    "coverage": 0.2724,
+    "edgeDensity": 0.0404
+   },
+   "back": {
+    "coverage": 0.2757,
+    "edgeDensity": 0.0455
+   },
+   "left": {
+    "coverage": 0.2724,
+    "edgeDensity": 0.0401
+   }
+  },
+  "error": null,
+  "name": "sea_house_a",
+  "problems": []
+ },
+ {
+  "ok": true,
+  "mounts": null,
+  "meshes": 3,
+  "tris": 240,
+  "materials": 1,
+  "size": [
+   1,
+   1,
+   0.866
+  ],
+  "groundOffset": 0,
+  "centreOffset": [
+   0,
+   0
+  ],
+  "sides": {
+   "front": {
+    "coverage": 0.2007,
+    "edgeDensity": 0.0326
+   },
+   "right": {
+    "coverage": 0.1767,
+    "edgeDensity": 0.0382
+   },
+   "back": {
+    "coverage": 0.2007,
+    "edgeDensity": 0.0212
+   },
+   "left": {
+    "coverage": 0.1767,
+    "edgeDensity": 0.0202
+   }
+  },
+  "error": null,
+  "name": "sea_kelp_a",
+  "problems": []
+ },
+ {
+  "ok": true,
+  "mounts": null,
+  "meshes": 45,
+  "tris": 15888,
+  "materials": 2,
+  "size": [
+   196.5,
+   6.273,
+   196.5
+  ],
+  "groundOffset": 0,
+  "centreOffset": [
+   0,
+   0
+  ],
+  "sides": {
+   "front": {
+    "coverage": 0.1201,
+    "edgeDensity": 0.1856
+   },
+   "right": {
+    "coverage": 0.1201,
+    "edgeDensity": 0.1826
+   },
+   "back": {
+    "coverage": 0.1201,
+    "edgeDensity": 0.1863
+   },
+   "left": {
+    "coverage": 0.1201,
+    "edgeDensity": 0.1869
+   }
+  },
+  "error": null,
+  "name": "sea_rings_a",
+  "problems": []
+ },
+ {
+  "ok": true,
+  "mounts": null,
+  "meshes": 38,
+  "tris": 4864,
+  "materials": 5,
+  "size": [
+   49.6,
+   51,
+   49.6
+  ],
+  "groundOffset": 0,
+  "centreOffset": [
+   0,
+   0
+  ],
+  "sides": {
+   "front": {
+    "coverage": 0.1689,
+    "edgeDensity": 0.1426
+   },
+   "right": {
+    "coverage": 0.1689,
+    "edgeDensity": 0.1494
+   },
+   "back": {
+    "coverage": 0.1689,
+    "edgeDensity": 0.1341
+   },
+   "left": {
+    "coverage": 0.1689,
+    "edgeDensity": 0.1421
+   }
+  },
+  "error": null,
+  "name": "sea_temple_a",
+  "problems": []
+ },
+ {
+  "ok": true,
+  "mounts": null,
+  "meshes": 11,
+  "tris": 464,
+  "materials": 5,
+  "size": [
+   2.437,
+   24.4,
+   2.5
+  ],
+  "groundOffset": 0,
+  "centreOffset": [
+   0,
+   0
+  ],
+  "sides": {
+   "front": {
+    "coverage": 0.0598,
+    "edgeDensity": 0.1483
+   },
+   "right": {
+    "coverage": 0.062,
+    "edgeDensity": 0.1406
+   },
+   "back": {
+    "coverage": 0.0598,
+    "edgeDensity": 0.1024
+   },
+   "left": {
+    "coverage": 0.062,
+    "edgeDensity": 0.1172
+   }
+  },
+  "error": null,
+  "name": "sea_tower_a",
+  "problems": []
+ }
+]

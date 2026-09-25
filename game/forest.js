@@ -458,8 +458,8 @@ export class ForestView {
   async buildLastDoor() {
     const { Gate, renderer, sound } = this.services;
     if (!Gate || !renderer) return;
-    this.atlantis = new AtlantisView();
-    this.atlantis.build();
+    this.atlantis = new AtlantisView(this.assets);
+    await this.atlantis.build();
     const gate = new Gate({
       scene: this.scene,
       world: null,

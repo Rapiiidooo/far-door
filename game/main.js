@@ -184,6 +184,14 @@ const ASSETS = [
   "icicle_cluster",
   "frozen_falls",
   "meadow_grass",
+  "sea_temple",
+  "sea_house",
+  "sea_tower",
+  "sea_rings",
+  "reef_fish",
+  "manta_ray",
+  "sea_kelp",
+  "sea_coral",
 ];
 const available = new Map();
 async function probe(name) {

@@ -240,3 +240,39 @@ Handed out on 24 September 2026, when the owner asked for grass with more triang
 ## meadow_grass
 
 A tuft of soft meadow grass about 0.6 m tall and 0.7 m across, meant to be scattered by the hundred over the floating isles and the forest floor: twenty-four to forty slender blades rising from a tight base about 0.15 m across and fanning out in every direction, each blade a thin tapering strip (about 2 cm wide at its root, pointed at its tip) built in four or five segments so it arches smoothly and twists a little, the tallest near the middle standing almost upright, the outer ones shorter and bowing outward until their tips droop; three or four thin stalks rise above the blades carrying small oat-like seed heads. Two materials, both named `foliage` and double-sided: the lower part of every blade moss green, the upper part and the tips fern green (split each blade between the two materials, no vertex colours), and the seed heads in the fern green material. It must read at 5 m as a soft clump of grass, never as a star of flat spikes. Budget: 300 to 800 triangles, since hundreds are instanced.
+
+# Eighth wave
+
+Handed out on 25 September 2026 for the city under the sea that the forest's last door shows at the end of the game, one candidate each (see [sea/](sea/README.md)). Same contract, style lock and fallback as above, plus the sea's palette: pale marble, verdigris copper, gold trim, glowing cyan crystals and warm lit windows.
+
+## sea_temple
+
+The domed temple at the heart of a drowned city, about 50 m across and 51 m tall: an island of three round stone steps, sixteen columns about a round sanctum lit through tall slits, an entablature under a verdigris copper dome ringed in gold, and a lantern with a gold cone crowned by a glowing crystal. Declare the lit slits and the crystal as `userData.parts.glow`. Budget: at most 8,000 triangles.
+
+## sea_house
+
+A house of the drowned city, 4 m square and about 7 m to the tip of its roof: pale stone walls on a plinth under a cornice, a dark door under a stone arch with a step before it, lit windows front and back with sills, and a four-sided copper roof with a gold finial. It is scattered by the hundred at slightly different scales. Declare the windows as `userData.parts.glow`. Budget: at most 800 triangles.
+
+## sea_tower
+
+A slender tower of the drowned city, about 24 m tall: a round stone shaft narrowing a little as it rises, lit windows climbing it in a spiral, a gold band under a copper spire and a glowing crystal at the tip. The game scales its girth and height. Declare the windows and the crystal as `userData.parts.glow`. Budget: at most 1,000 triangles.
+
+## sea_rings
+
+The stonework of the drowned city, about 197 m across and 6 m high: three concentric rings of stone wall round an open centre for the temple, the old canals between them spanned by four bridges on paired piers, and a line of cyan light along both edges of each wall's top, declared as `userData.parts.glow`. Budget: at most 20,000 triangles.
+
+## reef_fish
+
+A reef fish about a metre long, nose to +z: a deep, narrow body, a flat forked tail fin, a fin on its back and two dark eyes, in pale silver so the game can tint each fish of a shoal. The game swims it in shoals with a vertex shader that beats its tail, so the tail must lie behind the body along -z. Budget: at most 400 triangles.
+
+## manta_ray
+
+A manta ray a metre across, nose to +z: a flat body with its wings out along x, a low hump on its back, two horns at the front, eyes at the sides of its head, a mouth and a whip of a tail, in dark slate. The game flaps its wings by their distance from the middle. Budget: at most 600 triangles.
+
+## sea_kelp
+
+A frond of giant kelp one metre tall and rooted at y = 0, which the game stretches to 10 to 24 m: crossed ribbons a metre wide at the holdfast, narrowing towards the tip, in enough segments along their height for a vertex shader to sway them smoothly. Budget: at most 400 triangles.
+
+## sea_coral
+
+A head of coral about 1.4 m across and 0.9 m tall: a mound of faceted boulders of brain coral with fingers of branching coral leaning out between them, in one pale colour the game tints for each head. Budget: at most 600 triangles.
