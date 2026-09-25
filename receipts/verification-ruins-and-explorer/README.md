@@ -19,3 +19,35 @@ On 25 September 2026 the owner asked for better graphics: the city under the sea
 - **The relics:** `node scripts/relic-check.mjs outputs/relic-check` passes 32 of 32 ([results](relic-check/results.json)).
 - **The recipe:** the new assets pass the recipe's `verify.mjs --size=560` (the ruins six of six, the creatures four of four, the explorer one of one), and `harness/ship.mjs` flags nothing in the game folder.
 - **Jam gate on the local server:** ready in 9.7 s with the workstation's GPU, 3.8 MB, 445 draw calls and 372,277 triangles at peak; 14.7 s with the software renderer forced; both passing.
+
+## The public URL
+
+The game is served under both `https://farseek.rapidoai.dev/` and `https://fardoor.rapidoai.dev/`: the owner added the name's A record, and the edge's HTTP site, certificate and HTTPS site were extended to it (`add-domain.sh` in the private deployment notes). The source moved to <https://github.com/Rapiiidooo/farseek>; the old address redirects. Commit `c97091b` was deployed as release `20260925-c97091b1edcc`. Its first deploy was refused by the deploy script's own check, which looked for the page title Far Door, and the previous release was restored; the check now accepts either title, and the second deploy went through. The served files checked match the commit. The jam gate, as published:
+
+```text
+=== 404 JAM VERDICT ===
+url             https://farseek.rapidoai.dev/
+utc             2026-09-25T07:24:10.918Z
+commit          c97091b1edcc1928f4ebe2e421724943fe20cd0e
+viewport        390x844 @3x phone, real touch, Android Chrome UA
+network         4G: 4 Mbps down, 1 Mbps up, 60 ms latency, CPU 2x slower
+ready           5.2 s   budget 20 s   PASS
+weight          3.8 MB   budget 10 MB   PASS
+started         yes (tap on #startb)
+moved           3.2 m   needs 1 m   PASS
+peak draws      445   budget 900   PASS
+peak tris       372,277   budget 1,500,000   PASS
+median fps      60 (ANGLE (Apple, ANGLE Metal Renderer: Apple M5 Max, Unspecified Version))
+errors          0   PASS
+404s            0   PASS
+external deps   none
+outside folder  none, every file came from the game folder
+RESULT: PASS
+=== END ===
+```
+
+With the software renderer forced it was ready in 10.8 s and passed too ([phone verdict](gate-live/phone-verdict.json), [software verdict](gate-live/software-verdict.json), [frame in motion](gate-live/phone-moving.png)).
+
+## Limits
+
+Nobody has looked at the ruins, the creatures or the new explorer by hand yet, nor on a physical phone. The ruins, the creatures and the explorer's third pass had one or two candidates each where earlier waves had three. The explorer's face is small on screen in play and shows mostly in the letterboxed shots. Pageview analytics are still collected only under `fardoor.rapidoai.dev`.

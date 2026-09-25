@@ -1,0 +1,19 @@
+=== 404 JAM VERDICT ===
+url             https://farseek.rapidoai.dev/
+utc             2026-09-25T07:24:10.918Z
+commit          c97091b1edcc1928f4ebe2e421724943fe20cd0e
+viewport        390x844 @3x phone, real touch, Android Chrome UA
+network         4G: 4 Mbps down, 1 Mbps up, 60 ms latency, CPU 2x slower
+ready           5.2 s   budget 20 s   PASS
+weight          3.8 MB   budget 10 MB   PASS
+started         yes (tap on #startb)
+moved           3.2 m   needs 1 m   PASS
+peak draws      445   budget 900   PASS
+peak tris       372,277   budget 1,500,000   PASS
+median fps      60 (ANGLE (Apple, ANGLE Metal Renderer: Apple M5 Max, Unspecified Version))
+errors          0   PASS
+404s            0   PASS
+external deps   none
+outside folder  none, every file came from the game folder
+RESULT: PASS
+=== END ===
