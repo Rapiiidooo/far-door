@@ -16,7 +16,7 @@ On 25 September 2026 the owner asked for better graphics: the city under the sea
 ## Checks
 
 - **The closing shot, probed:** no page or console error, 60 frames a second throughout, and 217 shader programs before and after the whole shot ([probe](closing-shot-probe.json)).
-- **The whole game:** `node scripts/playthrough.mjs outputs/playthrough` played from the title through the four levels and the closing shot to the credits and back with real keys, with no page or console error; no shader program was compiled in play, 219 at the first start and 219 at the end; it was played again, with the same result, once the hands were set flat on the lip ([log](playthrough/log.json)). The new explorer hangs, climbs, jumps and pushes as before ([hanging](playthrough/02-hang.png), [on the isles](playthrough/21-isles-jumps.png), [at the ice block](playthrough/31-frost-block.png)); the closing shot reaches the ruins ([the last door](playthrough/36-finale-last-door.png), [the ruins](playthrough/37-finale-sea.png), [the credits](playthrough/38-credits.png)).
+- **The whole game:** `node scripts/playthrough.mjs outputs/playthrough` played from the title through the four levels and the closing shot to the credits and back with real keys, with no page or console error; no shader program was compiled in play, 219 at the first start and 219 at the end; it was played again, with the same result, once the hands were set flat on the lip, and again on `13a7767`, with the hands open at rest; that last run's log and frames are kept here ([log](playthrough/log.json)). An earlier run on `13a7767`, made on the same machine while the jam gate ran against the public URL, stopped on the isles with no page error, the bot stuck on its way across the pylon pair's bridges; run alone, it went through. The new explorer hangs, climbs, jumps and pushes as before ([hanging](playthrough/02-hang.png), [on the isles](playthrough/21-isles-jumps.png), [at the ice block](playthrough/31-frost-block.png)); the closing shot reaches the ruins ([the last door](playthrough/36-finale-last-door.png), [the ruins](playthrough/37-finale-sea.png), [the credits](playthrough/38-credits.png)).
 - **Touch:** `node scripts/touch-check.mjs outputs/touch-check` passes 36 of 36 ([log](touch-check.json)).
 - **Menus and level flow:** `node scripts/menu-check.mjs outputs/menu-check` passes 19 of 19 ([results](menu-check.json)).
 - **The relics:** `node scripts/relic-check.mjs outputs/relic-check` passes 32 of 32 ([results](relic-check/results.json)).
@@ -25,20 +25,20 @@ On 25 September 2026 the owner asked for better graphics: the city under the sea
 
 ## The public URL
 
-The game is served under both `https://farseek.rapidoai.dev/` and `https://fardoor.rapidoai.dev/`: the owner added the name's A record, and the edge's HTTP site, certificate and HTTPS site were extended to it (`add-domain.sh` in the private deployment notes). The source moved to <https://github.com/Rapiiidooo/farseek>; the old address redirects. Commit `c97091b` was deployed as release `20260925-c97091b1edcc` and passed the gate there (ready in 5.2 s); commit `b5a0af7`, with the hands set flat on the lip and the view turning under the credits, replaced it as release `20260925-b5a0af7174fb`. Its first deploy was refused by the deploy script's own check, which looked for the page title Far Door, and the previous release was restored; the check now accepts either title, and the second deploy went through. The served files checked match the last commit. The jam gate on it, as published:
+The game is served under both `https://farseek.rapidoai.dev/` and `https://fardoor.rapidoai.dev/`: the owner added the name's A record, and the edge's HTTP site, certificate and HTTPS site were extended to it (`add-domain.sh` in the private deployment notes). The source moved to <https://github.com/Rapiiidooo/farseek>; the old address redirects. Commit `c97091b` was deployed as release `20260925-c97091b1edcc`. Its first deploy was refused by the deploy script's own check, which looked for the page title Far Door, and the previous release was restored; the check now accepts either title, and the second deploy went through and passed the gate there (ready in 5.2 s). Commit `b5a0af7`, with the hands set flat on the lip and the view turning under the credits, replaced it as release `20260925-b5a0af7174fb` and passed the gate too, ready in 5.2 s (10.0 s with the software renderer forced). Commit `13a7767`, with the hands open at rest, then replaced it as release `20260925-13a77679fdda`, the commit the entry and PR #14 name. All 184 files served under both names match that commit. The jam gate on it, as published:
 
 ```text
 === 404 JAM VERDICT ===
 url             https://farseek.rapidoai.dev/
-utc             2026-09-25T07:36:47.891Z
-commit          b5a0af7174fba418290e22d2f0667ea8597becd5
+utc             2026-09-25T07:46:59.613Z
+commit          13a77679fdda280d04a57d0c6ed661d09cfc93b5
 viewport        390x844 @3x phone, real touch, Android Chrome UA
 network         4G: 4 Mbps down, 1 Mbps up, 60 ms latency, CPU 2x slower
-ready           5.2 s   budget 20 s   PASS
+ready           9.7 s   budget 20 s   PASS
 weight          3.8 MB   budget 10 MB   PASS
 started         yes (tap on #startb)
 moved           3.2 m   needs 1 m   PASS
-peak draws      445   budget 900   PASS
+peak draws      449   budget 900   PASS
 peak tris       372,277   budget 1,500,000   PASS
 median fps      60 (ANGLE (Apple, ANGLE Metal Renderer: Apple M5 Max, Unspecified Version))
 errors          0   PASS
@@ -49,7 +49,7 @@ RESULT: PASS
 === END ===
 ```
 
-With the software renderer forced it was ready in 10.0 s and passed too ([phone verdict](gate-live/phone-verdict.json), [software verdict](gate-live/software-verdict.json), [frame in motion](gate-live/phone-moving.png)).
+It was ready in 9.7 s rather than about 5 s because the full play-through was running on the same machine. Rerun alone with the software renderer forced, it was ready in 10.1 s and passed too ([phone verdict](gate-live/phone-verdict.json), [software verdict](gate-live/software-verdict.json), [frame in motion](gate-live/phone-moving.png)).
 
 ## Limits
 

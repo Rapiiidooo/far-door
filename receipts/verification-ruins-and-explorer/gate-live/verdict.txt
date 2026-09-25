@@ -1,14 +1,14 @@
 === 404 JAM VERDICT ===
 url             https://farseek.rapidoai.dev/
-utc             2026-09-25T07:36:47.891Z
-commit          b5a0af7174fba418290e22d2f0667ea8597becd5
+utc             2026-09-25T07:46:59.613Z
+commit          13a77679fdda280d04a57d0c6ed661d09cfc93b5
 viewport        390x844 @3x phone, real touch, Android Chrome UA
 network         4G: 4 Mbps down, 1 Mbps up, 60 ms latency, CPU 2x slower
-ready           5.2 s   budget 20 s   PASS
+ready           9.7 s   budget 20 s   PASS
 weight          3.8 MB   budget 10 MB   PASS
 started         yes (tap on #startb)
 moved           3.2 m   needs 1 m   PASS
-peak draws      445   budget 900   PASS
+peak draws      449   budget 900   PASS
 peak tris       372,277   budget 1,500,000   PASS
 median fps      60 (ANGLE (Apple, ANGLE Metal Renderer: Apple M5 Max, Unspecified Version))
 errors          0   PASS
