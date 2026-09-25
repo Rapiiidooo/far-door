@@ -1,7 +1,7 @@
 === 404 JAM VERDICT ===
 url             https://farseek.rapidoai.dev/
-utc             2026-09-25T07:24:10.918Z
-commit          c97091b1edcc1928f4ebe2e421724943fe20cd0e
+utc             2026-09-25T07:36:47.891Z
+commit          b5a0af7174fba418290e22d2f0667ea8597becd5
 viewport        390x844 @3x phone, real touch, Android Chrome UA
 network         4G: 4 Mbps down, 1 Mbps up, 60 ms latency, CPU 2x slower
 ready           5.2 s   budget 20 s   PASS

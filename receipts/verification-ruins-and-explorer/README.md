@@ -24,13 +24,13 @@ On 25 September 2026 the owner asked for better graphics: the city under the sea
 
 ## The public URL
 
-The game is served under both `https://farseek.rapidoai.dev/` and `https://fardoor.rapidoai.dev/`: the owner added the name's A record, and the edge's HTTP site, certificate and HTTPS site were extended to it (`add-domain.sh` in the private deployment notes). The source moved to <https://github.com/Rapiiidooo/farseek>; the old address redirects. Commit `c97091b` was deployed as release `20260925-c97091b1edcc`. Its first deploy was refused by the deploy script's own check, which looked for the page title Far Door, and the previous release was restored; the check now accepts either title, and the second deploy went through. The served files checked match the commit. The jam gate, as published:
+The game is served under both `https://farseek.rapidoai.dev/` and `https://fardoor.rapidoai.dev/`: the owner added the name's A record, and the edge's HTTP site, certificate and HTTPS site were extended to it (`add-domain.sh` in the private deployment notes). The source moved to <https://github.com/Rapiiidooo/farseek>; the old address redirects. Commit `c97091b` was deployed as release `20260925-c97091b1edcc` and passed the gate there (ready in 5.2 s); commit `b5a0af7`, with the hands set flat on the lip and the view turning under the credits, replaced it as release `20260925-b5a0af7174fb`. Its first deploy was refused by the deploy script's own check, which looked for the page title Far Door, and the previous release was restored; the check now accepts either title, and the second deploy went through. The served files checked match the last commit. The jam gate on it, as published:
 
 ```text
 === 404 JAM VERDICT ===
 url             https://farseek.rapidoai.dev/
-utc             2026-09-25T07:24:10.918Z
-commit          c97091b1edcc1928f4ebe2e421724943fe20cd0e
+utc             2026-09-25T07:36:47.891Z
+commit          b5a0af7174fba418290e22d2f0667ea8597becd5
 viewport        390x844 @3x phone, real touch, Android Chrome UA
 network         4G: 4 Mbps down, 1 Mbps up, 60 ms latency, CPU 2x slower
 ready           5.2 s   budget 20 s   PASS
@@ -48,7 +48,7 @@ RESULT: PASS
 === END ===
 ```
 
-With the software renderer forced it was ready in 10.8 s and passed too ([phone verdict](gate-live/phone-verdict.json), [software verdict](gate-live/software-verdict.json), [frame in motion](gate-live/phone-moving.png)).
+With the software renderer forced it was ready in 10.0 s and passed too ([phone verdict](gate-live/phone-verdict.json), [software verdict](gate-live/software-verdict.json), [frame in motion](gate-live/phone-moving.png)).
 
 ## Limits
 
