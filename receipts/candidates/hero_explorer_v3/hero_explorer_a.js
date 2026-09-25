@@ -594,6 +594,11 @@ export default function (THREE) {
   const PALM_B = 0.0095, PALM_D = 0.011;
   const palmTaper = (y) => 1.12 - 2.3 * (y + 0.014);
   const palmCentre = {};
+  // Each hand has two sets of fingers and thumb in groups of their own, left out of the bake:
+  // open and relaxed, shown at rest, and closed round a grip, shown when the hand holds or
+  // grips something. The game shows one or the other (userData.hands).
+  const HANDS = {};
+  const RELAXED = [[9, 14, 8], [10, 15, 8], [11, 16, 9], [13, 18, 10]];
   for (const [side] of SIDES) {
     const A = ARM[side], H = side + 'Hand', F = handFrame(A);
     const outline = new THREE.CatmullRomCurve3(PALM.map(([x, y]) => V3(x, y, 0)), true, 'centripetal').getPoints(20);
@@ -604,17 +609,32 @@ export default function (THREE) {
     const pp = palm.attributes.position;
     for (let i = 0; i < pp.count; i++) pp.setZ(i, pp.getZ(i) * palmTaper(pp.getY(i)));
     put(H, toHand(weld(palm), F), leather, 0, 0, 0);
-    for (const [x, d, len, curl, r] of FINGERS) {
-      const pts = [V3(x, d - 0.022, -0.004), V3(x, d - 0.002, -0.0075)];
-      let a = 0, c = pts[1];
-      for (let k = 0; k < 3; k++) {
-        a += curl[k] * DEG;
-        c = c.clone().add(V3(0, Math.cos(a) * len[k], Math.sin(a) * len[k]));
-        pts.push(c);
-      }
-      pts.push(c.clone().add(V3(0, Math.cos(a), Math.sin(a)).multiplyScalar(r * 0.4)));
-      put(H, toHand(fingerGeo(pts, r), F), leather, 0, 0, 0);
+    const sets = {};
+    for (const mode of ['Open', 'Grip']) {
+      const group = new THREE.Group();
+      group.name = side + 'Hand' + mode;
+      J[H].add(group);
+      sets[mode] = group;
+      FINGERS.forEach(([x, d, len, grip, r], i) => {
+        const curl = mode === 'Grip' ? grip : RELAXED[i];
+        // relaxed, the fingers also fan a little apart
+        const fan = mode === 'Grip' ? 0 : (x - 0.0) * 0.12;
+        const pts = [V3(x, d - 0.022, -0.004), V3(x + fan * 0.3, d - 0.002, -0.0075)];
+        let a = 0, c = pts[1];
+        for (let k = 0; k < 3; k++) {
+          a += curl[k] * DEG;
+          c = c.clone().add(V3(fan * (k + 1) * 0.35, Math.cos(a) * len[k], Math.sin(a) * len[k]));
+          pts.push(c);
+        }
+        pts.push(c.clone().add(V3(0, Math.cos(a), Math.sin(a)).multiplyScalar(r * 0.4)));
+        const m = put(H, toHand(fingerGeo(pts, r), F), leather, 0, 0, 0);
+        J[H].remove(m);
+        group.add(m);
+      });
     }
+    HANDS[side + 'Open'] = sets.Open;
+    HANDS[side + 'Grip'] = sets.Grip;
+    sets.Grip.visible = false;
     // thumb: its side outline arcs forward out of the heel and back to the index (22 mm
     // thick once the bevel grows it), extruded across its width along the palm's normal
     const tj = THUMB.map(([a, b, c]) => V3(a, b, c)), t0 = tj[0];
@@ -629,7 +649,14 @@ export default function (THREE) {
     );
     thumb.translate(0, 0, -0.0036);
     thumb.applyMatrix4(new THREE.Matrix4().makeBasis(tu, tv, tw).setPosition(t0));
-    put(H, toHand(weld(thumb), F), leather, 0, 0, 0);
+    for (const mode of ['Grip', 'Open']) {
+      const geo = thumb.clone();
+      // open, the thumb swings a little out from the palm about its root
+      if (mode === 'Open') geo.applyMatrix4(new THREE.Matrix4().makeTranslation(-t0.x, -t0.y, -t0.z)).applyMatrix4(new THREE.Matrix4().makeRotationY(0.25)).applyMatrix4(new THREE.Matrix4().makeTranslation(t0.x, t0.y, t0.z));
+      const m = put(H, toHand(weld(geo), F), leather, 0, 0, 0);
+      J[H].remove(m);
+      sets[mode].add(m);
+    }
     // centre of the palm's face, for grips
     const half = (PALM_D / 2 + PALM_B) * palmTaper(0.045);
     palmCentre[side] = V3(0.002, 0.045, half).applyMatrix4(F.m);
@@ -731,7 +758,7 @@ export default function (THREE) {
     out.setIndex(new THREE.BufferAttribute(idx, 1));
     return out;
   };
-  for (const j of Object.values(J)) {
+  for (const j of [...Object.values(J), ...Object.values(HANDS)]) {
     const byMat = new Map();
     for (const c of [...j.children]) {
       if (!c.isMesh) continue;
@@ -764,19 +791,22 @@ export default function (THREE) {
 
   // ---- grip: soles to fingertips with both upper arms overhead (x = -2.9) -----
   const HANG = -2.9;
+  for (const k of Object.keys(HANDS)) HANDS[k].visible = k.endsWith('Grip');
   J.leftUpperArm.rotation.x = HANG;
   J.rightUpperArm.rotation.x = HANG;
   g.updateMatrixWorld(true);
   let top = -Infinity;
+  const shown = (n) => { for (let o = n; o; o = o.parent) if (!o.visible) return false; return true; };
   for (const k of ['leftLowerArm', 'rightLowerArm']) {
     J[k].traverse((n) => {
-      const p = n.isMesh && n.geometry.attributes.position;
+      const p = n.isMesh && shown(n) && n.geometry.attributes.position;
       if (!p) return;
       for (let i = 0; i < p.count; i++) top = Math.max(top, v.fromBufferAttribute(p, i).applyMatrix4(n.matrixWorld).y);
     });
   }
   J.leftUpperArm.rotation.x = 0;
   J.rightUpperArm.rotation.x = 0;
+  for (const k of Object.keys(HANDS)) HANDS[k].visible = k.endsWith('Open');
   g.updateMatrixWorld(true);
 
   const r3 = (p) => [p.x, p.y, p.z].map((c) => Math.round(c * 1000) / 1000);
@@ -789,6 +819,7 @@ export default function (THREE) {
     scarfTail: J.scarfTail,
   };
   g.userData.grip = { hands: Math.round(top * 1000) / 1000 };
+  g.userData.hands = HANDS;
   g.userData.palms = { left: r3(palmCentre.left.add(shift)), right: r3(palmCentre.right.add(shift)) };
   return g;
 }

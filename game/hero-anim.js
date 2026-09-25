@@ -233,6 +233,26 @@ export class HeroAnimator {
     m.rotation.set(pitch + tumble, yaw.v, roll, "YXZ");
     this.updateScarf(dt, hero, turnRate);
     this.reach(dt, hero, reduced);
+    this.showHands(hero);
+  }
+
+  // Open, relaxed hands at rest; closed ones while a hand grips a lip, a block or a mirror, or
+  // holds or throws the disc (the asset's userData.hands).
+  showHands(hero) {
+    const H = this.model.userData.hands;
+    if (!H) return;
+    const throwing = hero.throwT !== undefined && hero.throwT < 0.5;
+    const closed = {
+      left: (this.ik.left?.weight ?? 0) > 0.35,
+      right: (this.ik.right?.weight ?? 0) > 0.35 || !!hero.holding || throwing,
+    };
+    for (const side of ["left", "right"]) {
+      const open = H[side + "Open"],
+        grip = H[side + "Grip"];
+      if (!open || !grip) continue;
+      open.visible = !closed[side];
+      grip.visible = closed[side];
+    }
   }
 
   // --- hands on things: two-bone IK after the pose ----------------------------------------------

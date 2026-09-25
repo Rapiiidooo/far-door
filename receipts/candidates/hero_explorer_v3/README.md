@@ -7,3 +7,5 @@ The brief is the ninth wave's `hero_explorer (third pass)` in [briefs.md](../bri
 - **The clothes:** a buttoned cargo pocket on the outside of each thigh, a worn patch over each knee, laces crossing between two rows of eyelets on the boots, and smoother legs.
 
 The first render showed the eyes too large and too white; they were made smaller and duller before the copy into `game/assets/`.
+
+A second revision, the same day, after the owner asked why the hand looked as if it held something at rest: the fingers and thumb of each hand are built twice over the one palm, closed round a grip as before and open and relaxed, each set baked into a mesh of its own, left out of the joint's bake and declared as `userData.hands` (`leftOpen`, `leftGrip`, `rightOpen`, `rightGrip`). The open sets show at rest; the game shows the closed ones while a hand grips or holds. The grip height is measured with the closed fingers, as before. The verifier found it clean: 18,578 triangles, 50 meshes.

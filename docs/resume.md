@@ -92,6 +92,7 @@ The owner then asked for better graphics (Atlantis as ruins, better fish and ray
 - **The forest's trees and rocks** stand on the lowest ground as drawn under their roots: the far country's coarse floor runs under the true heights on every rise, so trees on slopes and hills floated.
 - **The explorer** (`hero_explorer`, third pass): the scarf no longer masks the face, which has eyes, brows, a nose, a mouth, ears and a jaw under hair with a short tail; the goggles hang at the throat; a backpack with a bedroll carries the rope coil; a canteen hangs at the left hip; the trousers have thigh pockets and knee patches and the boots are laced. The joints, pivots, palms and grip are unchanged.
 - **Under the credits:** the view turns slowly and without end about the drowned city.
+- **Hands:** open and relaxed at rest, closed only while gripping or holding (two sets of fingers per hand in the asset's `userData.hands`, switched by `showHands`).
 - **Hanging:** the palms rest flat on the lip with the fingers over it (the hand's turn is set before the wrist is placed), and the legs hang back off the wall.
 - **The name:** Farseek on the title screen, the tab, the credits and the closing card. The saves keep their `far-door-` keys so progress survives, and the analytics run only on `fardoor.rapidoai.dev`.
 
