@@ -1,0 +1,932 @@
+{
+ "session": "frost",
+ "fps": 60,
+ "frames": 9541,
+ "seconds": 159.017,
+ "capture": {
+  "width": 1280,
+  "height": 720,
+  "deviceScaleFactor": 1.5,
+  "pixels": "1920x1080",
+  "stills": "3840x2160"
+ },
+ "realSeconds": 505,
+ "dry": false,
+ "log": [
+  {
+   "frame": 0,
+   "t": 0,
+   "text": "recording frost"
+  },
+  {
+   "frame": 247,
+   "t": 4.117,
+   "text": "in the frozen reach"
+  },
+  {
+   "frame": 1368,
+   "t": 22.8,
+   "text": "slid and jumped the crevasse"
+  },
+  {
+   "frame": 1878,
+   "t": 31.3,
+   "text": "pushed the block east"
+  },
+  {
+   "frame": 2393,
+   "t": 39.883,
+   "text": "pushed the block north"
+  },
+  {
+   "frame": 2950,
+   "t": 49.167,
+   "text": "climbed out of the pond by the block"
+  },
+  {
+   "frame": 3469,
+   "t": 57.817,
+   "text": "ran the thin ice: gone, gone, sink, crack"
+  },
+  {
+   "frame": 3972,
+   "t": 66.2,
+   "text": "rode the floes"
+  },
+  {
+   "frame": 4409,
+   "t": 73.483,
+   "text": "on the island"
+  },
+  {
+   "frame": 4861,
+   "t": 81.017,
+   "text": "freed the third glyph from the ice"
+  },
+  {
+   "frame": 4898,
+   "t": 81.633,
+   "text": "great-ring starts"
+  },
+  {
+   "frame": 5461,
+   "t": 91.017,
+   "text": "great-ring ends"
+  },
+  {
+   "frame": 5461,
+   "t": 91.017,
+   "text": "the great ring is open onto the forest"
+  },
+  {
+   "frame": 5462,
+   "t": 91.033,
+   "text": "finale starts"
+  },
+  {
+   "frame": 8821,
+   "t": 147.017,
+   "text": "finale ends"
+  },
+  {
+   "frame": 9541,
+   "t": 159.017,
+   "text": "done"
+  },
+  {
+   "frame": 9541,
+   "t": 159.017,
+   "text": "errors: none"
+  }
+ ],
+ "stills": [
+  {
+   "file": "stills/frost-01-orbit-1.png",
+   "frame": 379,
+   "t": 6.317
+  },
+  {
+   "file": "stills/frost-02-orbit-2.png",
+   "frame": 544,
+   "t": 9.067
+  },
+  {
+   "file": "stills/frost-03-orbit-3.png",
+   "frame": 709,
+   "t": 11.817
+  },
+  {
+   "file": "stills/frost-04-orbit-4.png",
+   "frame": 841,
+   "t": 14.017
+  },
+  {
+   "file": "stills/frost-05-slide.png",
+   "frame": 1068,
+   "t": 17.8
+  },
+  {
+   "file": "stills/frost-06-block.png",
+   "frame": 2393,
+   "t": 39.883
+  },
+  {
+   "file": "stills/frost-07-thin-ice.png",
+   "frame": 3469,
+   "t": 57.817
+  },
+  {
+   "file": "stills/frost-08-floe.png",
+   "frame": 3604,
+   "t": 60.067
+  },
+  {
+   "file": "stills/frost-09-great-ring.png",
+   "frame": 4958,
+   "t": 82.633
+  },
+  {
+   "file": "stills/frost-10-great-ring.png",
+   "frame": 5018,
+   "t": 83.633
+  },
+  {
+   "file": "stills/frost-11-great-ring.png",
+   "frame": 5078,
+   "t": 84.633
+  },
+  {
+   "file": "stills/frost-12-great-ring.png",
+   "frame": 5138,
+   "t": 85.633
+  },
+  {
+   "file": "stills/frost-13-great-ring.png",
+   "frame": 5198,
+   "t": 86.633
+  },
+  {
+   "file": "stills/frost-14-great-ring.png",
+   "frame": 5258,
+   "t": 87.633
+  },
+  {
+   "file": "stills/frost-15-great-ring.png",
+   "frame": 5318,
+   "t": 88.633
+  },
+  {
+   "file": "stills/frost-16-great-ring.png",
+   "frame": 5378,
+   "t": 89.633
+  },
+  {
+   "file": "stills/frost-17-great-ring.png",
+   "frame": 5438,
+   "t": 90.633
+  },
+  {
+   "file": "stills/frost-18-finale.png",
+   "frame": 5552,
+   "t": 92.533
+  },
+  {
+   "file": "stills/frost-19-finale.png",
+   "frame": 5642,
+   "t": 94.033
+  },
+  {
+   "file": "stills/frost-20-finale.png",
+   "frame": 5732,
+   "t": 95.533
+  },
+  {
+   "file": "stills/frost-21-finale.png",
+   "frame": 5822,
+   "t": 97.033
+  },
+  {
+   "file": "stills/frost-22-finale.png",
+   "frame": 5912,
+   "t": 98.533
+  },
+  {
+   "file": "stills/frost-23-finale.png",
+   "frame": 6002,
+   "t": 100.033
+  },
+  {
+   "file": "stills/frost-24-finale.png",
+   "frame": 6092,
+   "t": 101.533
+  },
+  {
+   "file": "stills/frost-25-finale.png",
+   "frame": 6182,
+   "t": 103.033
+  },
+  {
+   "file": "stills/frost-26-finale.png",
+   "frame": 6272,
+   "t": 104.533
+  },
+  {
+   "file": "stills/frost-27-finale.png",
+   "frame": 6362,
+   "t": 106.033
+  },
+  {
+   "file": "stills/frost-28-finale.png",
+   "frame": 6452,
+   "t": 107.533
+  },
+  {
+   "file": "stills/frost-29-finale.png",
+   "frame": 6542,
+   "t": 109.033
+  },
+  {
+   "file": "stills/frost-30-finale.png",
+   "frame": 6632,
+   "t": 110.533
+  },
+  {
+   "file": "stills/frost-31-finale.png",
+   "frame": 6722,
+   "t": 112.033
+  },
+  {
+   "file": "stills/frost-32-finale.png",
+   "frame": 6812,
+   "t": 113.533
+  },
+  {
+   "file": "stills/frost-33-finale.png",
+   "frame": 6902,
+   "t": 115.033
+  },
+  {
+   "file": "stills/frost-34-finale.png",
+   "frame": 6992,
+   "t": 116.533
+  },
+  {
+   "file": "stills/frost-35-finale.png",
+   "frame": 7082,
+   "t": 118.033
+  },
+  {
+   "file": "stills/frost-36-finale.png",
+   "frame": 7172,
+   "t": 119.533
+  },
+  {
+   "file": "stills/frost-37-finale.png",
+   "frame": 7262,
+   "t": 121.033
+  },
+  {
+   "file": "stills/frost-38-finale.png",
+   "frame": 7352,
+   "t": 122.533
+  },
+  {
+   "file": "stills/frost-39-finale.png",
+   "frame": 7442,
+   "t": 124.033
+  },
+  {
+   "file": "stills/frost-40-finale.png",
+   "frame": 7532,
+   "t": 125.533
+  },
+  {
+   "file": "stills/frost-41-finale.png",
+   "frame": 7622,
+   "t": 127.033
+  },
+  {
+   "file": "stills/frost-42-finale.png",
+   "frame": 7712,
+   "t": 128.533
+  },
+  {
+   "file": "stills/frost-43-finale.png",
+   "frame": 7802,
+   "t": 130.033
+  },
+  {
+   "file": "stills/frost-44-finale.png",
+   "frame": 7892,
+   "t": 131.533
+  },
+  {
+   "file": "stills/frost-45-finale.png",
+   "frame": 7982,
+   "t": 133.033
+  },
+  {
+   "file": "stills/frost-46-finale.png",
+   "frame": 8072,
+   "t": 134.533
+  },
+  {
+   "file": "stills/frost-47-finale.png",
+   "frame": 8162,
+   "t": 136.033
+  },
+  {
+   "file": "stills/frost-48-finale.png",
+   "frame": 8252,
+   "t": 137.533
+  },
+  {
+   "file": "stills/frost-49-finale.png",
+   "frame": 8342,
+   "t": 139.033
+  },
+  {
+   "file": "stills/frost-50-finale.png",
+   "frame": 8432,
+   "t": 140.533
+  },
+  {
+   "file": "stills/frost-51-finale.png",
+   "frame": 8522,
+   "t": 142.033
+  },
+  {
+   "file": "stills/frost-52-finale.png",
+   "frame": 8612,
+   "t": 143.533
+  },
+  {
+   "file": "stills/frost-53-finale.png",
+   "frame": 8702,
+   "t": 145.033
+  },
+  {
+   "file": "stills/frost-54-finale.png",
+   "frame": 8792,
+   "t": 146.533
+  },
+  {
+   "file": "stills/frost-55-credits.png",
+   "frame": 9181,
+   "t": 153.017
+  }
+ ],
+ "events": [
+  {
+   "frame": 1,
+   "key": "mode",
+   "value": "title"
+  },
+  {
+   "frame": 1,
+   "key": "where",
+   "value": "court"
+  },
+  {
+   "frame": 1,
+   "key": "hero",
+   "value": "ground"
+  },
+  {
+   "frame": 1,
+   "key": "cinematic",
+   "value": false
+  },
+  {
+   "frame": 1,
+   "key": "crossing",
+   "value": false
+  },
+  {
+   "frame": 1,
+   "key": "lit",
+   "value": 0
+  },
+  {
+   "frame": 1,
+   "key": "gateOpen",
+   "value": false
+  },
+  {
+   "frame": 1,
+   "key": "checkpoint",
+   "value": "arrive"
+  },
+  {
+   "frame": 1,
+   "key": "stamped",
+   "value": 0
+  },
+  {
+   "frame": 1,
+   "key": "disc",
+   "value": "display"
+  },
+  {
+   "frame": 1,
+   "key": "exitOpen",
+   "value": false
+  },
+  {
+   "frame": 1,
+   "key": "isle",
+   "value": "arrival"
+  },
+  {
+   "frame": 1,
+   "key": "pylons",
+   "value": 0
+  },
+  {
+   "frame": 1,
+   "key": "read",
+   "value": false
+  },
+  {
+   "frame": 1,
+   "key": "miraRing",
+   "value": "closed"
+  },
+  {
+   "frame": 1,
+   "key": "section",
+   "value": null
+  },
+  {
+   "frame": 1,
+   "key": "block",
+   "value": "rest"
+  },
+  {
+   "frame": 1,
+   "key": "broken",
+   "value": 0
+  },
+  {
+   "frame": 1,
+   "key": "freed",
+   "value": false
+  },
+  {
+   "frame": 1,
+   "key": "greatRing",
+   "value": "closed"
+  },
+  {
+   "frame": 1,
+   "key": "credits",
+   "value": false
+  },
+  {
+   "frame": 1,
+   "key": "subtitle",
+   "value": ""
+  },
+  {
+   "frame": 91,
+   "key": "mode",
+   "value": "play"
+  },
+  {
+   "frame": 91,
+   "key": "where",
+   "value": "four"
+  },
+  {
+   "frame": 91,
+   "key": "lit",
+   "value": 3
+  },
+  {
+   "frame": 91,
+   "key": "gateOpen",
+   "value": true
+  },
+  {
+   "frame": 91,
+   "key": "checkpoint",
+   "value": "open"
+  },
+  {
+   "frame": 91,
+   "key": "stamped",
+   "value": 3
+  },
+  {
+   "frame": 91,
+   "key": "disc",
+   "value": "stowed"
+  },
+  {
+   "frame": 91,
+   "key": "exitOpen",
+   "value": true
+  },
+  {
+   "frame": 91,
+   "key": "read",
+   "value": true
+  },
+  {
+   "frame": 91,
+   "key": "miraRing",
+   "value": "open"
+  },
+  {
+   "frame": 91,
+   "key": "section",
+   "value": "stream"
+  },
+  {
+   "frame": 210,
+   "key": "subtitle",
+   "value": "Ice. She came through here before me."
+  },
+  {
+   "frame": 421,
+   "key": "subtitle",
+   "value": ""
+  },
+  {
+   "frame": 1328,
+   "key": "hero",
+   "value": "air"
+  },
+  {
+   "frame": 1367,
+   "key": "hero",
+   "value": "ground"
+  },
+  {
+   "frame": 1405,
+   "key": "section",
+   "value": "pond:false"
+  },
+  {
+   "frame": 1467,
+   "key": "subtitle",
+   "value": "Blocks of ice. They will slide."
+  },
+  {
+   "frame": 1647,
+   "key": "subtitle",
+   "value": ""
+  },
+  {
+   "frame": 1823,
+   "key": "hero",
+   "value": "grab"
+  },
+  {
+   "frame": 1824,
+   "key": "hero",
+   "value": "ground"
+  },
+  {
+   "frame": 1824,
+   "key": "block",
+   "value": "sliding"
+  },
+  {
+   "frame": 1878,
+   "key": "block",
+   "value": "rest"
+  },
+  {
+   "frame": 2298,
+   "key": "hero",
+   "value": "grab"
+  },
+  {
+   "frame": 2299,
+   "key": "hero",
+   "value": "ground"
+  },
+  {
+   "frame": 2299,
+   "key": "block",
+   "value": "sliding"
+  },
+  {
+   "frame": 2393,
+   "key": "block",
+   "value": "rest"
+  },
+  {
+   "frame": 2393,
+   "key": "subtitle",
+   "value": "Right under the notch. Up I go."
+  },
+  {
+   "frame": 2574,
+   "key": "subtitle",
+   "value": ""
+  },
+  {
+   "frame": 2687,
+   "key": "hero",
+   "value": "air"
+  },
+  {
+   "frame": 2721,
+   "key": "hero",
+   "value": "hang"
+  },
+  {
+   "frame": 2723,
+   "key": "hero",
+   "value": "climb"
+  },
+  {
+   "frame": 2753,
+   "key": "hero",
+   "value": "ground"
+  },
+  {
+   "frame": 2819,
+   "key": "hero",
+   "value": "air"
+  },
+  {
+   "frame": 2853,
+   "key": "hero",
+   "value": "hang"
+  },
+  {
+   "frame": 2855,
+   "key": "hero",
+   "value": "climb"
+  },
+  {
+   "frame": 2885,
+   "key": "hero",
+   "value": "ground"
+  },
+  {
+   "frame": 3145,
+   "key": "section",
+   "value": "lake"
+  },
+  {
+   "frame": 3147,
+   "key": "hero",
+   "value": "air"
+  },
+  {
+   "frame": 3166,
+   "key": "hero",
+   "value": "ground"
+  },
+  {
+   "frame": 3190,
+   "key": "hero",
+   "value": "air"
+  },
+  {
+   "frame": 3209,
+   "key": "hero",
+   "value": "ground"
+  },
+  {
+   "frame": 3224,
+   "key": "hero",
+   "value": "air"
+  },
+  {
+   "frame": 3240,
+   "key": "hero",
+   "value": "ground"
+  },
+  {
+   "frame": 3269,
+   "key": "hero",
+   "value": "air"
+  },
+  {
+   "frame": 3276,
+   "key": "hero",
+   "value": "ground"
+  },
+  {
+   "frame": 3316,
+   "key": "hero",
+   "value": "air"
+  },
+  {
+   "frame": 3319,
+   "key": "hero",
+   "value": "ground"
+  },
+  {
+   "frame": 3363,
+   "key": "hero",
+   "value": "air"
+  },
+  {
+   "frame": 3366,
+   "key": "hero",
+   "value": "ground"
+  },
+  {
+   "frame": 3411,
+   "key": "hero",
+   "value": "air"
+  },
+  {
+   "frame": 3413,
+   "key": "hero",
+   "value": "ground"
+  },
+  {
+   "frame": 3458,
+   "key": "hero",
+   "value": "air"
+  },
+  {
+   "frame": 3460,
+   "key": "hero",
+   "value": "ground"
+  },
+  {
+   "frame": 3460,
+   "key": "section",
+   "value": "floes"
+  },
+  {
+   "frame": 3509,
+   "key": "hero",
+   "value": "air"
+  },
+  {
+   "frame": 3548,
+   "key": "hero",
+   "value": "ground"
+  },
+  {
+   "frame": 3933,
+   "key": "hero",
+   "value": "air"
+  },
+  {
+   "frame": 3972,
+   "key": "hero",
+   "value": "ground"
+  },
+  {
+   "frame": 4373,
+   "key": "hero",
+   "value": "air"
+  },
+  {
+   "frame": 4409,
+   "key": "hero",
+   "value": "ground"
+  },
+  {
+   "frame": 4413,
+   "key": "section",
+   "value": "island:false:0"
+  },
+  {
+   "frame": 4413,
+   "key": "subtitle",
+   "value": "There. The third glyph, under the ice."
+  },
+  {
+   "frame": 4538,
+   "key": "section",
+   "value": "island:true:0"
+  },
+  {
+   "frame": 4623,
+   "key": "subtitle",
+   "value": ""
+  },
+  {
+   "frame": 4661,
+   "key": "broken",
+   "value": 1
+  },
+  {
+   "frame": 4661,
+   "key": "subtitle",
+   "value": "It cracks."
+  },
+  {
+   "frame": 4662,
+   "key": "section",
+   "value": "island:true:1"
+  },
+  {
+   "frame": 4732,
+   "key": "broken",
+   "value": 2
+  },
+  {
+   "frame": 4732,
+   "key": "subtitle",
+   "value": "Once more."
+  },
+  {
+   "frame": 4733,
+   "key": "section",
+   "value": "island:true:2"
+  },
+  {
+   "frame": 4803,
+   "key": "broken",
+   "value": 3
+  },
+  {
+   "frame": 4803,
+   "key": "freed",
+   "value": true
+  },
+  {
+   "frame": 4803,
+   "key": "subtitle",
+   "value": "A star. The address is whole."
+  },
+  {
+   "frame": 4804,
+   "key": "section",
+   "value": "freed"
+  },
+  {
+   "frame": 4898,
+   "key": "cinematic",
+   "value": true
+  },
+  {
+   "frame": 4898,
+   "key": "greatRing",
+   "value": "arming"
+  },
+  {
+   "frame": 4922,
+   "key": "greatRing",
+   "value": "charge"
+  },
+  {
+   "frame": 5013,
+   "key": "subtitle",
+   "value": ""
+  },
+  {
+   "frame": 5126,
+   "key": "greatRing",
+   "value": "reveal"
+  },
+  {
+   "frame": 5318,
+   "key": "greatRing",
+   "value": "open"
+  },
+  {
+   "frame": 5461,
+   "key": "cinematic",
+   "value": false
+  },
+  {
+   "frame": 5462,
+   "key": "cinematic",
+   "value": true
+  },
+  {
+   "frame": 5462,
+   "key": "subtitle",
+   "value": "Green. Somewhere green, and warm."
+  },
+  {
+   "frame": 5672,
+   "key": "subtitle",
+   "value": ""
+  },
+  {
+   "frame": 5774,
+   "key": "subtitle",
+   "value": "Their trail goes on, through door after door."
+  },
+  {
+   "frame": 6044,
+   "key": "subtitle",
+   "value": ""
+  },
+  {
+   "frame": 8821,
+   "key": "mode",
+   "value": "credits"
+  },
+  {
+   "frame": 8821,
+   "key": "credits",
+   "value": true
+  }
+ ],
+ "errors": []
+}

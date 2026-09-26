@@ -9,4 +9,3 @@ The rework the owner asked for on 24 September 2026 is done and verified, and so
 - [ ] The owner hunts the five relics by hand and says whether they are too easy or too hard to find, and looks at the forest through the last door and the frozen reach's new relief.
 - [ ] The owner listens to each level's music and the fades between levels, and to each world's wind and footfalls, looks at the new grass, and says what to change.
 - [ ] The owner watches the longer ending (the flight through the forest, the last door at the castle, the drowned city in ruins) and looks at the third-pass explorer, on a computer and a phone, and says what should change.
-- [ ] Before 25 September 23:59 UTC, any new release goes out with a fresh gate verdict and the entry file and pull request updated to its commit.

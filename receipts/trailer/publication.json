@@ -1,0 +1,26 @@
+{
+  "result": "PASS",
+  "release": "https://github.com/Rapiiidooo/farseek/releases/tag/jam-entry",
+  "tag": "jam-entry",
+  "commit": "13a77679fdda280d04a57d0c6ed661d09cfc93b5",
+  "checked": "2026-09-26T13:18:09Z",
+  "authenticationRequired": false,
+  "assets": [
+    {
+      "name": "farseek-trailer.mp4",
+      "url": "https://github.com/Rapiiidooo/farseek/releases/download/jam-entry/farseek-trailer.mp4",
+      "http": 200,
+      "bytes": 97698072,
+      "sha256": "d241346eed18a467f093e7e651db1cefc49565c9ef0821888e0de6ea8caab375",
+      "matchesLocalExport": true
+    },
+    {
+      "name": "farseek-trailer-720p.mp4",
+      "url": "https://github.com/Rapiiidooo/farseek/releases/download/jam-entry/farseek-trailer-720p.mp4",
+      "http": 200,
+      "bytes": 25174475,
+      "sha256": "214e79c00e705f77abee0c4162dcc27796ad695cc5d465f49395225ec9effdd9",
+      "matchesLocalExport": true
+    }
+  ]
+}

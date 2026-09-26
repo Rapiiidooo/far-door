@@ -1,0 +1,339 @@
+{
+ "seconds": 95.033,
+ "parts": [
+  {
+   "music": "court",
+   "clips": [
+    {
+     "at": 0,
+     "clip": [
+      "court",
+      1.62,
+      6.9,
+      "the opening shot"
+     ]
+    },
+    {
+     "at": 5.283,
+     "clip": [
+      "court",
+      13.6,
+      16.2,
+      "over the gap"
+     ]
+    },
+    {
+     "at": 7.883,
+     "clip": [
+      "court",
+      19.8,
+      22.8,
+      "along the crack and up"
+     ]
+    },
+    {
+     "at": 10.883,
+     "clip": [
+      "court",
+      55.4,
+      59.3,
+      "the light sent from mirror to mirror onto a stela"
+     ]
+    }
+   ]
+  },
+  {
+   "music": "court-open",
+   "clips": [
+    {
+     "at": 14.783,
+     "clip": [
+      "court",
+      75.1,
+      80.9,
+      "the first door opens"
+     ]
+    }
+   ]
+  },
+  {
+   "music": "world2",
+   "clips": [
+    {
+     "at": 20.583,
+     "clip": [
+      "court",
+      88.4,
+      92.5,
+      "through it, to the checkpoint"
+     ]
+    },
+    {
+     "at": 24.683,
+     "clip": [
+      "checkpoint",
+      26,
+      28.7,
+      "the clerk"
+     ]
+    }
+   ]
+  },
+  {
+   "music": "fight",
+   "clips": [
+    {
+     "at": 27.383,
+     "clip": [
+      "checkpoint",
+      35.5,
+      38.1,
+      "the confiscated disc taken back"
+     ]
+    },
+    {
+     "at": 29.983,
+     "clip": [
+      "checkpoint",
+      40,
+      41.9,
+      "a Warden's stamp"
+     ]
+    },
+    {
+     "at": 31.883,
+     "clip": [
+      "checkpoint",
+      43.4,
+      45.7,
+      "a plate stamped"
+     ]
+    }
+   ]
+  },
+  {
+   "music": "isles",
+   "clips": [
+    {
+     "at": 34.183,
+     "clip": [
+      "checkpoint",
+      72,
+      77,
+      "the far door opens on the isles"
+     ]
+    },
+    {
+     "at": 39.183,
+     "clip": [
+      "isles",
+      18.2,
+      21.2,
+      "isle to isle"
+     ]
+    },
+    {
+     "at": 42.183,
+     "clip": [
+      "isles",
+      23.9,
+      25.4,
+      "a pylon woken"
+     ]
+    },
+    {
+     "at": 43.683,
+     "clip": [
+      "isles",
+      27,
+      29.4,
+      "across its bridge of light"
+     ]
+    },
+    {
+     "at": 46.083,
+     "clip": [
+      "isles",
+      57.4,
+      60,
+      "the crumbling stones"
+     ]
+    }
+   ]
+  },
+  {
+   "music": "frost",
+   "clips": [
+    {
+     "at": 48.683,
+     "clip": [
+      "isles",
+      86.9,
+      90.3,
+      "Mira's ring opens on the ice"
+     ]
+    },
+    {
+     "at": 52.083,
+     "clip": [
+      "frost",
+      19.2,
+      23.4,
+      "down the frozen stream"
+     ]
+    },
+    {
+     "at": 56.283,
+     "clip": [
+      "frost",
+      54,
+      57.2,
+      "thin ice"
+     ]
+    },
+    {
+     "at": 59.483,
+     "clip": [
+      "frost",
+      79,
+      81.55,
+      "the last glyph struck free"
+     ]
+    }
+   ]
+  },
+  {
+   "music": "finale",
+   "clips": [
+    {
+     "at": 62.033,
+     "clip": [
+      "frost",
+      86.4,
+      91,
+      "the great ring opens on the forest"
+     ]
+    },
+    {
+     "at": 66.633,
+     "clip": [
+      "frost",
+      96.6,
+      100.7,
+      "through it"
+     ]
+    },
+    {
+     "at": 70.733,
+     "clip": [
+      "frost",
+      110.4,
+      114.4,
+      "over the forest"
+     ]
+    },
+    {
+     "at": 74.733,
+     "clip": [
+      "frost",
+      127,
+      133.9,
+      "the last door, at the castle"
+     ]
+    }
+   ]
+  },
+  {
+   "music": "sea",
+   "clips": [
+    {
+     "at": 81.633,
+     "clip": [
+      "frost",
+      135,
+      144.7,
+      "the drowned city and the title"
+     ]
+    }
+   ]
+  },
+  {
+   "fade": 0.8,
+   "clips": [
+    {
+     "at": 90.533,
+     "clip": [
+      "card:end",
+      0,
+      4.5
+     ]
+    }
+   ]
+  }
+ ],
+ "cards": [
+  {
+   "name": "mirrors",
+   "text": [
+    "Turn the bronze mirrors",
+    "Dial the door with sunlight"
+   ],
+   "at": 11.083,
+   "seconds": 3.4
+  },
+  {
+   "name": "wardens",
+   "text": [
+    "No stamp, no passage",
+    "Provoke the Wardens"
+   ],
+   "at": 29.983,
+   "seconds": 4
+  },
+  {
+   "name": "bridges",
+   "text": [
+    "Charge the disc in crystal beams",
+    "Wake bridges of light"
+   ],
+   "at": 42.283,
+   "seconds": 3.7
+  },
+  {
+   "name": "ice",
+   "text": [
+    "Slide, push, shatter",
+    "Free the last glyph"
+   ],
+   "at": 52.483,
+   "seconds": 3.6
+  }
+ ],
+ "loop": [
+  15.183,
+  20.583
+ ],
+ "music": {
+  "lufs": -30,
+  "gain": 2,
+  "stems": {
+   "court": 1.916461062735386,
+   "court-open": 1.792668552365528,
+   "world2": 2.185244319653276,
+   "fight": 2.782915373852606,
+   "isles": 1.2217996601648715,
+   "frost": 1.6274213156422337,
+   "finale": 0.9549925860214361,
+   "sea": 1.7218685749860068
+  }
+ },
+ "loudness": {
+  "measured": "-22.99",
+  "target": -16
+ },
+ "sizes": {
+  "master": "97.7",
+  "light": "25.2",
+  "loop": "2.4"
+ }
+}

@@ -1,0 +1,417 @@
+{
+ "session": "checkpoint",
+ "fps": 60,
+ "frames": 4964,
+ "seconds": 82.733,
+ "capture": {
+  "width": 1280,
+  "height": 720,
+  "deviceScaleFactor": 1.5,
+  "pixels": "1920x1080",
+  "stills": "3840x2160"
+ },
+ "realSeconds": 251,
+ "dry": false,
+ "log": [
+  {
+   "frame": 0,
+   "t": 0,
+   "text": "recording checkpoint"
+  },
+  {
+   "frame": 247,
+   "t": 4.117,
+   "text": "at the checkpoint"
+  },
+  {
+   "frame": 2020,
+   "t": 33.667,
+   "text": "briefed by the clerk"
+  },
+  {
+   "frame": 2151,
+   "t": 35.85,
+   "text": "took the disc; the Wardens are coming"
+  },
+  {
+   "frame": 3358,
+   "t": 55.967,
+   "text": "plates stamped with 2 throws and 6 dodges"
+  },
+  {
+   "frame": 3753,
+   "t": 62.55,
+   "text": "lamp lit, barrier up"
+  },
+  {
+   "frame": 4515,
+   "t": 75.25,
+   "text": "far-door starts"
+  },
+  {
+   "frame": 4645,
+   "t": 77.417,
+   "text": "far-door ends"
+  },
+  {
+   "frame": 4645,
+   "t": 77.417,
+   "text": "the far door is open"
+  },
+  {
+   "frame": 4754,
+   "t": 79.233,
+   "text": "through the far door"
+  },
+  {
+   "frame": 4964,
+   "t": 82.733,
+   "text": "done"
+  },
+  {
+   "frame": 4964,
+   "t": 82.733,
+   "text": "errors: none"
+  }
+ ],
+ "stills": [
+  {
+   "file": "stills/checkpoint-01-orbit-1.png",
+   "frame": 367,
+   "t": 6.117
+  },
+  {
+   "file": "stills/checkpoint-02-orbit-2.png",
+   "frame": 517,
+   "t": 8.617
+  },
+  {
+   "file": "stills/checkpoint-03-orbit-3.png",
+   "frame": 667,
+   "t": 11.117
+  },
+  {
+   "file": "stills/checkpoint-04-briefing.png",
+   "frame": 1176,
+   "t": 19.6
+  },
+  {
+   "file": "stills/checkpoint-05-alarm.png",
+   "frame": 2205,
+   "t": 36.75
+  },
+  {
+   "file": "stills/checkpoint-06-stamp-ring.png",
+   "frame": 2440,
+   "t": 40.667
+  },
+  {
+   "file": "stills/checkpoint-07-stamped.png",
+   "frame": 3430,
+   "t": 57.167
+  },
+  {
+   "file": "stills/checkpoint-08-barrier-open.png",
+   "frame": 3861,
+   "t": 64.35
+  },
+  {
+   "file": "stills/checkpoint-09-far-door.png",
+   "frame": 4575,
+   "t": 76.25
+  },
+  {
+   "file": "stills/checkpoint-10-far-door.png",
+   "frame": 4635,
+   "t": 77.25
+  }
+ ],
+ "events": [
+  {
+   "frame": 1,
+   "key": "mode",
+   "value": "title"
+  },
+  {
+   "frame": 1,
+   "key": "where",
+   "value": "court"
+  },
+  {
+   "frame": 1,
+   "key": "hero",
+   "value": "ground"
+  },
+  {
+   "frame": 1,
+   "key": "cinematic",
+   "value": false
+  },
+  {
+   "frame": 1,
+   "key": "crossing",
+   "value": false
+  },
+  {
+   "frame": 1,
+   "key": "lit",
+   "value": 0
+  },
+  {
+   "frame": 1,
+   "key": "gateOpen",
+   "value": false
+  },
+  {
+   "frame": 1,
+   "key": "checkpoint",
+   "value": "arrive"
+  },
+  {
+   "frame": 1,
+   "key": "stamped",
+   "value": 0
+  },
+  {
+   "frame": 1,
+   "key": "disc",
+   "value": "display"
+  },
+  {
+   "frame": 1,
+   "key": "exitOpen",
+   "value": false
+  },
+  {
+   "frame": 1,
+   "key": "isle",
+   "value": "arrival"
+  },
+  {
+   "frame": 1,
+   "key": "pylons",
+   "value": 0
+  },
+  {
+   "frame": 1,
+   "key": "read",
+   "value": false
+  },
+  {
+   "frame": 1,
+   "key": "miraRing",
+   "value": "closed"
+  },
+  {
+   "frame": 1,
+   "key": "section",
+   "value": null
+  },
+  {
+   "frame": 1,
+   "key": "block",
+   "value": "rest"
+  },
+  {
+   "frame": 1,
+   "key": "broken",
+   "value": 0
+  },
+  {
+   "frame": 1,
+   "key": "freed",
+   "value": false
+  },
+  {
+   "frame": 1,
+   "key": "greatRing",
+   "value": "closed"
+  },
+  {
+   "frame": 1,
+   "key": "credits",
+   "value": false
+  },
+  {
+   "frame": 1,
+   "key": "subtitle",
+   "value": ""
+  },
+  {
+   "frame": 91,
+   "key": "mode",
+   "value": "play"
+  },
+  {
+   "frame": 91,
+   "key": "where",
+   "value": "two"
+  },
+  {
+   "frame": 91,
+   "key": "lit",
+   "value": 3
+  },
+  {
+   "frame": 91,
+   "key": "gateOpen",
+   "value": true
+  },
+  {
+   "frame": 198,
+   "key": "subtitle",
+   "value": "So this is where they went."
+  },
+  {
+   "frame": 408,
+   "key": "subtitle",
+   "value": ""
+  },
+  {
+   "frame": 1079,
+   "key": "checkpoint",
+   "value": "briefing"
+  },
+  {
+   "frame": 2020,
+   "key": "checkpoint",
+   "value": "stamps"
+  },
+  {
+   "frame": 2090,
+   "key": "subtitle",
+   "value": "Their gear, confiscated. And that is Mira's disc."
+  },
+  {
+   "frame": 2143,
+   "key": "disc",
+   "value": "held"
+  },
+  {
+   "frame": 2331,
+   "key": "subtitle",
+   "value": ""
+  },
+  {
+   "frame": 2717,
+   "key": "stamped",
+   "value": 1
+  },
+  {
+   "frame": 2757,
+   "key": "disc",
+   "value": "out"
+  },
+  {
+   "frame": 2761,
+   "key": "disc",
+   "value": "back"
+  },
+  {
+   "frame": 2774,
+   "key": "disc",
+   "value": "held"
+  },
+  {
+   "frame": 3065,
+   "key": "stamped",
+   "value": 2
+  },
+  {
+   "frame": 3078,
+   "key": "disc",
+   "value": "out"
+  },
+  {
+   "frame": 3081,
+   "key": "disc",
+   "value": "back"
+  },
+  {
+   "frame": 3093,
+   "key": "disc",
+   "value": "held"
+  },
+  {
+   "frame": 3358,
+   "key": "checkpoint",
+   "value": "lamp"
+  },
+  {
+   "frame": 3358,
+   "key": "stamped",
+   "value": 3
+  },
+  {
+   "frame": 3653,
+   "key": "disc",
+   "value": "out"
+  },
+  {
+   "frame": 3661,
+   "key": "disc",
+   "value": "out+"
+  },
+  {
+   "frame": 3672,
+   "key": "checkpoint",
+   "value": "open"
+  },
+  {
+   "frame": 3672,
+   "key": "disc",
+   "value": "back+"
+  },
+  {
+   "frame": 3700,
+   "key": "disc",
+   "value": "held+"
+  },
+  {
+   "frame": 4070,
+   "key": "cinematic",
+   "value": true
+  },
+  {
+   "frame": 4292,
+   "key": "disc",
+   "value": "held"
+  },
+  {
+   "frame": 4562,
+   "key": "exitOpen",
+   "value": true
+  },
+  {
+   "frame": 4645,
+   "key": "cinematic",
+   "value": false
+  },
+  {
+   "frame": 4729,
+   "key": "crossing",
+   "value": true
+  },
+  {
+   "frame": 4754,
+   "key": "where",
+   "value": "three"
+  },
+  {
+   "frame": 4754,
+   "key": "disc",
+   "value": "stowed"
+  },
+  {
+   "frame": 4797,
+   "key": "crossing",
+   "value": false
+  },
+  {
+   "frame": 4874,
+   "key": "subtitle",
+   "value": "Their trail goes on, across the isles."
+  }
+ ],
+ "errors": []
+}

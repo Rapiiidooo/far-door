@@ -1,0 +1,747 @@
+{
+ "session": "isles",
+ "fps": 60,
+ "frames": 5803,
+ "seconds": 96.717,
+ "capture": {
+  "width": 1280,
+  "height": 720,
+  "deviceScaleFactor": 1.5,
+  "pixels": "1920x1080",
+  "stills": "3840x2160"
+ },
+ "realSeconds": 302,
+ "dry": false,
+ "log": [
+  {
+   "frame": 0,
+   "t": 0,
+   "text": "recording isles"
+  },
+  {
+   "frame": 247,
+   "t": 4.117,
+   "text": "on the isles"
+  },
+  {
+   "frame": 1241,
+   "t": 20.683,
+   "text": "jumped across to the isle of the first pylon"
+  },
+  {
+   "frame": 1464,
+   "t": 24.4,
+   "text": "woke the first pylon"
+  },
+  {
+   "frame": 1730,
+   "t": 28.833,
+   "text": "crossed the first bridge"
+  },
+  {
+   "frame": 1829,
+   "t": 30.483,
+   "text": "woke the pylon across the gap"
+  },
+  {
+   "frame": 2036,
+   "t": 33.933,
+   "text": "crossed the second bridge"
+  },
+  {
+   "frame": 2340,
+   "t": 39,
+   "text": "woke both pylons of the pair"
+  },
+  {
+   "frame": 2726,
+   "t": 45.433,
+   "text": "crossed both bridges of the pair"
+  },
+  {
+   "frame": 2888,
+   "t": 48.133,
+   "text": "aboard the drifting isle"
+  },
+  {
+   "frame": 3352,
+   "t": 55.867,
+   "text": "off the ferry onto the far isle"
+  },
+  {
+   "frame": 3709,
+   "t": 61.817,
+   "text": "crossed the crumbling stones"
+  },
+  {
+   "frame": 4257,
+   "t": 70.95,
+   "text": "woke the far pylon of the relay"
+  },
+  {
+   "frame": 4431,
+   "t": 73.85,
+   "text": "crossed to Mira's camp"
+  },
+  {
+   "frame": 4739,
+   "t": 78.983,
+   "text": "reading Mira's journal"
+  },
+  {
+   "frame": 4872,
+   "t": 81.2,
+   "text": "mira-ring starts"
+  },
+  {
+   "frame": 5423,
+   "t": 90.383,
+   "text": "mira-ring ends"
+  },
+  {
+   "frame": 5423,
+   "t": 90.383,
+   "text": "Mira's ring is open"
+  },
+  {
+   "frame": 5593,
+   "t": 93.217,
+   "text": "through Mira's ring"
+  },
+  {
+   "frame": 5803,
+   "t": 96.717,
+   "text": "done"
+  },
+  {
+   "frame": 5803,
+   "t": 96.717,
+   "text": "errors: none"
+  }
+ ],
+ "stills": [
+  {
+   "file": "stills/isles-01-orbit-1.png",
+   "frame": 379,
+   "t": 6.317
+  },
+  {
+   "file": "stills/isles-02-orbit-2.png",
+   "frame": 544,
+   "t": 9.067
+  },
+  {
+   "file": "stills/isles-03-orbit-3.png",
+   "frame": 709,
+   "t": 11.817
+  },
+  {
+   "file": "stills/isles-04-orbit-4.png",
+   "frame": 841,
+   "t": 14.017
+  },
+  {
+   "file": "stills/isles-05-leap.png",
+   "frame": 1135,
+   "t": 18.917
+  },
+  {
+   "file": "stills/isles-06-first-bridge.png",
+   "frame": 1506,
+   "t": 25.1
+  },
+  {
+   "file": "stills/isles-07-pair.png",
+   "frame": 2340,
+   "t": 39
+  },
+  {
+   "file": "stills/isles-08-ferry.png",
+   "frame": 2924,
+   "t": 48.733
+  },
+  {
+   "file": "stills/isles-09-stones.png",
+   "frame": 3739,
+   "t": 62.317
+  },
+  {
+   "file": "stills/isles-10-camp.png",
+   "frame": 4431,
+   "t": 73.85
+  },
+  {
+   "file": "stills/isles-11-mira-ring.png",
+   "frame": 4932,
+   "t": 82.2
+  },
+  {
+   "file": "stills/isles-12-mira-ring.png",
+   "frame": 4992,
+   "t": 83.2
+  },
+  {
+   "file": "stills/isles-13-mira-ring.png",
+   "frame": 5052,
+   "t": 84.2
+  },
+  {
+   "file": "stills/isles-14-mira-ring.png",
+   "frame": 5112,
+   "t": 85.2
+  },
+  {
+   "file": "stills/isles-15-mira-ring.png",
+   "frame": 5172,
+   "t": 86.2
+  },
+  {
+   "file": "stills/isles-16-mira-ring.png",
+   "frame": 5232,
+   "t": 87.2
+  },
+  {
+   "file": "stills/isles-17-mira-ring.png",
+   "frame": 5292,
+   "t": 88.2
+  },
+  {
+   "file": "stills/isles-18-mira-ring.png",
+   "frame": 5352,
+   "t": 89.2
+  },
+  {
+   "file": "stills/isles-19-mira-ring.png",
+   "frame": 5412,
+   "t": 90.2
+  }
+ ],
+ "events": [
+  {
+   "frame": 1,
+   "key": "mode",
+   "value": "title"
+  },
+  {
+   "frame": 1,
+   "key": "where",
+   "value": "court"
+  },
+  {
+   "frame": 1,
+   "key": "hero",
+   "value": "ground"
+  },
+  {
+   "frame": 1,
+   "key": "cinematic",
+   "value": false
+  },
+  {
+   "frame": 1,
+   "key": "crossing",
+   "value": false
+  },
+  {
+   "frame": 1,
+   "key": "lit",
+   "value": 0
+  },
+  {
+   "frame": 1,
+   "key": "gateOpen",
+   "value": false
+  },
+  {
+   "frame": 1,
+   "key": "checkpoint",
+   "value": "arrive"
+  },
+  {
+   "frame": 1,
+   "key": "stamped",
+   "value": 0
+  },
+  {
+   "frame": 1,
+   "key": "disc",
+   "value": "display"
+  },
+  {
+   "frame": 1,
+   "key": "exitOpen",
+   "value": false
+  },
+  {
+   "frame": 1,
+   "key": "isle",
+   "value": "arrival"
+  },
+  {
+   "frame": 1,
+   "key": "pylons",
+   "value": 0
+  },
+  {
+   "frame": 1,
+   "key": "read",
+   "value": false
+  },
+  {
+   "frame": 1,
+   "key": "miraRing",
+   "value": "closed"
+  },
+  {
+   "frame": 1,
+   "key": "section",
+   "value": null
+  },
+  {
+   "frame": 1,
+   "key": "block",
+   "value": "rest"
+  },
+  {
+   "frame": 1,
+   "key": "broken",
+   "value": 0
+  },
+  {
+   "frame": 1,
+   "key": "freed",
+   "value": false
+  },
+  {
+   "frame": 1,
+   "key": "greatRing",
+   "value": "closed"
+  },
+  {
+   "frame": 1,
+   "key": "credits",
+   "value": false
+  },
+  {
+   "frame": 1,
+   "key": "subtitle",
+   "value": ""
+  },
+  {
+   "frame": 91,
+   "key": "mode",
+   "value": "play"
+  },
+  {
+   "frame": 91,
+   "key": "where",
+   "value": "three"
+  },
+  {
+   "frame": 91,
+   "key": "lit",
+   "value": 3
+  },
+  {
+   "frame": 91,
+   "key": "gateOpen",
+   "value": true
+  },
+  {
+   "frame": 91,
+   "key": "checkpoint",
+   "value": "open"
+  },
+  {
+   "frame": 91,
+   "key": "stamped",
+   "value": 3
+  },
+  {
+   "frame": 91,
+   "key": "disc",
+   "value": "stowed"
+  },
+  {
+   "frame": 91,
+   "key": "exitOpen",
+   "value": true
+  },
+  {
+   "frame": 210,
+   "key": "subtitle",
+   "value": "Their trail goes on, across the isles."
+  },
+  {
+   "frame": 421,
+   "key": "subtitle",
+   "value": ""
+  },
+  {
+   "frame": 924,
+   "key": "subtitle",
+   "value": "A rope, snapped. They crossed these isles before me."
+  },
+  {
+   "frame": 996,
+   "key": "hero",
+   "value": "air"
+  },
+  {
+   "frame": 1026,
+   "key": "isle",
+   "value": "step1"
+  },
+  {
+   "frame": 1029,
+   "key": "hero",
+   "value": "ground"
+  },
+  {
+   "frame": 1101,
+   "key": "hero",
+   "value": "air"
+  },
+  {
+   "frame": 1132,
+   "key": "isle",
+   "value": "step2"
+  },
+  {
+   "frame": 1135,
+   "key": "hero",
+   "value": "ground"
+  },
+  {
+   "frame": 1164,
+   "key": "subtitle",
+   "value": ""
+  },
+  {
+   "frame": 1206,
+   "key": "hero",
+   "value": "air"
+  },
+  {
+   "frame": 1238,
+   "key": "isle",
+   "value": "well"
+  },
+  {
+   "frame": 1241,
+   "key": "hero",
+   "value": "ground"
+  },
+  {
+   "frame": 1464,
+   "key": "pylons",
+   "value": 1
+  },
+  {
+   "frame": 1464,
+   "key": "subtitle",
+   "value": "The builders' bridges still answer to light."
+  },
+  {
+   "frame": 1674,
+   "key": "subtitle",
+   "value": ""
+  },
+  {
+   "frame": 1705,
+   "key": "isle",
+   "value": "gap"
+  },
+  {
+   "frame": 1829,
+   "key": "pylons",
+   "value": 2
+  },
+  {
+   "frame": 2005,
+   "key": "isle",
+   "value": "pair"
+  },
+  {
+   "frame": 2262,
+   "key": "pylons",
+   "value": 3
+  },
+  {
+   "frame": 2340,
+   "key": "pylons",
+   "value": 4
+  },
+  {
+   "frame": 2443,
+   "key": "pylons",
+   "value": 3
+  },
+  {
+   "frame": 2517,
+   "key": "isle",
+   "value": "rock"
+  },
+  {
+   "frame": 2628,
+   "key": "pylons",
+   "value": 2
+  },
+  {
+   "frame": 2698,
+   "key": "isle",
+   "value": "ledge"
+  },
+  {
+   "frame": 2698,
+   "key": "subtitle",
+   "value": "The isles still drift here, the way Mira wrote."
+  },
+  {
+   "frame": 2853,
+   "key": "hero",
+   "value": "air"
+  },
+  {
+   "frame": 2884,
+   "key": "isle",
+   "value": "ferry"
+  },
+  {
+   "frame": 2888,
+   "key": "hero",
+   "value": "ground"
+  },
+  {
+   "frame": 2939,
+   "key": "subtitle",
+   "value": ""
+  },
+  {
+   "frame": 2941,
+   "key": "pylons",
+   "value": 1
+  },
+  {
+   "frame": 3019,
+   "key": "pylons",
+   "value": 0
+  },
+  {
+   "frame": 3316,
+   "key": "hero",
+   "value": "air"
+  },
+  {
+   "frame": 3349,
+   "key": "isle",
+   "value": "far"
+  },
+  {
+   "frame": 3352,
+   "key": "hero",
+   "value": "ground"
+  },
+  {
+   "frame": 3467,
+   "key": "hero",
+   "value": "air"
+  },
+  {
+   "frame": 3498,
+   "key": "isle",
+   "value": "stone1"
+  },
+  {
+   "frame": 3502,
+   "key": "hero",
+   "value": "ground"
+  },
+  {
+   "frame": 3526,
+   "key": "hero",
+   "value": "air"
+  },
+  {
+   "frame": 3560,
+   "key": "isle",
+   "value": "stone2"
+  },
+  {
+   "frame": 3563,
+   "key": "hero",
+   "value": "ground"
+  },
+  {
+   "frame": 3599,
+   "key": "hero",
+   "value": "air"
+  },
+  {
+   "frame": 3633,
+   "key": "isle",
+   "value": "stone3"
+  },
+  {
+   "frame": 3636,
+   "key": "hero",
+   "value": "ground"
+  },
+  {
+   "frame": 3670,
+   "key": "hero",
+   "value": "air"
+  },
+  {
+   "frame": 3706,
+   "key": "isle",
+   "value": "landing"
+  },
+  {
+   "frame": 3706,
+   "key": "subtitle",
+   "value": "One glow, two pylons, and a bridge between them."
+  },
+  {
+   "frame": 3709,
+   "key": "hero",
+   "value": "ground"
+  },
+  {
+   "frame": 3946,
+   "key": "subtitle",
+   "value": ""
+  },
+  {
+   "frame": 3996,
+   "key": "pylons",
+   "value": 1
+  },
+  {
+   "frame": 4193,
+   "key": "isle",
+   "value": "midway"
+  },
+  {
+   "frame": 4257,
+   "key": "pylons",
+   "value": 2
+  },
+  {
+   "frame": 4290,
+   "key": "hero",
+   "value": "air"
+  },
+  {
+   "frame": 4293,
+   "key": "hero",
+   "value": "ground"
+  },
+  {
+   "frame": 4402,
+   "key": "isle",
+   "value": "camp"
+  },
+  {
+   "frame": 4402,
+   "key": "subtitle",
+   "value": "A camp. Mira's."
+  },
+  {
+   "frame": 4493,
+   "key": "pylons",
+   "value": 1
+  },
+  {
+   "frame": 4582,
+   "key": "subtitle",
+   "value": ""
+  },
+  {
+   "frame": 4740,
+   "key": "read",
+   "value": true
+  },
+  {
+   "frame": 4740,
+   "key": "subtitle",
+   "value": "Two glyphs of three. Then I'll find the third."
+  },
+  {
+   "frame": 4872,
+   "key": "cinematic",
+   "value": true
+  },
+  {
+   "frame": 4872,
+   "key": "miraRing",
+   "value": "arming"
+  },
+  {
+   "frame": 4895,
+   "key": "miraRing",
+   "value": "charge"
+  },
+  {
+   "frame": 4992,
+   "key": "subtitle",
+   "value": ""
+  },
+  {
+   "frame": 5031,
+   "key": "pylons",
+   "value": 0
+  },
+  {
+   "frame": 5099,
+   "key": "miraRing",
+   "value": "reveal"
+  },
+  {
+   "frame": 5291,
+   "key": "miraRing",
+   "value": "open"
+  },
+  {
+   "frame": 5291,
+   "key": "subtitle",
+   "value": "Two glyphs of three, and still it opens. Onto ice."
+  },
+  {
+   "frame": 5423,
+   "key": "cinematic",
+   "value": false
+  },
+  {
+   "frame": 5531,
+   "key": "subtitle",
+   "value": ""
+  },
+  {
+   "frame": 5568,
+   "key": "crossing",
+   "value": true
+  },
+  {
+   "frame": 5593,
+   "key": "where",
+   "value": "four"
+  },
+  {
+   "frame": 5594,
+   "key": "section",
+   "value": "stream"
+  },
+  {
+   "frame": 5636,
+   "key": "crossing",
+   "value": false
+  },
+  {
+   "frame": 5713,
+   "key": "subtitle",
+   "value": "Ice. She came through here before me."
+  }
+ ],
+ "errors": []
+}

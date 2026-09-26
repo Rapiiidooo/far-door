@@ -1,0 +1,612 @@
+{
+ "session": "court",
+ "fps": 60,
+ "frames": 5574,
+ "seconds": 92.9,
+ "capture": {
+  "width": 1280,
+  "height": 720,
+  "deviceScaleFactor": 1.5,
+  "pixels": "1920x1080",
+  "stills": "3840x2160"
+ },
+ "realSeconds": 333,
+ "dry": false,
+ "log": [
+  {
+   "frame": 0,
+   "t": 0,
+   "text": "recording court"
+  },
+  {
+   "frame": 91,
+   "t": 1.517,
+   "text": "opening starts"
+  },
+  {
+   "frame": 667,
+   "t": 11.117,
+   "text": "opening ends"
+  },
+  {
+   "frame": 947,
+   "t": 15.783,
+   "text": "jumped the gap"
+  },
+  {
+   "frame": 985,
+   "t": 16.417,
+   "text": "hanging from the platform edge"
+  },
+  {
+   "frame": 1122,
+   "t": 18.7,
+   "text": "caught the crack"
+  },
+  {
+   "frame": 1370,
+   "t": 22.833,
+   "text": "climbed out of the crack"
+  },
+  {
+   "frame": 1557,
+   "t": 25.95,
+   "text": "reached the court floor"
+  },
+  {
+   "frame": 2454,
+   "t": 40.9,
+   "text": "pulled the block off the beam"
+  },
+  {
+   "frame": 2747,
+   "t": 45.783,
+   "text": "lit the left stela"
+  },
+  {
+   "frame": 3517,
+   "t": 58.617,
+   "text": "lit the right stela"
+  },
+  {
+   "frame": 4368,
+   "t": 72.8,
+   "text": "lit the top stela"
+  },
+  {
+   "frame": 4368,
+   "t": 72.8,
+   "text": "gate starts"
+  },
+  {
+   "frame": 4891,
+   "t": 81.517,
+   "text": "gate ends"
+  },
+  {
+   "frame": 4891,
+   "t": 81.517,
+   "text": "the gate is open"
+  },
+  {
+   "frame": 5364,
+   "t": 89.4,
+   "text": "crossed into the checkpoint"
+  },
+  {
+   "frame": 5574,
+   "t": 92.9,
+   "text": "done"
+  },
+  {
+   "frame": 5574,
+   "t": 92.9,
+   "text": "errors: none"
+  }
+ ],
+ "stills": [
+  {
+   "file": "stills/court-01-opening.png",
+   "frame": 241,
+   "t": 4.017
+  },
+  {
+   "file": "stills/court-02-opening.png",
+   "frame": 391,
+   "t": 6.517
+  },
+  {
+   "file": "stills/court-03-opening.png",
+   "frame": 541,
+   "t": 9.017
+  },
+  {
+   "file": "stills/court-04-shimmy.png",
+   "frame": 1194,
+   "t": 19.9
+  },
+  {
+   "file": "stills/court-05-orbit-1.png",
+   "frame": 1692,
+   "t": 28.2
+  },
+  {
+   "file": "stills/court-06-orbit-2.png",
+   "frame": 1827,
+   "t": 30.45
+  },
+  {
+   "file": "stills/court-07-orbit-3.png",
+   "frame": 1962,
+   "t": 32.7
+  },
+  {
+   "file": "stills/court-08-first-glyph.png",
+   "frame": 2801,
+   "t": 46.683
+  },
+  {
+   "file": "stills/court-09-second-glyph.png",
+   "frame": 3559,
+   "t": 59.317
+  },
+  {
+   "file": "stills/court-10-gate.png",
+   "frame": 4428,
+   "t": 73.8
+  },
+  {
+   "file": "stills/court-11-gate.png",
+   "frame": 4488,
+   "t": 74.8
+  },
+  {
+   "file": "stills/court-12-gate.png",
+   "frame": 4548,
+   "t": 75.8
+  },
+  {
+   "file": "stills/court-13-gate.png",
+   "frame": 4608,
+   "t": 76.8
+  },
+  {
+   "file": "stills/court-14-gate.png",
+   "frame": 4668,
+   "t": 77.8
+  },
+  {
+   "file": "stills/court-15-gate.png",
+   "frame": 4728,
+   "t": 78.8
+  },
+  {
+   "file": "stills/court-16-gate.png",
+   "frame": 4788,
+   "t": 79.8
+  },
+  {
+   "file": "stills/court-17-gate.png",
+   "frame": 4848,
+   "t": 80.8
+  },
+  {
+   "file": "stills/court-18-portal.png",
+   "frame": 5286,
+   "t": 88.1
+  }
+ ],
+ "events": [
+  {
+   "frame": 1,
+   "key": "mode",
+   "value": "title"
+  },
+  {
+   "frame": 1,
+   "key": "where",
+   "value": "court"
+  },
+  {
+   "frame": 1,
+   "key": "hero",
+   "value": "ground"
+  },
+  {
+   "frame": 1,
+   "key": "cinematic",
+   "value": false
+  },
+  {
+   "frame": 1,
+   "key": "crossing",
+   "value": false
+  },
+  {
+   "frame": 1,
+   "key": "lit",
+   "value": 0
+  },
+  {
+   "frame": 1,
+   "key": "gateOpen",
+   "value": false
+  },
+  {
+   "frame": 1,
+   "key": "checkpoint",
+   "value": "arrive"
+  },
+  {
+   "frame": 1,
+   "key": "stamped",
+   "value": 0
+  },
+  {
+   "frame": 1,
+   "key": "disc",
+   "value": "display"
+  },
+  {
+   "frame": 1,
+   "key": "exitOpen",
+   "value": false
+  },
+  {
+   "frame": 1,
+   "key": "isle",
+   "value": "arrival"
+  },
+  {
+   "frame": 1,
+   "key": "pylons",
+   "value": 0
+  },
+  {
+   "frame": 1,
+   "key": "read",
+   "value": false
+  },
+  {
+   "frame": 1,
+   "key": "miraRing",
+   "value": "closed"
+  },
+  {
+   "frame": 1,
+   "key": "section",
+   "value": null
+  },
+  {
+   "frame": 1,
+   "key": "block",
+   "value": "rest"
+  },
+  {
+   "frame": 1,
+   "key": "broken",
+   "value": 0
+  },
+  {
+   "frame": 1,
+   "key": "freed",
+   "value": false
+  },
+  {
+   "frame": 1,
+   "key": "greatRing",
+   "value": "closed"
+  },
+  {
+   "frame": 1,
+   "key": "credits",
+   "value": false
+  },
+  {
+   "frame": 1,
+   "key": "subtitle",
+   "value": ""
+  },
+  {
+   "frame": 91,
+   "key": "mode",
+   "value": "play"
+  },
+  {
+   "frame": 91,
+   "key": "cinematic",
+   "value": true
+  },
+  {
+   "frame": 126,
+   "key": "subtitle",
+   "value": "Three weeks ago, the first expedition sent word from this ravine: a sunken court, a stone ring, a door."
+  },
+  {
+   "frame": 402,
+   "key": "subtitle",
+   "value": ""
+  },
+  {
+   "frame": 427,
+   "key": "subtitle",
+   "value": "Then nothing. Their camp is still here."
+  },
+  {
+   "frame": 656,
+   "key": "subtitle",
+   "value": ""
+  },
+  {
+   "frame": 667,
+   "key": "cinematic",
+   "value": false
+  },
+  {
+   "frame": 908,
+   "key": "hero",
+   "value": "air"
+  },
+  {
+   "frame": 947,
+   "key": "hero",
+   "value": "ground"
+  },
+  {
+   "frame": 979,
+   "key": "hero",
+   "value": "hang"
+  },
+  {
+   "frame": 1016,
+   "key": "hero",
+   "value": "air"
+  },
+  {
+   "frame": 1028,
+   "key": "hero",
+   "value": "ground"
+  },
+  {
+   "frame": 1060,
+   "key": "hero",
+   "value": "air"
+  },
+  {
+   "frame": 1098,
+   "key": "hero",
+   "value": "hang"
+  },
+  {
+   "frame": 1340,
+   "key": "hero",
+   "value": "climb"
+  },
+  {
+   "frame": 1370,
+   "key": "hero",
+   "value": "ground"
+  },
+  {
+   "frame": 1454,
+   "key": "hero",
+   "value": "air"
+  },
+  {
+   "frame": 1474,
+   "key": "hero",
+   "value": "ground"
+  },
+  {
+   "frame": 1476,
+   "key": "hero",
+   "value": "air"
+  },
+  {
+   "frame": 1496,
+   "key": "hero",
+   "value": "ground"
+  },
+  {
+   "frame": 1498,
+   "key": "hero",
+   "value": "air"
+  },
+  {
+   "frame": 1518,
+   "key": "hero",
+   "value": "ground"
+  },
+  {
+   "frame": 1520,
+   "key": "hero",
+   "value": "air"
+  },
+  {
+   "frame": 1540,
+   "key": "hero",
+   "value": "ground"
+  },
+  {
+   "frame": 1541,
+   "key": "hero",
+   "value": "air"
+  },
+  {
+   "frame": 1557,
+   "key": "hero",
+   "value": "ground"
+  },
+  {
+   "frame": 2350,
+   "key": "hero",
+   "value": "grab"
+  },
+  {
+   "frame": 2359,
+   "key": "hero",
+   "value": "shove"
+  },
+  {
+   "frame": 2423,
+   "key": "hero",
+   "value": "grab"
+  },
+  {
+   "frame": 2424,
+   "key": "hero",
+   "value": "ground"
+  },
+  {
+   "frame": 2559,
+   "key": "hero",
+   "value": "turn"
+  },
+  {
+   "frame": 2718,
+   "key": "lit",
+   "value": 1
+  },
+  {
+   "frame": 2736,
+   "key": "hero",
+   "value": "ground"
+  },
+  {
+   "frame": 2802,
+   "key": "hero",
+   "value": "turn"
+  },
+  {
+   "frame": 3062,
+   "key": "hero",
+   "value": "ground"
+  },
+  {
+   "frame": 3279,
+   "key": "hero",
+   "value": "turn"
+  },
+  {
+   "frame": 3490,
+   "key": "lit",
+   "value": 2
+  },
+  {
+   "frame": 3506,
+   "key": "hero",
+   "value": "ground"
+  },
+  {
+   "frame": 3560,
+   "key": "hero",
+   "value": "turn"
+  },
+  {
+   "frame": 3818,
+   "key": "hero",
+   "value": "ground"
+  },
+  {
+   "frame": 3891,
+   "key": "hero",
+   "value": "vault"
+  },
+  {
+   "frame": 3913,
+   "key": "hero",
+   "value": "ground"
+  },
+  {
+   "frame": 3949,
+   "key": "hero",
+   "value": "air"
+  },
+  {
+   "frame": 3995,
+   "key": "hero",
+   "value": "ground"
+  },
+  {
+   "frame": 4192,
+   "key": "hero",
+   "value": "turn"
+  },
+  {
+   "frame": 4340,
+   "key": "cinematic",
+   "value": true
+  },
+  {
+   "frame": 4340,
+   "key": "lit",
+   "value": 3
+  },
+  {
+   "frame": 4341,
+   "key": "hero",
+   "value": "ground"
+  },
+  {
+   "frame": 4831,
+   "key": "gateOpen",
+   "value": true
+  },
+  {
+   "frame": 4891,
+   "key": "cinematic",
+   "value": false
+  },
+  {
+   "frame": 4969,
+   "key": "hero",
+   "value": "air"
+  },
+  {
+   "frame": 5011,
+   "key": "hero",
+   "value": "hang"
+  },
+  {
+   "frame": 5012,
+   "key": "hero",
+   "value": "climb"
+  },
+  {
+   "frame": 5042,
+   "key": "hero",
+   "value": "ground"
+  },
+  {
+   "frame": 5068,
+   "key": "hero",
+   "value": "air"
+  },
+  {
+   "frame": 5084,
+   "key": "hero",
+   "value": "ground"
+  },
+  {
+   "frame": 5339,
+   "key": "crossing",
+   "value": true
+  },
+  {
+   "frame": 5364,
+   "key": "where",
+   "value": "two"
+  },
+  {
+   "frame": 5407,
+   "key": "crossing",
+   "value": false
+  },
+  {
+   "frame": 5472,
+   "key": "subtitle",
+   "value": "So this is where they went."
+  }
+ ],
+ "errors": []
+}
